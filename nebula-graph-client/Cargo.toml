@@ -1,0 +1,19 @@
+[package]
+name = "nebula-graph-client"
+version = "0.1.0"
+authors = ["vkill <vkill.net@gmail.com>"]
+edition = "2018"
+description = "Nebula Graph client"
+license = "Apache-2.0 OR MIT"
+repository = "https://github.com/bk-rs/nebula-graph-rs"
+homepage = "https://github.com/bk-rs/nebula-graph-rs"
+documentation = "https://docs.rs/nebula-graph-client"
+keywords = []
+categories = []
+readme = "README.md"
+
+[dependencies]
+fbthrift = { package = "fbthrift-git", version = "0.0.1+unstable2020090200", default-features = false, features = [] }
+nebula-graph-fbthrift-graph = { path = "../nebula-graph-fbthrift-graph", version = "0.1", default-features = false, features = [] }
+
+bytes = { version = "0.5", default-features = false, features = [] }

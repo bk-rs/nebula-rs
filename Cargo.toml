@@ -1,0 +1,11 @@
+[workspace]
+members = [
+    "demos/async-std",
+    "demos/tokio",
+    "nebula-graph-client",
+    "nebula-graph-fbthrift-common",
+    "nebula-graph-fbthrift-graph",
+    "nebula-graph-fbthrift-meta",
+    "nebula-graph-fbthrift-raftex",
+    "nebula-graph-fbthrift-storage",
+]

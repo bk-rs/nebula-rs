@@ -1,0 +1,15 @@
+[package]
+name = "nebula-graph-demo-tokio"
+version = "0.1.0"
+authors = ["vkill <vkill.net@gmail.com>"]
+edition = "2018"
+
+[[bin]]
+name = "graph_client"
+path = "src/graph_client.rs"
+
+[dependencies]
+nebula-graph-client = { path = "../../nebula-graph-client", version = "0.1", features = [] }
+fbthrift-transport = { version = "0.1", features = ["tokio_io"] }
+
+tokio = { version = "0.2", default-features = false, features = ["io-util", "net", "macros"] }
