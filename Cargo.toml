@@ -4,8 +4,13 @@ members = [
     "demos/tokio",
     "nebula-graph-client",
     "nebula-graph-fbthrift-common",
+    "nebula-graph-fbthrift-common-v2",
     "nebula-graph-fbthrift-graph",
+    "nebula-graph-fbthrift-graph-v2",
     "nebula-graph-fbthrift-meta",
+    "nebula-graph-fbthrift-meta-v2",
     "nebula-graph-fbthrift-raftex",
+    "nebula-graph-fbthrift-raftex-v2",
     "nebula-graph-fbthrift-storage",
+    "nebula-graph-fbthrift-storage-v2",
 ]
