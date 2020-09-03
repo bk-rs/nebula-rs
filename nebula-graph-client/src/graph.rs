@@ -5,7 +5,7 @@ use fbthrift::{ApplicationException, ApplicationExceptionErrorCode, BinaryProtoc
 use nebula_graph_fbthrift_graph::{
     client::{GraphService, GraphServiceImpl},
     errors::graph_service::{AuthenticateError, ExecuteError, SignoutError},
-    types::ExecutionResponse,
+    types::{ErrorCode, ExecutionResponse},
 };
 
 //
@@ -72,10 +72,19 @@ where
             .authenticate(username, password)
             .await?;
 
+        if res.error_code != ErrorCode::SUCCEEDED {
+            return Err(ApplicationException::new(
+                ApplicationExceptionErrorCode::Unknown,
+                res.error_msg
+                    .unwrap_or_else(|| "The username or password is incorrect".to_owned()),
+            )
+            .into());
+        }
+
         let session_id = res.session_id.ok_or_else(|| {
             ApplicationException::new(
-                ApplicationExceptionErrorCode::Unknown,
-                "missing session_id".to_owned(),
+                ApplicationExceptionErrorCode::InternalError,
+                "Missing session_id".to_owned(),
             )
         })?;
 
