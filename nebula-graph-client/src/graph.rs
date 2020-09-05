@@ -75,8 +75,7 @@ where
         if res.error_code != ErrorCode::SUCCEEDED {
             return Err(ApplicationException::new(
                 ApplicationExceptionErrorCode::Unknown,
-                res.error_msg
-                    .unwrap_or_else(|| "The username or password is incorrect".to_owned()),
+                res.error_msg.unwrap_or_else(|| "Unknown".to_owned()),
             )
             .into());
         }

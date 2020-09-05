@@ -4,7 +4,7 @@ use bytes::Bytes;
 use fbthrift::{ApplicationException, ApplicationExceptionErrorCode, BinaryProtocol, Transport};
 use nebula_graph_fbthrift_graph_v2::{
     client::{GraphService, GraphServiceImpl},
-    errors::graph_service::{AuthenticateError, ExecuteError, SignoutError},
+    errors::graph_service::{AuthenticateError, ExecuteError, ExecuteJsonError, SignoutError},
     types::{ErrorCode, ExecutionResponse},
 };
 
@@ -77,7 +77,7 @@ where
                 ApplicationExceptionErrorCode::Unknown,
                 res.error_msg
                     .map(|x| String::from_utf8_lossy(&x).to_string())
-                    .unwrap_or_else(|| "The username or password is incorrect".to_owned()),
+                    .unwrap_or_else(|| "Unknown".to_owned()),
             )
             .into());
         }
@@ -126,5 +126,12 @@ where
 
     pub async fn execute(&self, stmt: &Vec<u8>) -> result::Result<ExecutionResponse, ExecuteError> {
         self.connection.service.execute(self.session_id, stmt).await
+    }
+
+    pub async fn execute_json(&self, stmt: &Vec<u8>) -> result::Result<Vec<u8>, ExecuteJsonError> {
+        self.connection
+            .service
+            .executeJson(self.session_id, stmt)
+            .await
     }
 }
