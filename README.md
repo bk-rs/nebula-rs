@@ -3,10 +3,12 @@
 ### async-std
 
 * [graph client](demos/async-std/src/graph_client.rs)
+* [v2 graph client](demos/async-std/src/v2_graph_client.rs)
 
 ### tokio
 
 * [graph client](demos/tokio/src/graph_client.rs)
+* [v2 graph client](demos/tokio/src/v2_graph_client.rs)
 
 ## Dev
 
