@@ -15,5 +15,6 @@ readme = "README.md"
 [dependencies]
 fbthrift = { package = "fbthrift-git", version = "0.0.1+unstable2020090200", default-features = false, features = [] }
 nebula-graph-fbthrift-graph = { path = "../nebula-graph-fbthrift-graph", version = "0.1", default-features = false, features = [] }
+nebula-graph-fbthrift-graph-v2 = { path = "../nebula-graph-fbthrift-graph-v2", version = "0.1", default-features = false, features = [] }
 
 bytes = { version = "0.5", default-features = false, features = [] }
