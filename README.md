@@ -67,66 +67,8 @@ mv /tmp/lib.rs nebula-graph-fbthrift-storage-v2/src/lib.rs
 
 ```
 sed -i 's/^    #\[derive(Clone, Debug, PartialEq)\]$/    #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]/' nebula-graph-fbthrift-common-v2/src/lib.rs
-```
 
-```
-cat >> nebula-graph-fbthrift-common-v2/src/lib.rs <<EOF
-//
-// ref https://stackoverflow.com/questions/39638363/how-can-i-use-a-hashmap-with-f64-as-key-in-rust
-//
-use std::cmp::Ordering;
+echo 'pub mod double;' >> nebula-graph-fbthrift-common-v2/src/lib.rs
 
-#[derive(Clone, Debug)]
-pub struct Distance(f64);
-
-impl Distance {
-    fn canonicalize(&self) -> i64 {
-        (self.0 * 1024.0 * 1024.0).round() as i64
-    }
-}
-
-impl PartialEq for Distance {
-    fn eq(&self, other: &Distance) -> bool {
-        self.canonicalize() == other.canonicalize()
-    }
-}
-
-impl Eq for Distance {}
-
-impl PartialOrd for Distance {
-    fn partial_cmp(&self, other: &Distance) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for Distance {
-    fn cmp(&self, other: &Distance) -> Ordering {
-        self.canonicalize().cmp(&other.canonicalize())
-    }
-}
-
-impl<P> ::fbthrift::Serialize<P> for Distance
-where
-    P: ::fbthrift::ProtocolWriter,
-{
-    #[inline]
-    fn write(&self, p: &mut P) {
-        p.write_double(self.0)
-    }
-}
-
-impl<P> ::fbthrift::Deserialize<P> for Distance
-where
-    P: ::fbthrift::ProtocolReader,
-{
-    #[inline]
-    fn read(p: &mut P) -> ::anyhow::Result<Self> {
-        ::std::result::Result::Ok(Self(p.read_double()?))
-    }
-}
-EOF
-```
-
-```
-sed -i 's/^        fVal(::std::primitive::f64),$/        fVal(crate::Distance),/' nebula-graph-fbthrift-common-v2/src/lib.rs
+sed -i 's/^        fVal(::std::primitive::f64),$/        fVal(crate::double::Double),/' nebula-graph-fbthrift-common-v2/src/lib.rs
 ```
