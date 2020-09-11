@@ -7,7 +7,9 @@
 
 ### tokio
 
+* [bb8 graph pool](demos/tokio/src/bb8_graph_pool.rs)
 * [graph client](demos/tokio/src/graph_client.rs)
+* [v2 bb8 graph pool](demos/tokio/src/v2_bb8_graph_pool.rs)
 * [v2 graph client](demos/tokio/src/v2_graph_client.rs)
 
 ## Dev
