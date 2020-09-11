@@ -13,7 +13,8 @@ name = "v2_graph_client"
 path = "src/v2_graph_client.rs"
 
 [dependencies]
-nebula-graph-client = { path = "../../nebula-graph-client", version = "0.1", features = [] }
+nebula-graph-client = { path = "../../nebula-graph-client", version = "0.1" }
+
 fbthrift-transport = { version = "0.1", features = ["futures_io"] }
 
 async-std = { version = "1.6", default-features = false, features = ["default", "attributes"] }
