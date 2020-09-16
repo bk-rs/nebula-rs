@@ -35,9 +35,9 @@ async fn run() -> io::Result<()> {
     );
 
     //
-    let configuration =
+    let client_configuration =
         NebulaGraphClientConfiguration::new(domain, port, username, password, space);
-    let manager = NebulaGraphConnectionManager::new(configuration);
+    let manager = NebulaGraphConnectionManager::new(client_configuration, None);
     let pool = bb8::Pool::builder()
         .max_size(10)
         .test_on_check_out(false)

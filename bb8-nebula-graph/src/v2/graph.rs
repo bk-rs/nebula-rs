@@ -3,7 +3,7 @@ use std::result;
 
 use async_trait::async_trait;
 use bb8;
-use fbthrift_transport::AsyncTransport;
+use fbthrift_transport::{AsyncTransport, AsyncTransportConfiguration};
 use nebula_graph_client::v2::{AsyncGraphClient, AsyncGraphSession};
 use tokio::net::TcpStream;
 
@@ -32,26 +32,47 @@ impl NebulaGraphClientConfiguration {
             space,
         }
     }
+}
+
+#[derive(Clone)]
+pub struct NebulaGraphConnectionManager {
+    client_configuration: NebulaGraphClientConfiguration,
+    transport_configuration: Option<AsyncTransportConfiguration>,
+}
+
+impl NebulaGraphConnectionManager {
+    pub fn new(
+        client_configuration: NebulaGraphClientConfiguration,
+        transport_configuration: Option<AsyncTransportConfiguration>,
+    ) -> Self {
+        Self {
+            client_configuration,
+            transport_configuration,
+        }
+    }
 
     async fn get_async_connection(
         &self,
     ) -> result::Result<AsyncGraphSession<AsyncTransport<TcpStream>>, io::Error> {
-        let addr = format!("{}:{}", self.host, self.port);
+        let addr = format!(
+            "{}:{}",
+            self.client_configuration.host, self.client_configuration.port
+        );
         let stream = TcpStream::connect(&addr).await?;
 
-        let transport = AsyncTransport::new(stream, None);
+        let transport = AsyncTransport::new(stream, self.transport_configuration.clone());
 
         let client = AsyncGraphClient::new(transport);
 
         let session = client
             .authenticate(
-                &self.username.as_bytes().to_vec(),
-                &self.password.as_bytes().to_vec(),
+                &self.client_configuration.username.as_bytes().to_vec(),
+                &self.client_configuration.password.as_bytes().to_vec(),
             )
             .await
             .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
 
-        if let Some(ref space) = self.space {
+        if let Some(ref space) = self.client_configuration.space {
             session
                 .execute(&format!("USE {}", space).as_bytes().to_vec())
                 .await
@@ -62,24 +83,13 @@ impl NebulaGraphClientConfiguration {
     }
 }
 
-#[derive(Clone, Debug)]
-pub struct NebulaGraphConnectionManager {
-    configuration: NebulaGraphClientConfiguration,
-}
-
-impl NebulaGraphConnectionManager {
-    pub fn new(configuration: NebulaGraphClientConfiguration) -> Self {
-        Self { configuration }
-    }
-}
-
 #[async_trait]
 impl bb8::ManageConnection for NebulaGraphConnectionManager {
     type Connection = AsyncGraphSession<AsyncTransport<TcpStream>>;
     type Error = io::Error;
 
     async fn connect(&self) -> result::Result<Self::Connection, Self::Error> {
-        self.configuration.get_async_connection().await
+        self.get_async_connection().await
     }
 
     async fn is_valid(&self, conn: Self::Connection) -> Result<Self::Connection, Self::Error> {
