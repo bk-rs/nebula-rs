@@ -1,0 +1,22 @@
+[package]
+name = "nebula-fbthrift-meta"
+version = "0.1.0"
+authors = ["vkill <vkill.net@gmail.com>"]
+edition = "2018"
+description = "Nebula Graph meta interface"
+license = "Apache-2.0 OR MIT"
+repository = "https://github.com/bk-rs/nebula-graph-rs"
+homepage = "https://github.com/bk-rs/nebula-graph-rs"
+documentation = "https://docs.rs/nebula-fbthrift-meta"
+keywords = []
+categories = []
+readme = "README.md"
+
+[dependencies]
+fbthrift = { package = "fbthrift-git", version = "0.0.1+unstable2020090200", default-features = false, features = [] }
+
+anyhow = { version = "1.0", default-features = false, features = [] }
+futures = { version = "0.3", default-features = false, features = ["std"] }
+async-trait = { version = "0.1", default-features = false, features = [] }
+
+common = { path = "../nebula-fbthrift-common", package = "nebula-fbthrift-common", version = "0.1", default-features = false, features = [] }

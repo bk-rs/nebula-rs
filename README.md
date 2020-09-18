@@ -30,20 +30,20 @@ git clone https://github.com/vesoft-inc/nebula.git && cd nebula
 git checkout v1.0.1
 
 thrift1 --out /tmp --gen mstch_rust src/interface/common.thrift
-mv /tmp/lib.rs nebula-graph-fbthrift-common/src/lib.rs
-sed -i 's/pub value_type: ::std::option::Option<crate::types::ValueType>,$/pub value_type: ::std::option::Option<Box<crate::types::ValueType>>,/' nebula-graph-fbthrift-common/src/lib.rs
+mv /tmp/lib.rs nebula-fbthrift-common/src/lib.rs
+sed -i 's/pub value_type: ::std::option::Option<crate::types::ValueType>,$/pub value_type: ::std::option::Option<Box<crate::types::ValueType>>,/' nebula-fbthrift-common/src/lib.rs
 
 thrift1 --out /tmp --gen mstch_rust src/interface/graph.thrift
-mv /tmp/lib.rs nebula-graph-fbthrift-graph/src/lib.rs
+mv /tmp/lib.rs nebula-fbthrift-graph/src/lib.rs
 
 thrift1 --out /tmp --gen mstch_rust src/interface/meta.thrift
-mv /tmp/lib.rs nebula-graph-fbthrift-meta/src/lib.rs
+mv /tmp/lib.rs nebula-fbthrift-meta/src/lib.rs
 
 thrift1 --out /tmp --gen mstch_rust src/interface/raftex.thrift
-mv /tmp/lib.rs nebula-graph-fbthrift-raftex/src/lib.rs
+mv /tmp/lib.rs nebula-fbthrift-raftex/src/lib.rs
 
 thrift1 --out /tmp --gen mstch_rust src/interface/storage.thrift
-mv /tmp/lib.rs nebula-graph-fbthrift-storage/src/lib.rs
+mv /tmp/lib.rs nebula-fbthrift-storage/src/lib.rs
 ```
 
 ## Build fbthrift libs v2
@@ -54,27 +54,27 @@ git clone https://github.com/vesoft-inc/nebula-common.git && cd nebula-common
 sed -i 's/^} (cpp.enum_strict cpp.type = "nebula::NullType")$/} (cpp.type = "nebula::NullType")/' src/common/interface/common.thrift
 
 thrift1 --out /tmp --gen mstch_rust src/common/interface/common.thrift
-mv /tmp/lib.rs nebula-graph-fbthrift-common-v2/src/lib.rs
+mv /tmp/lib.rs nebula-fbthrift-common-v2/src/lib.rs
 
 thrift1 --out /tmp --gen mstch_rust src/common/interface/graph.thrift
-mv /tmp/lib.rs nebula-graph-fbthrift-graph-v2/src/lib.rs
+mv /tmp/lib.rs nebula-fbthrift-graph-v2/src/lib.rs
 
 thrift1 --out /tmp --gen mstch_rust src/common/interface/meta.thrift
-mv /tmp/lib.rs nebula-graph-fbthrift-meta-v2/src/lib.rs
+mv /tmp/lib.rs nebula-fbthrift-meta-v2/src/lib.rs
 
 thrift1 --out /tmp --gen mstch_rust src/common/interface/raftex.thrift
-mv /tmp/lib.rs nebula-graph-fbthrift-raftex-v2/src/lib.rs
+mv /tmp/lib.rs nebula-fbthrift-raftex-v2/src/lib.rs
 
 thrift1 --out /tmp --gen mstch_rust src/common/interface/storage.thrift
-mv /tmp/lib.rs nebula-graph-fbthrift-storage-v2/src/lib.rs
+mv /tmp/lib.rs nebula-fbthrift-storage-v2/src/lib.rs
 ```
 
-### Update nebula-graph-fbthrift-common-v2/src/lib.rs
+### Update nebula-fbthrift-common-v2/src/lib.rs
 
 ```
-sed -i 's/^    #\[derive(Clone, Debug, PartialEq)\]$/    #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]/' nebula-graph-fbthrift-common-v2/src/lib.rs
+sed -i 's/^    #\[derive(Clone, Debug, PartialEq)\]$/    #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]/' nebula-fbthrift-common-v2/src/lib.rs
 
-echo 'pub mod double;' >> nebula-graph-fbthrift-common-v2/src/lib.rs
+echo 'pub mod double;' >> nebula-fbthrift-common-v2/src/lib.rs
 
-sed -i 's/^        fVal(::std::primitive::f64),$/        fVal(crate::double::Double),/' nebula-graph-fbthrift-common-v2/src/lib.rs
+sed -i 's/^        fVal(::std::primitive::f64),$/        fVal(crate::double::Double),/' nebula-fbthrift-common-v2/src/lib.rs
 ```

@@ -2,7 +2,7 @@ use std::result;
 
 use bytes::Bytes;
 use fbthrift::{ApplicationException, ApplicationExceptionErrorCode, BinaryProtocol, Transport};
-use nebula_graph_fbthrift_graph_v2::{
+use nebula_fbthrift_graph_v2::{
     client::{GraphService, GraphServiceImpl},
     errors::graph_service::{AuthenticateError, ExecuteError, ExecuteJsonError, SignoutError},
     types::{ErrorCode, ExecutionResponse},
