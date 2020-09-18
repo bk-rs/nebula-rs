@@ -1,6 +1,6 @@
 [package]
 name = "bb8-nebula-graph"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["vkill <vkill.net@gmail.com>"]
 edition = "2018"
 description = "bb8 Nebula Graph pool"
