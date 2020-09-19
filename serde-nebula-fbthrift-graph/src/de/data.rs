@@ -59,11 +59,11 @@ impl<'a> DataDeserializer<'a> {
 impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
     type Error = DataDeserializeError;
 
-    fn deserialize_any<V>(self, visitor: V) -> Result<V::Value, Self::Error>
+    fn deserialize_any<V>(self, _visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
     {
-        todo!()
+        Err(self.error(DataDeserializeErrorKind::Unimplemented))
     }
 
     fn deserialize_bool<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -205,18 +205,18 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
         }
     }
 
-    fn deserialize_char<V>(self, visitor: V) -> Result<V::Value, Self::Error>
+    fn deserialize_char<V>(self, _visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
     {
-        todo!()
+        Err(self.error(DataDeserializeErrorKind::Unimplemented))
     }
 
-    fn deserialize_str<V>(self, visitor: V) -> Result<V::Value, Self::Error>
+    fn deserialize_str<V>(self, _visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
     {
-        todo!()
+        Err(self.error(DataDeserializeErrorKind::Unimplemented))
     }
 
     fn deserialize_string<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -229,18 +229,18 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
         }
     }
 
-    fn deserialize_bytes<V>(self, visitor: V) -> Result<V::Value, Self::Error>
+    fn deserialize_bytes<V>(self, _visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
     {
-        todo!()
+        Err(self.error(DataDeserializeErrorKind::Unimplemented))
     }
 
-    fn deserialize_byte_buf<V>(self, visitor: V) -> Result<V::Value, Self::Error>
+    fn deserialize_byte_buf<V>(self, _visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
     {
-        todo!()
+        Err(self.error(DataDeserializeErrorKind::Unimplemented))
     }
 
     fn deserialize_option<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -262,18 +262,18 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
 
     fn deserialize_unit_struct<V>(
         self,
-        name: &'static str,
-        visitor: V,
+        _name: &'static str,
+        _visitor: V,
     ) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
     {
-        todo!()
+        Err(self.error(DataDeserializeErrorKind::Unimplemented))
     }
 
     fn deserialize_newtype_struct<V>(
         self,
-        name: &'static str,
+        _name: &'static str,
         visitor: V,
     ) -> Result<V::Value, Self::Error>
     where
@@ -297,7 +297,7 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
         }
     }
 
-    fn deserialize_tuple<V>(self, len: usize, visitor: V) -> Result<V::Value, Self::Error>
+    fn deserialize_tuple<V>(self, _len: usize, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
     {
@@ -322,8 +322,8 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
 
     fn deserialize_tuple_struct<V>(
         self,
-        name: &'static str,
-        len: usize,
+        _name: &'static str,
+        _len: usize,
         visitor: V,
     ) -> Result<V::Value, Self::Error>
     where
@@ -366,17 +366,17 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
         }
     }
 
-    fn deserialize_map<V>(self, visitor: V) -> Result<V::Value, Self::Error>
+    fn deserialize_map<V>(self, _visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
     {
-        todo!()
+        Err(self.error(DataDeserializeErrorKind::Unimplemented))
     }
 
     fn deserialize_struct<V>(
         self,
-        name: &'static str,
-        fields: &'static [&'static str],
+        _name: &'static str,
+        _fields: &'static [&'static str],
         visitor: V,
     ) -> Result<V::Value, Self::Error>
     where
@@ -387,21 +387,21 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
 
     fn deserialize_enum<V>(
         self,
-        name: &'static str,
-        variants: &'static [&'static str],
-        visitor: V,
+        _name: &'static str,
+        _variants: &'static [&'static str],
+        _visitor: V,
     ) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
     {
-        todo!()
+        Err(self.error(DataDeserializeErrorKind::Unimplemented))
     }
 
-    fn deserialize_identifier<V>(self, visitor: V) -> Result<V::Value, Self::Error>
+    fn deserialize_identifier<V>(self, _visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
     {
-        todo!()
+        Err(self.error(DataDeserializeErrorKind::Unimplemented))
     }
 
     fn deserialize_ignored_any<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -459,6 +459,7 @@ impl DataDeserializeError {
 pub enum DataDeserializeErrorKind {
     UnexpectedEndOf,
     TypeMismatch,
+    Unimplemented,
     Custom(String),
 }
 
@@ -470,6 +471,7 @@ impl DataDeserializeErrorKind {
         match *self {
             UnexpectedEndOf => "Unexpected end of",
             TypeMismatch => "Type mismatch",
+            Unimplemented => "Unimplemented",
             Custom(ref msg) => msg,
         }
     }
@@ -507,6 +509,7 @@ impl fmt::Display for DataDeserializeErrorKind {
         match *self {
             UnexpectedEndOf => write!(f, "{}", self.description()),
             TypeMismatch => write!(f, "{}", self.description()),
+            Unimplemented => write!(f, "{}", self.description()),
             Custom(ref msg) => write!(f, "{}", msg),
         }
     }
