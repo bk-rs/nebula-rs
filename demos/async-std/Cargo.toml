@@ -31,3 +31,5 @@ mobc-nebula-graph = { path = "../../mobc-nebula-graph", version = "0.1", feature
 
 # common
 async-std = { version = "1.6", default-features = false, features = ["default", "attributes"] }
+serde-nebula-fbthrift-graph = { path = "../../serde-nebula-fbthrift-graph", version = "0.1", features = ["chrono"] }
+serde = { version = "1.0", features = ["derive"] }
