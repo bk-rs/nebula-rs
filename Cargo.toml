@@ -15,4 +15,5 @@ members = [
     "nebula-fbthrift-storage",
     "nebula-fbthrift-storage-v2",
     "nebula-graph-client",
+    "serde-nebula-fbthrift-graph",
 ]
