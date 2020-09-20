@@ -9,6 +9,10 @@ name = "graph_client"
 path = "src/graph_client.rs"
 
 [[bin]]
+name = "graph_crud"
+path = "src/graph_crud.rs"
+
+[[bin]]
 name = "mobc_graph_pool"
 path = "src/mobc_graph_pool.rs"
 
@@ -32,3 +36,4 @@ mobc-nebula-graph = { path = "../../mobc-nebula-graph", version = "0.1", feature
 # common
 async-std = { version = "1.6", default-features = false, features = ["default", "attributes"] }
 serde = { version = "1.0", features = ["derive"] }
+chrono = { version = "0.4", features = ["serde"] }

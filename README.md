@@ -3,6 +3,7 @@
 ### async-std
 
 * [graph client](demos/async-std/src/graph_client.rs)
+* [graph CRUD](demos/async-std/src/graph_crud.rs)
 * [mobc graph pool](demos/async-std/src/mobc_graph_pool.rs)
 * [v2 graph client](demos/async-std/src/v2_graph_client.rs)
 * [v2 mobc graph pool](demos/async-std/src/v2_mobc_graph_pool.rs)
