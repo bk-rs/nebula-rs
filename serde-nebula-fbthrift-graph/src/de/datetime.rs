@@ -12,8 +12,8 @@ use serde::Deserialize;
 #[derive(Deserialize, PartialEq, Debug)]
 pub struct Timestamp(pub i64);
 
-#[cfg(feature = "chrono")]
 impl Timestamp {
+    #[cfg(feature = "chrono")]
     pub fn to_naive_date_time(&self) -> chrono::NaiveDateTime {
         chrono::NaiveDateTime::from_timestamp(self.0, 0)
     }
@@ -22,18 +22,18 @@ impl Timestamp {
 #[derive(Deserialize, PartialEq, Debug)]
 pub struct YearMonth(pub Year, pub Month);
 
-#[cfg(feature = "chrono")]
 impl YearMonth {
-    pub fn to_naive_date_time(&self) -> chrono::NaiveDate {
-        chrono::NaiveDate::from_ymd(self.0 as i32, self.1 as u32, 0)
+    #[cfg(feature = "chrono")]
+    pub fn to_naive_date(&self) -> chrono::NaiveDate {
+        chrono::NaiveDate::from_ymd(self.0 as i32, self.1 as u32, 1)
     }
 }
 
 #[derive(Deserialize, PartialEq, Debug)]
 pub struct Date(pub Year, pub Month, pub Day);
 
-#[cfg(feature = "chrono")]
 impl Date {
+    #[cfg(feature = "chrono")]
     pub fn to_naive_date(&self) -> chrono::NaiveDate {
         chrono::NaiveDate::from_ymd(self.0 as i32, self.1 as u32, self.2 as u32)
     }
@@ -51,8 +51,8 @@ pub struct DateTime(
     pub Microsec,
 );
 
-#[cfg(feature = "chrono")]
 impl DateTime {
+    #[cfg(feature = "chrono")]
     pub fn to_naive_date_time(&self) -> chrono::NaiveDateTime {
         let d = chrono::NaiveDate::from_ymd(self.0 as i32, self.1 as u32, self.2 as u32);
         let t = chrono::NaiveTime::from_hms_milli(
@@ -94,7 +94,7 @@ mod tests {
         #[cfg(feature = "chrono")]
         assert_eq!(
             YearMonth(2020, 1).to_naive_date(),
-            NaiveDate::from_ymd(2020, 1, 0)
+            NaiveDate::from_ymd(2020, 1, 1)
         );
 
         Ok(())
@@ -115,7 +115,7 @@ mod tests {
     fn chrono_for_datetime() -> io::Result<()> {
         #[cfg(feature = "chrono")]
         assert_eq!(
-            DateTime(2020, 1, 2, 3, 4, 5, 6, 7, 8).to_naive_date_time(),
+            DateTime(2020, 1, 2, 3, 4, 5, 6, 7).to_naive_date_time(),
             NaiveDateTime::new(
                 NaiveDate::from_ymd(2020, 1, 2),
                 NaiveTime::from_hms_milli(3, 4, 5, 6)
