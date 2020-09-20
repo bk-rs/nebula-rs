@@ -15,9 +15,11 @@ cfg_if::cfg_if! {
         #[async_trait]
         pub trait Query
         {
-            async fn query(&self, stmt: &str) -> result::Result<QueryOutput<()>, QueryError>;
-
             async fn query_as<D: DeserializeOwned>(&self, stmt: &str) -> result::Result<QueryOutput<D>, QueryError>;
+
+            async fn query(&self, stmt: &str) -> result::Result<QueryOutput<()>, QueryError> {
+                self.query_as(stmt).await
+            }
 
             async fn show_hosts(&self) -> result::Result<QueryOutput<Host>, QueryError> {
                 self.query_as(STMT_SHOW_HOSTS).await

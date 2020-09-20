@@ -50,9 +50,6 @@ async fn run() -> io::Result<()> {
     let out = session.show_hosts().await.unwrap();
     println!("{:?}", out);
 
-    let out = session.show_spaces().await.unwrap();
-    println!("{:?}", out);
-
     println!("done");
 
     Ok(())

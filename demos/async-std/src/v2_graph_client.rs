@@ -49,9 +49,6 @@ async fn run() -> io::Result<()> {
         .await
         .unwrap();
 
-    let res = session.execute(&b"SHOW SPACES;".to_vec()).await.unwrap();
-    println!("{:?}", res);
-
     let res = session.execute(&b"SHOW HOSTS;".to_vec()).await.unwrap();
     println!("{:?}", res);
 

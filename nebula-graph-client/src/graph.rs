@@ -146,19 +146,6 @@ cfg_if::cfg_if! {
             ::fbthrift::ProtocolEncoded<BinaryProtocol>:
                 ::fbthrift::BufMutExt<Final = ::fbthrift::FramingEncodedFinal<T>>,
         {
-            async fn query(&self, stmt: &str) -> result::Result<QueryOutput<()>, QueryError> {
-                let res = self
-                    .execute(stmt)
-                    .await
-                    .map_err(|err| QueryError::ExecuteError(err))?;
-
-                if res.error_code != ErrorCode::SUCCEEDED {
-                    return Err(QueryError::ResponseError(res.error_code, res.error_msg));
-                }
-
-                Ok(QueryOutput::new(res))
-            }
-
             async fn query_as<D: DeserializeOwned>(&self, stmt: &str) -> result::Result<QueryOutput<D>, QueryError> {
                 let res = self
                     .execute(stmt)

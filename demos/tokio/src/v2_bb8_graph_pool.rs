@@ -48,12 +48,6 @@ async fn run() -> io::Result<()> {
     let session = pool.get().await.unwrap();
 
     let res = session
-        .execute(&"SHOW SPACES;".as_bytes().to_vec())
-        .await
-        .unwrap();
-    println!("{:?}", res);
-
-    let res = session
         .execute(&"SHOW HOSTS;".as_bytes().to_vec())
         .await
         .unwrap();
