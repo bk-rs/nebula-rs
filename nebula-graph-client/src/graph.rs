@@ -1,5 +1,6 @@
 use std::result;
 
+use async_trait::async_trait;
 use bytes::Bytes;
 use fbthrift::{ApplicationException, ApplicationExceptionErrorCode, BinaryProtocol, Transport};
 use nebula_fbthrift_graph::{
@@ -7,6 +8,8 @@ use nebula_fbthrift_graph::{
     errors::graph_service::{AuthenticateError, ExecuteError, SignoutError},
     types::{ErrorCode, ExecutionResponse},
 };
+
+use crate::query::{Query, QueryError, QueryOutput};
 
 //
 //
@@ -125,5 +128,71 @@ where
 
     pub async fn execute(&self, stmt: &str) -> result::Result<ExecutionResponse, ExecuteError> {
         self.connection.service.execute(self.session_id, stmt).await
+    }
+}
+
+//
+//
+//
+cfg_if::cfg_if! {
+    if #[cfg(feature = "serde_feature")] {
+        use serde::de::DeserializeOwned;
+
+        #[async_trait]
+        impl<T> Query for AsyncGraphSession<T>
+        where
+            T: Transport + Send + Sync,
+            Bytes: ::fbthrift::Framing<DecBuf = ::fbthrift::FramingDecoded<T>>,
+            ::fbthrift::ProtocolEncoded<BinaryProtocol>:
+                ::fbthrift::BufMutExt<Final = ::fbthrift::FramingEncodedFinal<T>>,
+        {
+            async fn query(&self, stmt: &str) -> result::Result<QueryOutput<()>, QueryError> {
+                let res = self
+                    .execute(stmt)
+                    .await
+                    .map_err(|err| QueryError::ExecuteError(err))?;
+
+                if res.error_code != ErrorCode::SUCCEEDED {
+                    return Err(QueryError::ResponseError(res.error_code, res.error_msg));
+                }
+
+                Ok(QueryOutput::new(res))
+            }
+
+            async fn query_as<D: DeserializeOwned>(&self, stmt: &str) -> result::Result<QueryOutput<D>, QueryError> {
+                let res = self
+                    .execute(stmt)
+                    .await
+                    .map_err(|err| QueryError::ExecuteError(err))?;
+
+                if res.error_code != ErrorCode::SUCCEEDED {
+                    return Err(QueryError::ResponseError(res.error_code, res.error_msg));
+                }
+
+                Ok(QueryOutput::new(res))
+            }
+        }
+    } else {
+        #[async_trait]
+        impl<T> Query for AsyncGraphSession<T>
+        where
+            T: Transport + Send + Sync,
+            Bytes: ::fbthrift::Framing<DecBuf = ::fbthrift::FramingDecoded<T>>,
+            ::fbthrift::ProtocolEncoded<BinaryProtocol>:
+                ::fbthrift::BufMutExt<Final = ::fbthrift::FramingEncodedFinal<T>>,
+        {
+            async fn query(&self, stmt: &str) -> result::Result<QueryOutput, QueryError> {
+                let res = self
+                    .execute(stmt)
+                    .await
+                    .map_err(|err| QueryError::ExecuteError(err))?;
+
+                if res.error_code != ErrorCode::SUCCEEDED {
+                    return Err(QueryError::ResponseError(res.error_code, res.error_msg));
+                }
+
+                Ok(QueryOutput::new(res))
+            }
+        }
     }
 }

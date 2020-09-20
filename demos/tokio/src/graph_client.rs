@@ -8,7 +8,7 @@ use std::io;
 use tokio::net::TcpStream;
 
 use fbthrift_transport::AsyncTransport;
-use nebula_graph_client::AsyncGraphClient;
+use nebula_graph_client::{AsyncGraphClient, Query as _};
 
 #[tokio::main]
 async fn main() -> io::Result<()> {
@@ -47,11 +47,11 @@ async fn run() -> io::Result<()> {
         .await
         .unwrap();
 
-    let res = session.execute("SHOW SPACES;").await.unwrap();
-    println!("{:?}", res);
+    let out = session.show_hosts().await.unwrap();
+    println!("{:?}", out);
 
-    let res = session.execute("SHOW HOSTS;").await.unwrap();
-    println!("{:?}", res);
+    let out = session.show_spaces().await.unwrap();
+    println!("{:?}", out);
 
     println!("done");
 

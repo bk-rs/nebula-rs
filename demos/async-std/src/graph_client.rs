@@ -8,9 +8,7 @@ use std::io;
 use async_std::net::TcpStream;
 
 use fbthrift_transport::AsyncTransport;
-use nebula_graph_client::AsyncGraphClient;
-use serde::Deserialize;
-use serde_nebula_fbthrift_graph::de::deserialize_execution_response;
+use nebula_graph_client::{AsyncGraphClient, Query as _};
 
 #[async_std::main]
 async fn main() -> io::Result<()> {
@@ -48,29 +46,11 @@ async fn run() -> io::Result<()> {
         .await
         .unwrap();
 
-    let res = session.execute("SHOW SPACES;").await.unwrap();
-    println!("{:?}", res);
+    let out = session.show_hosts().await.unwrap();
+    println!("{:?}", out);
 
-    let res = session.execute("SHOW HOSTS;").await.unwrap();
-    println!("{:?}", res);
-
-    #[derive(Deserialize, Debug)]
-    struct Host {
-        #[serde(rename(deserialize = "Ip"))]
-        ip: String,
-        #[serde(rename(deserialize = "Port"))]
-        port: String,
-        #[serde(rename(deserialize = "Status"))]
-        status: String,
-        #[serde(rename(deserialize = "Leader count"))]
-        leader_count: u64,
-        #[serde(rename(deserialize = "Leader distribution"))]
-        leader_distribution: String,
-        #[serde(rename(deserialize = "Partition distribution"))]
-        partition_distribution: String,
-    }
-    let hosts: Vec<Host> = deserialize_execution_response(&res)?;
-    println!("{:?}", hosts);
+    let out = session.show_spaces().await.unwrap();
+    println!("{:?}", out);
 
     println!("done");
 

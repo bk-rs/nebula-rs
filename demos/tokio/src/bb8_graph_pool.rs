@@ -6,6 +6,7 @@ use std::env;
 use std::io;
 
 use bb8_nebula_graph::{NebulaGraphClientConfiguration, NebulaGraphConnectionManager};
+use nebula_graph_client::Query as _;
 
 #[tokio::main]
 async fn main() -> io::Result<()> {
@@ -47,11 +48,11 @@ async fn run() -> io::Result<()> {
     //
     let session = pool.get().await.unwrap();
 
-    let res = session.execute("SHOW SPACES;").await.unwrap();
-    println!("{:?}", res);
+    let out = session.show_hosts().await.unwrap();
+    println!("{:?}", out);
 
-    let res = session.execute("SHOW HOSTS;").await.unwrap();
-    println!("{:?}", res);
+    let out = session.show_spaces().await.unwrap();
+    println!("{:?}", out);
 
     println!("done");
 
