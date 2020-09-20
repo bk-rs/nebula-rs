@@ -156,7 +156,7 @@ cfg_if::cfg_if! {
                     return Err(QueryError::ResponseError(res.error_code, res.error_msg));
                 }
 
-                Ok(QueryOutput::new(res))
+                QueryOutput::new(res)
             }
         }
     } else {

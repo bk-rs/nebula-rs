@@ -10,7 +10,7 @@ use nebula_fbthrift_graph::{
 cfg_if::cfg_if! {
     if #[cfg(feature = "serde_feature")] {
         use serde::de::DeserializeOwned;
-        use serde_nebula_fbthrift_graph::de::deserialize_execution_response;
+        use serde_nebula_fbthrift_graph::de::{deserialize_execution_response, data::DataDeserializeError};
 
         #[async_trait]
         pub trait Query
@@ -37,16 +37,16 @@ cfg_if::cfg_if! {
         }
 
         impl<D> QueryOutput<D> where D: DeserializeOwned {
-            pub fn new(res: ExecutionResponse) -> Self {
+            pub fn new(res: ExecutionResponse) -> result::Result<Self, QueryError> {
                 let latency = Duration::from_micros(res.latency_in_us as u64);
                 let space_name = res.space_name.clone();
-                let data_set = deserialize_execution_response::<D>(&res).unwrap();
+                let data_set = deserialize_execution_response::<D>(&res).map_err(|err| QueryError::DataDeserializeError(err))?;
 
-                Self {
+                Ok(Self {
                     latency,
                     space_name,
                     data_set,
-                }
+                })
             }
         }
     } else {
@@ -82,6 +82,8 @@ cfg_if::cfg_if! {
 pub enum QueryError {
     ExecuteError(ExecuteError),
     ResponseError(ErrorCode, Option<String>),
+    #[cfg(feature = "serde_feature")]
+    DataDeserializeError(DataDeserializeError),
 }
 
 //
