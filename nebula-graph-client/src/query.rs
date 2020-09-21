@@ -1,3 +1,5 @@
+use std::error;
+use std::fmt;
 use std::result;
 use std::time::Duration;
 
@@ -86,6 +88,32 @@ pub enum QueryError {
     DataDeserializeError(DataDeserializeError),
 }
 
+impl fmt::Display for QueryError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::ExecuteError(err) => write!(f, "ExecuteError {}", err),
+            Self::ResponseError(err_code, err_msg) => write!(
+                f,
+                "ResponseError err_code:{} err_msg:{:?}",
+                err_code, err_msg
+            ),
+            #[cfg(feature = "serde_feature")]
+            Self::DataDeserializeError(err) => write!(f, "DataDeserializeError {}", err),
+        }
+    }
+}
+
+impl error::Error for QueryError {
+    fn description(&self) -> &str {
+        match self {
+            Self::ExecuteError(_) => "ExecuteError",
+            Self::ResponseError(_, _) => "ResponseError",
+            #[cfg(feature = "serde_feature")]
+            Self::DataDeserializeError(_) => "DataDeserializeError",
+        }
+    }
+}
+
 //
 //
 //
@@ -116,5 +144,31 @@ cfg_if::cfg_if! {
             #[serde(rename(deserialize = "Name"))]
             pub name: String,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use std::io;
+
+    #[test]
+    fn impl_std_fmt_display() -> io::Result<()> {
+        let err = QueryError::ResponseError(ErrorCode::E_DISCONNECTED, None);
+        println!("{}", err.to_string());
+
+        Ok(())
+    }
+
+    #[test]
+    fn impl_std_error_error() -> io::Result<()> {
+        let err = io::Error::new(
+            io::ErrorKind::Other,
+            QueryError::ResponseError(ErrorCode::E_DISCONNECTED, None),
+        );
+        println!("{}", err.to_string());
+
+        Ok(())
     }
 }
