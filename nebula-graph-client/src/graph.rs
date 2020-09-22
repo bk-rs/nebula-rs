@@ -106,6 +106,7 @@ where
 {
     connection: AsyncGraphConnection<T>,
     session_id: i64,
+    close_required: bool,
 }
 
 impl<T> AsyncGraphSession<T>
@@ -119,6 +120,7 @@ where
         Self {
             connection,
             session_id,
+            close_required: false,
         }
     }
 
@@ -126,8 +128,25 @@ where
         self.connection.service.signout(self.session_id).await
     }
 
-    pub async fn execute(&self, stmt: &str) -> result::Result<ExecutionResponse, ExecuteError> {
-        self.connection.service.execute(self.session_id, stmt).await
+    pub async fn execute(&mut self, stmt: &str) -> result::Result<ExecutionResponse, ExecuteError> {
+        let res = self
+            .connection
+            .service
+            .execute(self.session_id, stmt)
+            .await?;
+
+        match res.error_code {
+            ErrorCode::E_SESSION_INVALID | ErrorCode::E_SESSION_TIMEOUT => {
+                self.close_required = true;
+            }
+            _ => {}
+        }
+
+        Ok(res)
+    }
+
+    pub fn is_close_required(&self) -> bool {
+        self.close_required
     }
 }
 
@@ -146,7 +165,7 @@ cfg_if::cfg_if! {
             ::fbthrift::ProtocolEncoded<BinaryProtocol>:
                 ::fbthrift::BufMutExt<Final = ::fbthrift::FramingEncodedFinal<T>>,
         {
-            async fn query_as<D: DeserializeOwned>(&self, stmt: &str) -> result::Result<QueryOutput<D>, QueryError> {
+            async fn query_as<D: DeserializeOwned>(&mut self, stmt: &str) -> result::Result<QueryOutput<D>, QueryError> {
                 let res = self
                     .execute(stmt)
                     .await
@@ -168,7 +187,7 @@ cfg_if::cfg_if! {
             ::fbthrift::ProtocolEncoded<BinaryProtocol>:
                 ::fbthrift::BufMutExt<Final = ::fbthrift::FramingEncodedFinal<T>>,
         {
-            async fn query(&self, stmt: &str) -> result::Result<QueryOutput, QueryError> {
+            async fn query(&mut self, stmt: &str) -> result::Result<QueryOutput, QueryError> {
                 let res = self
                     .execute(stmt)
                     .await

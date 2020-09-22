@@ -1,6 +1,6 @@
 [package]
 name = "mobc-nebula-graph"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["vkill <vkill.net@gmail.com>"]
 edition = "2018"
 description = "mobc Nebula Graph pool"
@@ -17,7 +17,7 @@ async_std = ["async-std", "mobc/async-std", "fbthrift-transport/futures_io"]
 tokio = ["tokio02", "mobc/tokio", "fbthrift-transport/tokio_io"]
 
 [dependencies]
-nebula-graph-client = { path = "../nebula-graph-client", version = "0.1", default-features = false, features = [] }
+nebula-graph-client = { path = "../nebula-graph-client", version = "0.2", default-features = false, features = [] }
 fbthrift-transport = { version = "0.1", default-features = false, features = [] }
 
 cfg-if = { version = "0.1", default-features = false, features = [] }

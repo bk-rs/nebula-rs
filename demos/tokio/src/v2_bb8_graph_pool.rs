@@ -38,15 +38,18 @@ async fn run() -> io::Result<()> {
     let client_configuration =
         NebulaGraphClientConfiguration::new(domain, port, username, password, space);
     let manager = NebulaGraphConnectionManager::new(client_configuration, None);
-    let pool = bb8::Pool::builder()
-        .max_size(10)
-        .test_on_check_out(false)
-        .build(manager)
-        .await?;
+    let pool = bb8::Pool::builder().max_size(10).build(manager).await?;
 
     //
-    let session = pool.get().await.unwrap();
+    let mut session = pool.get().await.unwrap();
+    let res = session
+        .execute(&"SHOW HOSTS;".as_bytes().to_vec())
+        .await
+        .unwrap();
+    println!("{:?}", res);
 
+    //
+    let mut session = pool.get().await.unwrap();
     let res = session
         .execute(&"SHOW HOSTS;".as_bytes().to_vec())
         .await

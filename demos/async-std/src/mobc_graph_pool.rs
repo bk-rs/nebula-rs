@@ -42,8 +42,12 @@ async fn run() -> io::Result<()> {
     let pool = mobc::Pool::builder().max_open(10).build(manager);
 
     //
-    let session = pool.get().await.unwrap();
+    let mut session = pool.get().await.unwrap();
+    let out = session.show_hosts().await.unwrap();
+    println!("{:?}", out);
 
+    //
+    let mut session = pool.get().await.unwrap();
     let out = session.show_hosts().await.unwrap();
     println!("{:?}", out);
 

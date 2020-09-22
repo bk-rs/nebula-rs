@@ -44,7 +44,7 @@ async fn run() -> io::Result<()> {
     let transport = AsyncTransport::new(stream, None);
     let client = AsyncGraphClient::new(transport);
 
-    let session = client
+    let mut session = client
         .authenticate(&username.as_bytes().to_vec(), &password.as_bytes().to_vec())
         .await
         .unwrap();

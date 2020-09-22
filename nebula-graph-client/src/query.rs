@@ -17,16 +17,16 @@ cfg_if::cfg_if! {
         #[async_trait]
         pub trait Query
         {
-            async fn query_as<D: DeserializeOwned>(&self, stmt: &str) -> result::Result<QueryOutput<D>, QueryError>;
+            async fn query_as<D: DeserializeOwned>(&mut self, stmt: &str) -> result::Result<QueryOutput<D>, QueryError>;
 
-            async fn query(&self, stmt: &str) -> result::Result<QueryOutput<()>, QueryError> {
+            async fn query(&mut self, stmt: &str) -> result::Result<QueryOutput<()>, QueryError> {
                 self.query_as(stmt).await
             }
 
-            async fn show_hosts(&self) -> result::Result<QueryOutput<Host>, QueryError> {
+            async fn show_hosts(&mut self) -> result::Result<QueryOutput<Host>, QueryError> {
                 self.query_as(STMT_SHOW_HOSTS).await
             }
-            async fn show_spaces(&self) -> result::Result<QueryOutput<Space>, QueryError> {
+            async fn show_spaces(&mut self) -> result::Result<QueryOutput<Space>, QueryError> {
                 self.query_as(STMT_SHOW_SPACES).await
             }
         }
@@ -54,7 +54,7 @@ cfg_if::cfg_if! {
     } else {
         #[async_trait]
         pub trait Query {
-            async fn query(&self, stmt: &str) -> result::Result<QueryOutput, QueryError>;
+            async fn query(&mut self, stmt: &str) -> result::Result<QueryOutput, QueryError>;
         }
 
         #[derive(Debug)]

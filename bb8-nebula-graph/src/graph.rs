@@ -64,7 +64,7 @@ impl NebulaGraphConnectionManager {
 
         let client = AsyncGraphClient::new(transport);
 
-        let session = client
+        let mut session = client
             .authenticate(
                 &self.client_configuration.username,
                 &self.client_configuration.password,
@@ -93,6 +93,10 @@ impl bb8::ManageConnection for NebulaGraphConnectionManager {
     }
 
     async fn is_valid(&self, conn: Self::Connection) -> Result<Self::Connection, Self::Error> {
+        if conn.is_close_required() {
+            return Err(io::Error::new(io::ErrorKind::Other, "close_required"));
+        }
+
         Ok(conn)
     }
 

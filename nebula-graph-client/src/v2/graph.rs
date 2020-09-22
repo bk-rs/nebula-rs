@@ -104,6 +104,7 @@ where
 {
     connection: AsyncGraphConnection<T>,
     session_id: i64,
+    close_required: bool,
 }
 
 impl<T> AsyncGraphSession<T>
@@ -117,6 +118,7 @@ where
         Self {
             connection,
             session_id,
+            close_required: false,
         }
     }
 
@@ -124,8 +126,24 @@ where
         self.connection.service.signout(self.session_id).await
     }
 
-    pub async fn execute(&self, stmt: &Vec<u8>) -> result::Result<ExecutionResponse, ExecuteError> {
-        self.connection.service.execute(self.session_id, stmt).await
+    pub async fn execute(
+        &mut self,
+        stmt: &Vec<u8>,
+    ) -> result::Result<ExecutionResponse, ExecuteError> {
+        let res = self
+            .connection
+            .service
+            .execute(self.session_id, stmt)
+            .await?;
+
+        match res.error_code {
+            ErrorCode::E_SESSION_INVALID | ErrorCode::E_SESSION_TIMEOUT => {
+                self.close_required = true;
+            }
+            _ => {}
+        }
+
+        Ok(res)
     }
 
     pub async fn execute_json(&self, stmt: &Vec<u8>) -> result::Result<Vec<u8>, ExecuteJsonError> {
@@ -133,5 +151,9 @@ where
             .service
             .executeJson(self.session_id, stmt)
             .await
+    }
+
+    pub fn is_close_required(&self) -> bool {
+        self.close_required
     }
 }

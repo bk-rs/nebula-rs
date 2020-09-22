@@ -1,9 +1,9 @@
 use std::io;
 use std::result;
 
+use fbthrift_transport::{AsyncTransport, AsyncTransportConfiguration};
 use mobc::async_trait;
 use mobc::Manager;
-use fbthrift_transport::{AsyncTransport, AsyncTransportConfiguration};
 use nebula_graph_client::v2::{AsyncGraphClient, AsyncGraphSession};
 
 #[cfg(feature = "async_std")]
@@ -68,7 +68,7 @@ impl NebulaGraphConnectionManager {
 
         let client = AsyncGraphClient::new(transport);
 
-        let session = client
+        let mut session = client
             .authenticate(
                 &self.client_configuration.username.as_bytes().to_vec(),
                 &self.client_configuration.password.as_bytes().to_vec(),
@@ -97,6 +97,10 @@ impl Manager for NebulaGraphConnectionManager {
     }
 
     async fn check(&self, conn: Self::Connection) -> Result<Self::Connection, Self::Error> {
+        if conn.is_close_required() {
+            return Err(io::Error::new(io::ErrorKind::Other, "close_required"));
+        }
+
         // TODO
         Ok(conn)
     }
