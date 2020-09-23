@@ -7,8 +7,8 @@ use std::io;
 
 use async_std::net::TcpStream;
 
-use fbthrift_transport::{AsyncTransport, DefaultAsyncTransportConfiguration};
-use nebula_graph_client::{AsyncGraphClient, Query as _};
+use fbthrift_transport::{AsyncTransport, AsyncTransportConfiguration};
+use nebula_graph_client::{AsyncGraphClient, GraphTransportResponseHandler, Query as _};
 
 #[async_std::main]
 async fn main() -> io::Result<()> {
@@ -38,7 +38,10 @@ async fn run() -> io::Result<()> {
     let stream = TcpStream::connect(addr).await?;
 
     //
-    let transport = AsyncTransport::new(stream, DefaultAsyncTransportConfiguration::default());
+    let transport = AsyncTransport::new(
+        stream,
+        AsyncTransportConfiguration::new(GraphTransportResponseHandler),
+    );
     let client = AsyncGraphClient::new(transport);
 
     let mut session = client
@@ -48,6 +51,8 @@ async fn run() -> io::Result<()> {
 
     let out = session.show_hosts().await.unwrap();
     println!("{:?}", out);
+
+    session.signout().await.unwrap();
 
     println!("done");
 

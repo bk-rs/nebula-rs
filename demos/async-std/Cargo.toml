@@ -27,7 +27,7 @@ path = "src/v2_mobc_graph_pool.rs"
 [dependencies]
 # non-pool
 nebula-graph-client = { path = "../../nebula-graph-client", version = "0.2" }
-fbthrift-transport = { version = "0.2", features = ["futures_io"] }
+fbthrift-transport = { version = "0.3", features = ["futures_io"] }
 
 # mobc
 mobc = "0.5"
