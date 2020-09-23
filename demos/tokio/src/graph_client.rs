@@ -7,8 +7,8 @@ use std::io;
 
 use tokio::net::TcpStream;
 
-use fbthrift_transport::{AsyncTransport, DefaultAsyncTransportConfiguration};
-use nebula_graph_client::{AsyncGraphClient, Query as _};
+use fbthrift_transport::{AsyncTransport, AsyncTransportConfiguration};
+use nebula_graph_client::{AsyncGraphClient, GraphTransportResponseHandler, Query as _};
 
 #[tokio::main]
 async fn main() -> io::Result<()> {
@@ -39,7 +39,10 @@ async fn run() -> io::Result<()> {
 
     //
     //
-    let transport = AsyncTransport::new(stream, DefaultAsyncTransportConfiguration::default());
+    let transport = AsyncTransport::new(
+        stream,
+        AsyncTransportConfiguration::new(GraphTransportResponseHandler),
+    );
     let client = AsyncGraphClient::new(transport);
 
     let mut session = client
