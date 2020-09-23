@@ -10,7 +10,7 @@ use async_std::net::TcpStream;
 use async_std::task;
 
 use chrono::{serde::ts_seconds, DateTime, Utc};
-use fbthrift_transport::AsyncTransport;
+use fbthrift_transport::{AsyncTransport, DefaultAsyncTransportConfiguration};
 use nebula_graph_client::{AsyncGraphClient, Query as _};
 use serde::Deserialize;
 
@@ -48,7 +48,7 @@ async fn run() -> io::Result<()> {
     let stream = TcpStream::connect(addr).await?;
 
     //
-    let transport = AsyncTransport::new(stream, None);
+    let transport = AsyncTransport::new(stream, DefaultAsyncTransportConfiguration::default());
     let client = AsyncGraphClient::new(transport);
 
     let mut session = client

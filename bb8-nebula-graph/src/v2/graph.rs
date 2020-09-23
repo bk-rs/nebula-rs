@@ -3,7 +3,10 @@ use std::result;
 
 use async_trait::async_trait;
 use bb8;
-use fbthrift_transport::{AsyncTransport, AsyncTransportConfiguration};
+use fbthrift_transport::{
+    fbthrift_transport_response_handler::ResponseHandler, AsyncTransport,
+    AsyncTransportConfiguration,
+};
 use nebula_graph_client::v2::{AsyncGraphClient, AsyncGraphSession};
 use tokio::net::TcpStream;
 
@@ -35,15 +38,21 @@ impl NebulaGraphClientConfiguration {
 }
 
 #[derive(Clone)]
-pub struct NebulaGraphConnectionManager {
+pub struct NebulaGraphConnectionManager<H>
+where
+    H: ResponseHandler,
+{
     client_configuration: NebulaGraphClientConfiguration,
-    transport_configuration: Option<AsyncTransportConfiguration>,
+    transport_configuration: AsyncTransportConfiguration<H>,
 }
 
-impl NebulaGraphConnectionManager {
+impl<H> NebulaGraphConnectionManager<H>
+where
+    H: ResponseHandler + Send + Sync + 'static + Unpin,
+{
     pub fn new(
         client_configuration: NebulaGraphClientConfiguration,
-        transport_configuration: Option<AsyncTransportConfiguration>,
+        transport_configuration: AsyncTransportConfiguration<H>,
     ) -> Self {
         Self {
             client_configuration,
@@ -53,7 +62,7 @@ impl NebulaGraphConnectionManager {
 
     async fn get_async_connection(
         &self,
-    ) -> result::Result<AsyncGraphSession<AsyncTransport<TcpStream>>, io::Error> {
+    ) -> result::Result<AsyncGraphSession<AsyncTransport<TcpStream, H>>, io::Error> {
         let addr = format!(
             "{}:{}",
             self.client_configuration.host, self.client_configuration.port
@@ -84,8 +93,11 @@ impl NebulaGraphConnectionManager {
 }
 
 #[async_trait]
-impl bb8::ManageConnection for NebulaGraphConnectionManager {
-    type Connection = AsyncGraphSession<AsyncTransport<TcpStream>>;
+impl<H> bb8::ManageConnection for NebulaGraphConnectionManager<H>
+where
+    H: ResponseHandler + Send + Sync + 'static + Unpin,
+{
+    type Connection = AsyncGraphSession<AsyncTransport<TcpStream, H>>;
     type Error = io::Error;
 
     async fn connect(&self) -> result::Result<Self::Connection, Self::Error> {
