@@ -21,19 +21,16 @@ impl ResponseHandler for GraphTransportResponseHandler {
             .read_message_begin(|v| v.to_vec())
             .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
 
-        match message_type {
-            MessageType::Call => {}
-            _ => {
-                return Err(io::Error::new(
-                    io::ErrorKind::Other,
-                    format!("Unexpected message type {:?}", message_type),
-                ))
-            }
-        }
-
         match &name[..] {
             b"authenticate" => Ok((name, None)),
             b"signout" => {
+                if message_type != MessageType::Call {
+                    return Err(io::Error::new(
+                        io::ErrorKind::Other,
+                        format!("Unexpected message type {:?}", message_type),
+                    ));
+                }
+
                 let buf = BytesMut::with_capacity(1024);
                 let mut ser = BinaryProtocolSerializer::<BytesMut>::with_buffer(buf);
 
@@ -65,45 +62,49 @@ impl ResponseHandler for GraphTransportResponseHandler {
 
         let mut des =
             BinaryProtocolDeserializer::<Bytes>::new(Bytes::from(response_bytes.to_vec()));
-        let (name, message_type, _) = des
-            .read_message_begin(|v| v.to_vec())
-            .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
+        let (name, message_type, _) = match des.read_message_begin(|v| v.to_vec()) {
+            Ok(v) => v,
+            Err(_) => return Ok(None),
+        };
 
         match &name[..] {
             b"authenticate" => {}
             b"signout" => unreachable!(),
             b"execute" => {}
-            _ => {
-                return Err(io::Error::new(
-                    io::ErrorKind::Other,
-                    format!("Unknown method {:?}", name),
-                ))
-            }
+            _ => return Ok(None),
         };
 
         match message_type {
             MessageType::Reply => {
                 match &name[..] {
                     b"authenticate" => {
-                        let _: AuthenticateExn = Deserialize::read(&mut des)
-                            .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
+                        let _: AuthenticateExn = match Deserialize::read(&mut des) {
+                            Ok(v) => v,
+                            Err(_) => return Ok(None),
+                        };
                     }
                     b"execute" => {
-                        let _: ExecuteExn = Deserialize::read(&mut des)
-                            .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
+                        let _: ExecuteExn = match Deserialize::read(&mut des) {
+                            Ok(v) => v,
+                            Err(_) => return Ok(None),
+                        };
                     }
                     _ => unreachable!(),
                 };
             }
             MessageType::Exception => {
-                let _: ApplicationException = Deserialize::read(&mut des)
-                    .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
+                let _: ApplicationException = match Deserialize::read(&mut des) {
+                    Ok(v) => v,
+                    Err(_) => return Ok(None),
+                };
             }
             MessageType::Call | MessageType::Oneway | MessageType::InvalidMessageType => {}
         }
 
-        des.read_message_end()
-            .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
+        match des.read_message_end() {
+            Ok(v) => v,
+            Err(_) => return Ok(None),
+        };
 
         Ok(Some(n - des.into_inner().len()))
     }
