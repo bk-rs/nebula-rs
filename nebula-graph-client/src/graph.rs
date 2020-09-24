@@ -1,3 +1,4 @@
+use std::io;
 use std::result;
 
 use async_trait::async_trait;
@@ -129,11 +130,24 @@ where
     }
 
     pub async fn execute(&mut self, stmt: &str) -> result::Result<ExecutionResponse, ExecuteError> {
-        let res = self
-            .connection
-            .service
-            .execute(self.session_id, stmt)
-            .await?;
+        let res = match self.connection.service.execute(self.session_id, stmt).await {
+            Ok(res) => res,
+            Err(ExecuteError::ThriftError(err)) => {
+                if let Some(io_err) = err.downcast_ref::<io::Error>() {
+                    // "ExecuteError Broken pipe (os error 32)"
+                    if io_err.kind() == io::ErrorKind::BrokenPipe {
+                        self.close_required = true;
+                    }
+                }
+
+                return Err(ExecuteError::ThriftError(err));
+            }
+            Err(err) => return Err(err),
+        };
+
+        /*
+        ResponseError(ErrorCode::E_EXECUTION_ERROR, Some("RPC failure in MetaClient: N6apache6thrift9transport19TTransportExceptionE: AsyncSocketException: connect failed, type = Socket not open, errno = 111 (Connection refused): Connection refused"))
+        */
 
         match res.error_code {
             ErrorCode::E_SESSION_INVALID | ErrorCode::E_SESSION_TIMEOUT => {
