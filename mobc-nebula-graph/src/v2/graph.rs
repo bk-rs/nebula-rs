@@ -108,12 +108,15 @@ where
         self.get_async_connection().await
     }
 
-    async fn check(&self, conn: Self::Connection) -> Result<Self::Connection, Self::Error> {
-        if conn.is_close_required() {
-            return Err(io::Error::new(io::ErrorKind::Other, "close_required"));
-        }
+    async fn check(&self, mut conn: Self::Connection) -> Result<Self::Connection, Self::Error> {
+        conn.execute(&b"SHOW CHARSET".to_vec())
+            .await
+            .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
 
-        // TODO
         Ok(conn)
+    }
+
+    fn validate(&self, conn: &mut Self::Connection) -> bool {
+        !conn.is_close_required()
     }
 }

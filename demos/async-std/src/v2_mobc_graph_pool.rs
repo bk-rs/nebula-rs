@@ -4,6 +4,7 @@ cargo run -p nebula-graph-demo-async-std --bin v2_mobc_graph_pool 127.0.0.1 3699
 
 use std::env;
 use std::io;
+use std::time::Duration;
 
 use fbthrift_transport::DefaultAsyncTransportConfiguration;
 use mobc_nebula_graph::v2::{NebulaGraphClientConfiguration, NebulaGraphConnectionManager};
@@ -40,17 +41,29 @@ async fn run() -> io::Result<()> {
         NebulaGraphClientConfiguration::new(domain, port, username, password, space);
     let transport_configuration = DefaultAsyncTransportConfiguration::default();
     let manager = NebulaGraphConnectionManager::new(client_configuration, transport_configuration);
-    let pool = mobc::Pool::builder().max_open(10).build(manager);
+
+    /*
+    etc/nebula-graphd.conf
+    --session_idle_timeout_secs=60000
+    */
+    let pool = mobc::Pool::builder()
+        .max_open(1)
+        .max_idle_lifetime(Some(Duration::from_secs(7200)))
+        .build(manager);
 
     //
-    let mut session = pool.get().await.unwrap();
-    let res = session.execute(&b"SHOW HOSTS;".to_vec()).await.unwrap();
-    println!("{:?}", res);
+    {
+        let mut session = pool.get().await.unwrap();
+        let res = session.execute(&b"SHOW HOSTS;".to_vec()).await.unwrap();
+        println!("{:?}", res);
+    }
 
     //
-    let mut session = pool.get().await.unwrap();
-    let res = session.execute(&b"SHOW HOSTS;".to_vec()).await.unwrap();
-    println!("{:?}", res);
+    {
+        let mut session = pool.get().await.unwrap();
+        let res = session.execute(&b"SHOW HOSTS;".to_vec()).await.unwrap();
+        println!("{:?}", res);
+    }
 
     println!("done");
 

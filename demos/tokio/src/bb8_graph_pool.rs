@@ -41,17 +41,21 @@ async fn run() -> io::Result<()> {
         NebulaGraphClientConfiguration::new(domain, port, username, password, space);
     let transport_configuration = AsyncTransportConfiguration::new(GraphTransportResponseHandler);
     let manager = NebulaGraphConnectionManager::new(client_configuration, transport_configuration);
-    let pool = bb8::Pool::builder().max_size(10).build(manager).await?;
+    let pool = bb8::Pool::builder().max_size(1).build(manager).await?;
 
     //
-    let mut session = pool.get().await.unwrap();
-    let out = session.show_hosts().await.unwrap();
-    println!("{:?}", out);
+    {
+        let mut session = pool.get().await.unwrap();
+        let out = session.show_hosts().await.unwrap();
+        println!("{:?}", out);
+    }
 
     //
-    let mut session = pool.get().await.unwrap();
-    let out = session.show_hosts().await.unwrap();
-    println!("{:?}", out);
+    {
+        let mut session = pool.get().await.unwrap();
+        let out = session.show_hosts().await.unwrap();
+        println!("{:?}", out);
+    }
 
     println!("done");
 
