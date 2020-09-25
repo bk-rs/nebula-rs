@@ -105,14 +105,10 @@ where
     }
 
     async fn is_valid(&self, conn: Self::Connection) -> Result<Self::Connection, Self::Error> {
-        if conn.is_close_required() {
-            return Err(io::Error::new(io::ErrorKind::Other, "close_required"));
-        }
-
         Ok(conn)
     }
 
-    fn has_broken(&self, _conn: &mut Self::Connection) -> bool {
-        false
+    fn has_broken(&self, conn: &mut Self::Connection) -> bool {
+        conn.is_close_required()
     }
 }
