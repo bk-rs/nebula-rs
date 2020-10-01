@@ -12,17 +12,17 @@ use nebula_fbthrift_graph::services::graph_service::{AuthenticateExn, ExecuteExn
 pub struct GraphTransportResponseHandler;
 
 impl ResponseHandler for GraphTransportResponseHandler {
-    fn try_make_response_bytes(
-        &self,
+    fn try_make_static_response_bytes(
+        &mut self,
         request_bytes: &[u8],
-    ) -> io::Result<(Vec<u8>, Option<Vec<u8>>)> {
+    ) -> io::Result<Option<Vec<u8>>> {
         let mut des = BinaryProtocolDeserializer::<Bytes>::new(Bytes::from(request_bytes.to_vec()));
         let (name, message_type, seqid) = des
             .read_message_begin(|v| v.to_vec())
             .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
 
         match &name[..] {
-            b"authenticate" => Ok((name, None)),
+            b"authenticate" => Ok(None),
             b"signout" => {
                 if message_type != MessageType::Call {
                     return Err(io::Error::new(
@@ -41,9 +41,9 @@ impl ResponseHandler for GraphTransportResponseHandler {
 
                 let res_buf = ser.finish().bytes().to_vec();
 
-                return Ok((name, Some(res_buf)));
+                return Ok(Some(res_buf));
             }
-            b"execute" => Ok((name, None)),
+            b"execute" => Ok(None),
             _ => {
                 return Err(io::Error::new(
                     io::ErrorKind::Other,
@@ -53,11 +53,7 @@ impl ResponseHandler for GraphTransportResponseHandler {
         }
     }
 
-    fn parse_response_bytes(
-        &self,
-        _name: &[u8],
-        response_bytes: &[u8],
-    ) -> io::Result<Option<usize>> {
+    fn parse_response_bytes(&mut self, response_bytes: &[u8]) -> io::Result<Option<usize>> {
         let n = response_bytes.len();
 
         let mut des =
