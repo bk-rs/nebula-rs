@@ -11,7 +11,7 @@ use nebula_graph_client::v2::{AsyncGraphClient, AsyncGraphSession};
 use tokio::net::TcpStream;
 
 #[derive(Debug, Clone)]
-pub struct NebulaGraphClientConfiguration {
+pub struct GraphClientConfiguration {
     pub host: String,
     pub port: u16,
     pub username: String,
@@ -19,7 +19,7 @@ pub struct NebulaGraphClientConfiguration {
     pub space: Option<String>,
 }
 
-impl NebulaGraphClientConfiguration {
+impl GraphClientConfiguration {
     pub fn new(
         host: String,
         port: u16,
@@ -38,20 +38,20 @@ impl NebulaGraphClientConfiguration {
 }
 
 #[derive(Clone)]
-pub struct NebulaGraphConnectionManager<H>
+pub struct GraphConnectionManager<H>
 where
     H: ResponseHandler,
 {
-    client_configuration: NebulaGraphClientConfiguration,
+    client_configuration: GraphClientConfiguration,
     transport_configuration: AsyncTransportConfiguration<H>,
 }
 
-impl<H> NebulaGraphConnectionManager<H>
+impl<H> GraphConnectionManager<H>
 where
     H: ResponseHandler + Send + Sync + 'static + Unpin,
 {
     pub fn new(
-        client_configuration: NebulaGraphClientConfiguration,
+        client_configuration: GraphClientConfiguration,
         transport_configuration: AsyncTransportConfiguration<H>,
     ) -> Self {
         Self {
@@ -93,7 +93,7 @@ where
 }
 
 #[async_trait]
-impl<H> bb8::ManageConnection for NebulaGraphConnectionManager<H>
+impl<H> bb8::ManageConnection for GraphConnectionManager<H>
 where
     H: ResponseHandler + Send + Sync + 'static + Unpin,
 {

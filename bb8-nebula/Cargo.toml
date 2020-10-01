@@ -1,21 +1,26 @@
 [package]
-name = "bb8-nebula-graph"
+name = "bb8-nebula"
 version = "0.4.3"
 authors = ["vkill <vkill.net@gmail.com>"]
 edition = "2018"
-description = "bb8 Nebula Graph pool"
+description = "bb8 Nebula Graph/Meta/Storage pool"
 license = "Apache-2.0 OR MIT"
 repository = "https://github.com/bk-rs/nebula-rs"
 homepage = "https://github.com/bk-rs/nebula-rs"
-documentation = "https://docs.rs/bb8-nebula-graph"
+documentation = "https://docs.rs/bb8-nebula"
 keywords = []
 categories = []
 readme = "README.md"
 
+[features]
+default = ["graph"]
+graph = ["nebula-graph-client"]
+
 [dependencies]
-nebula-graph-client = { path = "../nebula-graph-client", version = "0.3", default-features = false, features = [] }
 fbthrift-transport = { version = "0.4", default-features = false, features = ["tokio_io"] }
 
 bb8 = { version = "0.4", default-features = false, features = [] }
 async-trait = { version = "0.1", default-features = false, features = [] }
 tokio = { version = "0.2", default-features = false, features = ["net"] }
+
+nebula-graph-client = { path = "../nebula-graph-client", version = "0.3", default-features = false, features = [], optional = true }

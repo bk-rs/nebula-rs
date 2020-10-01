@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "bb8-nebula-graph",
+    "bb8-nebula",
     "demos/async-std",
     "demos/tokio",
     "mobc-nebula-graph",
