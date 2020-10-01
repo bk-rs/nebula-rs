@@ -23,12 +23,17 @@ pub mod types {
         UnknownField(::std::primitive::i32),
     }
 
+    #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+    pub struct ColumnTypeDef {
+        pub type_: crate::types::PropertyType,
+        pub type_length: ::std::option::Option<::std::primitive::i16>,
+    }
+
     #[derive(Clone, Debug, PartialEq)]
     pub struct ColumnDef {
         pub name: ::std::vec::Vec<::std::primitive::u8>,
-        pub type_: crate::types::PropertyType,
+        pub type_: crate::types::ColumnTypeDef,
         pub default_value: ::std::option::Option<common::types::Value>,
-        pub type_length: ::std::option::Option<::std::primitive::i16>,
         pub nullable: ::std::option::Option<::std::primitive::bool>,
     }
 
@@ -50,20 +55,20 @@ pub mod types {
         pub name: ::std::vec::Vec<::std::primitive::u8>,
     }
 
-    #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-    pub struct SpaceProperties {
+    #[derive(Clone, Debug, PartialEq)]
+    pub struct SpaceDesc {
         pub space_name: ::std::vec::Vec<::std::primitive::u8>,
         pub partition_num: ::std::primitive::i32,
         pub replica_factor: ::std::primitive::i32,
-        pub vid_size: ::std::primitive::i32,
         pub charset_name: ::std::vec::Vec<::std::primitive::u8>,
         pub collate_name: ::std::vec::Vec<::std::primitive::u8>,
+        pub vid_type: crate::types::ColumnTypeDef,
     }
 
     #[derive(Clone, Debug, PartialEq)]
     pub struct SpaceItem {
         pub space_id: common::types::GraphSpaceID,
-        pub properties: crate::types::SpaceProperties,
+        pub properties: crate::types::SpaceDesc,
     }
 
     #[derive(Clone, Debug, PartialEq)]
@@ -182,7 +187,7 @@ pub mod types {
 
     #[derive(Clone, Debug, PartialEq)]
     pub struct CreateSpaceReq {
-        pub properties: crate::types::SpaceProperties,
+        pub properties: crate::types::SpaceDesc,
         pub if_not_exists: ::std::primitive::bool,
     }
 
@@ -1168,6 +1173,7 @@ pub mod types {
         pub const TIMESTAMP: Self = PropertyType(21i32);
         pub const DATE: Self = PropertyType(24i32);
         pub const DATETIME: Self = PropertyType(25i32);
+        pub const TIME: Self = PropertyType(26i32);
 
         pub fn variants() -> &'static [&'static str] {
             &[
@@ -1185,6 +1191,7 @@ pub mod types {
                 "TIMESTAMP",
                 "DATE",
                 "DATETIME",
+                "TIME",
             ]
         }
     }
@@ -1233,6 +1240,7 @@ pub mod types {
                 PropertyType::TIMESTAMP => "TIMESTAMP",
                 PropertyType::DATE => "DATE",
                 PropertyType::DATETIME => "DATETIME",
+                PropertyType::TIME => "TIME",
                 PropertyType(x) => return write!(fmt, "{}", x),
             };
             write!(fmt, "{}", s)
@@ -1264,6 +1272,7 @@ pub mod types {
                 "TIMESTAMP" => ::std::result::Result::Ok(PropertyType::TIMESTAMP),
                 "DATE" => ::std::result::Result::Ok(PropertyType::DATE),
                 "DATETIME" => ::std::result::Result::Ok(PropertyType::DATETIME),
+                "TIME" => ::std::result::Result::Ok(PropertyType::TIME),
                 _ => ::anyhow::bail!("Unable to parse {} as PropertyType", string),
             }
         }
@@ -2421,13 +2430,74 @@ pub mod types {
         }
     }
 
+    impl ::std::default::Default for self::ColumnTypeDef {
+        fn default() -> Self {
+            Self {
+                type_: ::std::default::Default::default(),
+                type_length: ::std::option::Option::Some(0),
+            }
+        }
+    }
+
+    unsafe impl ::std::marker::Send for self::ColumnTypeDef {}
+    unsafe impl ::std::marker::Sync for self::ColumnTypeDef {}
+
+    impl ::fbthrift::GetTType for self::ColumnTypeDef {
+        const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
+    }
+
+    impl<P> ::fbthrift::Serialize<P> for self::ColumnTypeDef
+    where
+        P: ::fbthrift::ProtocolWriter,
+    {
+        fn write(&self, p: &mut P) {
+            p.write_struct_begin("ColumnTypeDef");
+            p.write_field_begin("type", ::fbthrift::TType::I32, 1);
+            ::fbthrift::Serialize::write(&self.type_, p);
+            p.write_field_end();
+            if let ::std::option::Option::Some(some) = &self.type_length {
+                p.write_field_begin("type_length", ::fbthrift::TType::I16, 2);
+                ::fbthrift::Serialize::write(some, p);
+                p.write_field_end();
+            }
+            p.write_field_stop();
+            p.write_struct_end();
+        }
+    }
+
+    impl<P> ::fbthrift::Deserialize<P> for self::ColumnTypeDef
+    where
+        P: ::fbthrift::ProtocolReader,
+    {
+        fn read(p: &mut P) -> ::anyhow::Result<Self> {
+            let mut field_type = ::std::option::Option::None;
+            let mut field_type_length = ::std::option::Option::None;
+            let _ = p.read_struct_begin(|_| ())?;
+            loop {
+                let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                match (fty, fid as ::std::primitive::i32) {
+                    (::fbthrift::TType::Stop, _) => break,
+                    (::fbthrift::TType::I32, 1) => field_type = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I16, 2) => field_type_length = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (fty, _) => p.skip(fty)?,
+                }
+                p.read_field_end()?;
+            }
+            p.read_struct_end()?;
+            ::std::result::Result::Ok(Self {
+                type_: field_type.unwrap_or_default(),
+                type_length: field_type_length,
+            })
+        }
+    }
+
+
     impl ::std::default::Default for self::ColumnDef {
         fn default() -> Self {
             Self {
                 name: ::std::default::Default::default(),
                 type_: ::std::default::Default::default(),
                 default_value: ::std::option::Option::None,
-                type_length: ::std::option::Option::Some(0),
                 nullable: ::std::option::Option::Some(false),
             }
         }
@@ -2449,7 +2519,7 @@ pub mod types {
             p.write_field_begin("name", ::fbthrift::TType::String, 1);
             ::fbthrift::Serialize::write(&self.name, p);
             p.write_field_end();
-            p.write_field_begin("type", ::fbthrift::TType::I32, 2);
+            p.write_field_begin("type", ::fbthrift::TType::Struct, 2);
             ::fbthrift::Serialize::write(&self.type_, p);
             p.write_field_end();
             if let ::std::option::Option::Some(some) = &self.default_value {
@@ -2457,13 +2527,8 @@ pub mod types {
                 ::fbthrift::Serialize::write(some, p);
                 p.write_field_end();
             }
-            if let ::std::option::Option::Some(some) = &self.type_length {
-                p.write_field_begin("type_length", ::fbthrift::TType::I16, 4);
-                ::fbthrift::Serialize::write(some, p);
-                p.write_field_end();
-            }
             if let ::std::option::Option::Some(some) = &self.nullable {
-                p.write_field_begin("nullable", ::fbthrift::TType::Bool, 5);
+                p.write_field_begin("nullable", ::fbthrift::TType::Bool, 4);
                 ::fbthrift::Serialize::write(some, p);
                 p.write_field_end();
             }
@@ -2480,7 +2545,6 @@ pub mod types {
             let mut field_name = ::std::option::Option::None;
             let mut field_type = ::std::option::Option::None;
             let mut field_default_value = ::std::option::Option::None;
-            let mut field_type_length = ::std::option::Option::None;
             let mut field_nullable = ::std::option::Option::None;
             let _ = p.read_struct_begin(|_| ())?;
             loop {
@@ -2488,10 +2552,9 @@ pub mod types {
                 match (fty, fid as ::std::primitive::i32) {
                     (::fbthrift::TType::Stop, _) => break,
                     (::fbthrift::TType::String, 1) => field_name = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::I32, 2) => field_type = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Struct, 2) => field_type = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::Struct, 3) => field_default_value = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::I16, 4) => field_type_length = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::Bool, 5) => field_nullable = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Bool, 4) => field_nullable = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (fty, _) => p.skip(fty)?,
                 }
                 p.read_field_end()?;
@@ -2501,7 +2564,6 @@ pub mod types {
                 name: field_name.unwrap_or_default(),
                 type_: field_type.unwrap_or_default(),
                 default_value: field_default_value,
-                type_length: field_type_length,
                 nullable: field_nullable,
             })
         }
@@ -2692,32 +2754,35 @@ pub mod types {
     }
 
 
-    impl ::std::default::Default for self::SpaceProperties {
+    impl ::std::default::Default for self::SpaceDesc {
         fn default() -> Self {
             Self {
                 space_name: ::std::default::Default::default(),
-                partition_num: ::std::default::Default::default(),
-                replica_factor: ::std::default::Default::default(),
-                vid_size: 8,
+                partition_num: 0,
+                replica_factor: 0,
                 charset_name: ::std::default::Default::default(),
                 collate_name: ::std::default::Default::default(),
+                vid_type: crate::types::ColumnTypeDef {
+                    type_: crate::types::PropertyType::FIXED_STRING,
+                    type_length: ::std::option::Option::Some(8),
+                },
             }
         }
     }
 
-    unsafe impl ::std::marker::Send for self::SpaceProperties {}
-    unsafe impl ::std::marker::Sync for self::SpaceProperties {}
+    unsafe impl ::std::marker::Send for self::SpaceDesc {}
+    unsafe impl ::std::marker::Sync for self::SpaceDesc {}
 
-    impl ::fbthrift::GetTType for self::SpaceProperties {
+    impl ::fbthrift::GetTType for self::SpaceDesc {
         const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
     }
 
-    impl<P> ::fbthrift::Serialize<P> for self::SpaceProperties
+    impl<P> ::fbthrift::Serialize<P> for self::SpaceDesc
     where
         P: ::fbthrift::ProtocolWriter,
     {
         fn write(&self, p: &mut P) {
-            p.write_struct_begin("SpaceProperties");
+            p.write_struct_begin("SpaceDesc");
             p.write_field_begin("space_name", ::fbthrift::TType::String, 1);
             ::fbthrift::Serialize::write(&self.space_name, p);
             p.write_field_end();
@@ -2727,21 +2792,21 @@ pub mod types {
             p.write_field_begin("replica_factor", ::fbthrift::TType::I32, 3);
             ::fbthrift::Serialize::write(&self.replica_factor, p);
             p.write_field_end();
-            p.write_field_begin("vid_size", ::fbthrift::TType::I32, 4);
-            ::fbthrift::Serialize::write(&self.vid_size, p);
-            p.write_field_end();
-            p.write_field_begin("charset_name", ::fbthrift::TType::String, 5);
+            p.write_field_begin("charset_name", ::fbthrift::TType::String, 4);
             ::fbthrift::Serialize::write(&self.charset_name, p);
             p.write_field_end();
-            p.write_field_begin("collate_name", ::fbthrift::TType::String, 6);
+            p.write_field_begin("collate_name", ::fbthrift::TType::String, 5);
             ::fbthrift::Serialize::write(&self.collate_name, p);
+            p.write_field_end();
+            p.write_field_begin("vid_type", ::fbthrift::TType::Struct, 6);
+            ::fbthrift::Serialize::write(&self.vid_type, p);
             p.write_field_end();
             p.write_field_stop();
             p.write_struct_end();
         }
     }
 
-    impl<P> ::fbthrift::Deserialize<P> for self::SpaceProperties
+    impl<P> ::fbthrift::Deserialize<P> for self::SpaceDesc
     where
         P: ::fbthrift::ProtocolReader,
     {
@@ -2749,9 +2814,9 @@ pub mod types {
             let mut field_space_name = ::std::option::Option::None;
             let mut field_partition_num = ::std::option::Option::None;
             let mut field_replica_factor = ::std::option::Option::None;
-            let mut field_vid_size = ::std::option::Option::None;
             let mut field_charset_name = ::std::option::Option::None;
             let mut field_collate_name = ::std::option::Option::None;
+            let mut field_vid_type = ::std::option::Option::None;
             let _ = p.read_struct_begin(|_| ())?;
             loop {
                 let (_, fty, fid) = p.read_field_begin(|_| ())?;
@@ -2760,9 +2825,9 @@ pub mod types {
                     (::fbthrift::TType::String, 1) => field_space_name = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::I32, 2) => field_partition_num = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::I32, 3) => field_replica_factor = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::I32, 4) => field_vid_size = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::String, 5) => field_charset_name = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::String, 6) => field_collate_name = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::String, 4) => field_charset_name = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::String, 5) => field_collate_name = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Struct, 6) => field_vid_type = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (fty, _) => p.skip(fty)?,
                 }
                 p.read_field_end()?;
@@ -2770,11 +2835,14 @@ pub mod types {
             p.read_struct_end()?;
             ::std::result::Result::Ok(Self {
                 space_name: field_space_name.unwrap_or_default(),
-                partition_num: field_partition_num.unwrap_or_default(),
-                replica_factor: field_replica_factor.unwrap_or_default(),
-                vid_size: field_vid_size.unwrap_or_else(|| 8),
+                partition_num: field_partition_num.unwrap_or_else(|| 0),
+                replica_factor: field_replica_factor.unwrap_or_else(|| 0),
                 charset_name: field_charset_name.unwrap_or_default(),
                 collate_name: field_collate_name.unwrap_or_default(),
+                vid_type: field_vid_type.unwrap_or_else(|| crate::types::ColumnTypeDef {
+                    type_: crate::types::PropertyType::FIXED_STRING,
+                    type_length: ::std::option::Option::Some(8),
+                }),
             })
         }
     }

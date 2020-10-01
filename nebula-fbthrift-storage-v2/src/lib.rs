@@ -115,16 +115,16 @@ pub mod types {
 
     #[derive(Clone, Debug, PartialEq)]
     pub struct NewVertex {
-        pub id: common::types::VertexID,
+        pub id: common::types::Value,
         pub tags: ::std::vec::Vec<crate::types::NewTag>,
     }
 
-    #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+    #[derive(Clone, Debug, PartialEq)]
     pub struct EdgeKey {
-        pub src: common::types::VertexID,
+        pub src: common::types::Value,
         pub edge_type: common::types::EdgeType,
         pub ranking: common::types::EdgeRanking,
-        pub dst: common::types::VertexID,
+        pub dst: common::types::Value,
     }
 
     #[derive(Clone, Debug, PartialEq)]
@@ -152,7 +152,7 @@ pub mod types {
     #[derive(Clone, Debug, PartialEq)]
     pub struct DeleteVerticesRequest {
         pub space_id: common::types::GraphSpaceID,
-        pub parts: ::std::collections::BTreeMap<common::types::PartitionID, ::std::vec::Vec<common::types::VertexID>>,
+        pub parts: ::std::collections::BTreeMap<common::types::PartitionID, ::std::vec::Vec<common::types::Value>>,
     }
 
     #[derive(Clone, Debug, PartialEq)]
@@ -177,7 +177,7 @@ pub mod types {
     pub struct UpdateVertexRequest {
         pub space_id: common::types::GraphSpaceID,
         pub part_id: common::types::PartitionID,
-        pub vertex_id: common::types::VertexID,
+        pub vertex_id: common::types::Value,
         pub tag_id: common::types::TagID,
         pub updated_props: ::std::vec::Vec<crate::types::UpdatedProp>,
         pub insertable: ::std::option::Option<::std::primitive::bool>,
@@ -251,6 +251,46 @@ pub mod types {
         pub parts: ::std::vec::Vec<common::types::PartitionID>,
         pub indices: crate::types::IndexSpec,
         pub traverse_spec: crate::types::TraverseSpec,
+    }
+
+    #[derive(Clone, Debug, PartialEq)]
+    pub struct ScanVertexRequest {
+        pub space_id: common::types::GraphSpaceID,
+        pub part_id: common::types::PartitionID,
+        pub cursor: ::std::option::Option<::std::vec::Vec<::std::primitive::u8>>,
+        pub return_columns: ::std::vec::Vec<crate::types::VertexProp>,
+        pub no_columns: ::std::primitive::bool,
+        pub limit: ::std::primitive::i32,
+        pub start_time: ::std::option::Option<::std::primitive::i64>,
+        pub end_time: ::std::option::Option<::std::primitive::i64>,
+    }
+
+    #[derive(Clone, Debug, PartialEq)]
+    pub struct ScanVertexResponse {
+        pub result: crate::types::ResponseCommon,
+        pub vertex_data: common::types::DataSet,
+        pub has_next: ::std::primitive::bool,
+        pub next_cursor: ::std::option::Option<::std::vec::Vec<::std::primitive::u8>>,
+    }
+
+    #[derive(Clone, Debug, PartialEq)]
+    pub struct ScanEdgeRequest {
+        pub space_id: common::types::GraphSpaceID,
+        pub part_id: common::types::PartitionID,
+        pub cursor: ::std::option::Option<::std::vec::Vec<::std::primitive::u8>>,
+        pub return_columns: ::std::vec::Vec<crate::types::EdgeProp>,
+        pub no_columns: ::std::primitive::bool,
+        pub limit: ::std::primitive::i32,
+        pub start_time: ::std::option::Option<::std::primitive::i64>,
+        pub end_time: ::std::option::Option<::std::primitive::i64>,
+    }
+
+    #[derive(Clone, Debug, PartialEq)]
+    pub struct ScanEdgeResponse {
+        pub result: crate::types::ResponseCommon,
+        pub edge_data: common::types::DataSet,
+        pub has_next: ::std::primitive::bool,
+        pub next_cursor: ::std::option::Option<::std::vec::Vec<::std::primitive::u8>>,
     }
 
     #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -362,7 +402,6 @@ pub mod types {
         pub space_id: common::types::GraphSpaceID,
         pub parts: ::std::vec::Vec<common::types::PartitionID>,
         pub index_id: common::types::IndexID,
-        pub is_offline: ::std::primitive::bool,
     }
 
     #[derive(Clone, Debug, PartialEq)]
@@ -2172,7 +2211,7 @@ pub mod types {
     {
         fn write(&self, p: &mut P) {
             p.write_struct_begin("NewVertex");
-            p.write_field_begin("id", ::fbthrift::TType::String, 1);
+            p.write_field_begin("id", ::fbthrift::TType::Struct, 1);
             ::fbthrift::Serialize::write(&self.id, p);
             p.write_field_end();
             p.write_field_begin("tags", ::fbthrift::TType::List, 2);
@@ -2195,7 +2234,7 @@ pub mod types {
                 let (_, fty, fid) = p.read_field_begin(|_| ())?;
                 match (fty, fid as ::std::primitive::i32) {
                     (::fbthrift::TType::Stop, _) => break,
-                    (::fbthrift::TType::String, 1) => field_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Struct, 1) => field_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::List, 2) => field_tags = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (fty, _) => p.skip(fty)?,
                 }
@@ -2234,7 +2273,7 @@ pub mod types {
     {
         fn write(&self, p: &mut P) {
             p.write_struct_begin("EdgeKey");
-            p.write_field_begin("src", ::fbthrift::TType::String, 1);
+            p.write_field_begin("src", ::fbthrift::TType::Struct, 1);
             ::fbthrift::Serialize::write(&self.src, p);
             p.write_field_end();
             p.write_field_begin("edge_type", ::fbthrift::TType::I32, 2);
@@ -2243,7 +2282,7 @@ pub mod types {
             p.write_field_begin("ranking", ::fbthrift::TType::I64, 3);
             ::fbthrift::Serialize::write(&self.ranking, p);
             p.write_field_end();
-            p.write_field_begin("dst", ::fbthrift::TType::String, 4);
+            p.write_field_begin("dst", ::fbthrift::TType::Struct, 4);
             ::fbthrift::Serialize::write(&self.dst, p);
             p.write_field_end();
             p.write_field_stop();
@@ -2265,10 +2304,10 @@ pub mod types {
                 let (_, fty, fid) = p.read_field_begin(|_| ())?;
                 match (fty, fid as ::std::primitive::i32) {
                     (::fbthrift::TType::Stop, _) => break,
-                    (::fbthrift::TType::String, 1) => field_src = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Struct, 1) => field_src = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::I32, 2) => field_edge_type = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::I64, 3) => field_ranking = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::String, 4) => field_dst = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Struct, 4) => field_dst = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (fty, _) => p.skip(fty)?,
                 }
                 p.read_field_end()?;
@@ -2768,7 +2807,7 @@ pub mod types {
             p.write_field_begin("part_id", ::fbthrift::TType::I32, 2);
             ::fbthrift::Serialize::write(&self.part_id, p);
             p.write_field_end();
-            p.write_field_begin("vertex_id", ::fbthrift::TType::String, 3);
+            p.write_field_begin("vertex_id", ::fbthrift::TType::Struct, 3);
             ::fbthrift::Serialize::write(&self.vertex_id, p);
             p.write_field_end();
             p.write_field_begin("tag_id", ::fbthrift::TType::I32, 4);
@@ -2817,7 +2856,7 @@ pub mod types {
                     (::fbthrift::TType::Stop, _) => break,
                     (::fbthrift::TType::I32, 1) => field_space_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::I32, 2) => field_part_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::String, 3) => field_vertex_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Struct, 3) => field_vertex_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::I32, 4) => field_tag_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::List, 5) => field_updated_props = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::Bool, 6) => field_insertable = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
@@ -3485,6 +3524,374 @@ pub mod types {
                 parts: field_parts.unwrap_or_default(),
                 indices: field_indices.unwrap_or_default(),
                 traverse_spec: field_traverse_spec.unwrap_or_default(),
+            })
+        }
+    }
+
+
+    impl ::std::default::Default for self::ScanVertexRequest {
+        fn default() -> Self {
+            Self {
+                space_id: ::std::default::Default::default(),
+                part_id: ::std::default::Default::default(),
+                cursor: ::std::option::Option::None,
+                return_columns: ::std::default::Default::default(),
+                no_columns: ::std::default::Default::default(),
+                limit: ::std::default::Default::default(),
+                start_time: ::std::option::Option::None,
+                end_time: ::std::option::Option::None,
+            }
+        }
+    }
+
+    unsafe impl ::std::marker::Send for self::ScanVertexRequest {}
+    unsafe impl ::std::marker::Sync for self::ScanVertexRequest {}
+
+    impl ::fbthrift::GetTType for self::ScanVertexRequest {
+        const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
+    }
+
+    impl<P> ::fbthrift::Serialize<P> for self::ScanVertexRequest
+    where
+        P: ::fbthrift::ProtocolWriter,
+    {
+        fn write(&self, p: &mut P) {
+            p.write_struct_begin("ScanVertexRequest");
+            p.write_field_begin("space_id", ::fbthrift::TType::I32, 1);
+            ::fbthrift::Serialize::write(&self.space_id, p);
+            p.write_field_end();
+            p.write_field_begin("part_id", ::fbthrift::TType::I32, 2);
+            ::fbthrift::Serialize::write(&self.part_id, p);
+            p.write_field_end();
+            if let ::std::option::Option::Some(some) = &self.cursor {
+                p.write_field_begin("cursor", ::fbthrift::TType::String, 3);
+                ::fbthrift::Serialize::write(some, p);
+                p.write_field_end();
+            }
+            p.write_field_begin("return_columns", ::fbthrift::TType::List, 4);
+            ::fbthrift::Serialize::write(&self.return_columns, p);
+            p.write_field_end();
+            p.write_field_begin("no_columns", ::fbthrift::TType::Bool, 5);
+            ::fbthrift::Serialize::write(&self.no_columns, p);
+            p.write_field_end();
+            p.write_field_begin("limit", ::fbthrift::TType::I32, 6);
+            ::fbthrift::Serialize::write(&self.limit, p);
+            p.write_field_end();
+            if let ::std::option::Option::Some(some) = &self.start_time {
+                p.write_field_begin("start_time", ::fbthrift::TType::I64, 7);
+                ::fbthrift::Serialize::write(some, p);
+                p.write_field_end();
+            }
+            if let ::std::option::Option::Some(some) = &self.end_time {
+                p.write_field_begin("end_time", ::fbthrift::TType::I64, 8);
+                ::fbthrift::Serialize::write(some, p);
+                p.write_field_end();
+            }
+            p.write_field_stop();
+            p.write_struct_end();
+        }
+    }
+
+    impl<P> ::fbthrift::Deserialize<P> for self::ScanVertexRequest
+    where
+        P: ::fbthrift::ProtocolReader,
+    {
+        fn read(p: &mut P) -> ::anyhow::Result<Self> {
+            let mut field_space_id = ::std::option::Option::None;
+            let mut field_part_id = ::std::option::Option::None;
+            let mut field_cursor = ::std::option::Option::None;
+            let mut field_return_columns = ::std::option::Option::None;
+            let mut field_no_columns = ::std::option::Option::None;
+            let mut field_limit = ::std::option::Option::None;
+            let mut field_start_time = ::std::option::Option::None;
+            let mut field_end_time = ::std::option::Option::None;
+            let _ = p.read_struct_begin(|_| ())?;
+            loop {
+                let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                match (fty, fid as ::std::primitive::i32) {
+                    (::fbthrift::TType::Stop, _) => break,
+                    (::fbthrift::TType::I32, 1) => field_space_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I32, 2) => field_part_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::String, 3) => field_cursor = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::List, 4) => field_return_columns = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Bool, 5) => field_no_columns = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I32, 6) => field_limit = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I64, 7) => field_start_time = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I64, 8) => field_end_time = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (fty, _) => p.skip(fty)?,
+                }
+                p.read_field_end()?;
+            }
+            p.read_struct_end()?;
+            ::std::result::Result::Ok(Self {
+                space_id: field_space_id.unwrap_or_default(),
+                part_id: field_part_id.unwrap_or_default(),
+                cursor: field_cursor,
+                return_columns: field_return_columns.unwrap_or_default(),
+                no_columns: field_no_columns.unwrap_or_default(),
+                limit: field_limit.unwrap_or_default(),
+                start_time: field_start_time,
+                end_time: field_end_time,
+            })
+        }
+    }
+
+
+    impl ::std::default::Default for self::ScanVertexResponse {
+        fn default() -> Self {
+            Self {
+                result: ::std::default::Default::default(),
+                vertex_data: ::std::default::Default::default(),
+                has_next: ::std::default::Default::default(),
+                next_cursor: ::std::option::Option::None,
+            }
+        }
+    }
+
+    unsafe impl ::std::marker::Send for self::ScanVertexResponse {}
+    unsafe impl ::std::marker::Sync for self::ScanVertexResponse {}
+
+    impl ::fbthrift::GetTType for self::ScanVertexResponse {
+        const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
+    }
+
+    impl<P> ::fbthrift::Serialize<P> for self::ScanVertexResponse
+    where
+        P: ::fbthrift::ProtocolWriter,
+    {
+        fn write(&self, p: &mut P) {
+            p.write_struct_begin("ScanVertexResponse");
+            p.write_field_begin("result", ::fbthrift::TType::Struct, 1);
+            ::fbthrift::Serialize::write(&self.result, p);
+            p.write_field_end();
+            p.write_field_begin("vertex_data", ::fbthrift::TType::Struct, 2);
+            ::fbthrift::Serialize::write(&self.vertex_data, p);
+            p.write_field_end();
+            p.write_field_begin("has_next", ::fbthrift::TType::Bool, 3);
+            ::fbthrift::Serialize::write(&self.has_next, p);
+            p.write_field_end();
+            if let ::std::option::Option::Some(some) = &self.next_cursor {
+                p.write_field_begin("next_cursor", ::fbthrift::TType::String, 4);
+                ::fbthrift::Serialize::write(some, p);
+                p.write_field_end();
+            }
+            p.write_field_stop();
+            p.write_struct_end();
+        }
+    }
+
+    impl<P> ::fbthrift::Deserialize<P> for self::ScanVertexResponse
+    where
+        P: ::fbthrift::ProtocolReader,
+    {
+        fn read(p: &mut P) -> ::anyhow::Result<Self> {
+            let mut field_result = ::std::option::Option::None;
+            let mut field_vertex_data = ::std::option::Option::None;
+            let mut field_has_next = ::std::option::Option::None;
+            let mut field_next_cursor = ::std::option::Option::None;
+            let _ = p.read_struct_begin(|_| ())?;
+            loop {
+                let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                match (fty, fid as ::std::primitive::i32) {
+                    (::fbthrift::TType::Stop, _) => break,
+                    (::fbthrift::TType::Struct, 1) => field_result = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Struct, 2) => field_vertex_data = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Bool, 3) => field_has_next = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::String, 4) => field_next_cursor = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (fty, _) => p.skip(fty)?,
+                }
+                p.read_field_end()?;
+            }
+            p.read_struct_end()?;
+            ::std::result::Result::Ok(Self {
+                result: field_result.unwrap_or_default(),
+                vertex_data: field_vertex_data.unwrap_or_default(),
+                has_next: field_has_next.unwrap_or_default(),
+                next_cursor: field_next_cursor,
+            })
+        }
+    }
+
+
+    impl ::std::default::Default for self::ScanEdgeRequest {
+        fn default() -> Self {
+            Self {
+                space_id: ::std::default::Default::default(),
+                part_id: ::std::default::Default::default(),
+                cursor: ::std::option::Option::None,
+                return_columns: ::std::default::Default::default(),
+                no_columns: ::std::default::Default::default(),
+                limit: ::std::default::Default::default(),
+                start_time: ::std::option::Option::None,
+                end_time: ::std::option::Option::None,
+            }
+        }
+    }
+
+    unsafe impl ::std::marker::Send for self::ScanEdgeRequest {}
+    unsafe impl ::std::marker::Sync for self::ScanEdgeRequest {}
+
+    impl ::fbthrift::GetTType for self::ScanEdgeRequest {
+        const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
+    }
+
+    impl<P> ::fbthrift::Serialize<P> for self::ScanEdgeRequest
+    where
+        P: ::fbthrift::ProtocolWriter,
+    {
+        fn write(&self, p: &mut P) {
+            p.write_struct_begin("ScanEdgeRequest");
+            p.write_field_begin("space_id", ::fbthrift::TType::I32, 1);
+            ::fbthrift::Serialize::write(&self.space_id, p);
+            p.write_field_end();
+            p.write_field_begin("part_id", ::fbthrift::TType::I32, 2);
+            ::fbthrift::Serialize::write(&self.part_id, p);
+            p.write_field_end();
+            if let ::std::option::Option::Some(some) = &self.cursor {
+                p.write_field_begin("cursor", ::fbthrift::TType::String, 3);
+                ::fbthrift::Serialize::write(some, p);
+                p.write_field_end();
+            }
+            p.write_field_begin("return_columns", ::fbthrift::TType::List, 4);
+            ::fbthrift::Serialize::write(&self.return_columns, p);
+            p.write_field_end();
+            p.write_field_begin("no_columns", ::fbthrift::TType::Bool, 5);
+            ::fbthrift::Serialize::write(&self.no_columns, p);
+            p.write_field_end();
+            p.write_field_begin("limit", ::fbthrift::TType::I32, 6);
+            ::fbthrift::Serialize::write(&self.limit, p);
+            p.write_field_end();
+            if let ::std::option::Option::Some(some) = &self.start_time {
+                p.write_field_begin("start_time", ::fbthrift::TType::I64, 7);
+                ::fbthrift::Serialize::write(some, p);
+                p.write_field_end();
+            }
+            if let ::std::option::Option::Some(some) = &self.end_time {
+                p.write_field_begin("end_time", ::fbthrift::TType::I64, 8);
+                ::fbthrift::Serialize::write(some, p);
+                p.write_field_end();
+            }
+            p.write_field_stop();
+            p.write_struct_end();
+        }
+    }
+
+    impl<P> ::fbthrift::Deserialize<P> for self::ScanEdgeRequest
+    where
+        P: ::fbthrift::ProtocolReader,
+    {
+        fn read(p: &mut P) -> ::anyhow::Result<Self> {
+            let mut field_space_id = ::std::option::Option::None;
+            let mut field_part_id = ::std::option::Option::None;
+            let mut field_cursor = ::std::option::Option::None;
+            let mut field_return_columns = ::std::option::Option::None;
+            let mut field_no_columns = ::std::option::Option::None;
+            let mut field_limit = ::std::option::Option::None;
+            let mut field_start_time = ::std::option::Option::None;
+            let mut field_end_time = ::std::option::Option::None;
+            let _ = p.read_struct_begin(|_| ())?;
+            loop {
+                let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                match (fty, fid as ::std::primitive::i32) {
+                    (::fbthrift::TType::Stop, _) => break,
+                    (::fbthrift::TType::I32, 1) => field_space_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I32, 2) => field_part_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::String, 3) => field_cursor = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::List, 4) => field_return_columns = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Bool, 5) => field_no_columns = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I32, 6) => field_limit = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I64, 7) => field_start_time = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I64, 8) => field_end_time = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (fty, _) => p.skip(fty)?,
+                }
+                p.read_field_end()?;
+            }
+            p.read_struct_end()?;
+            ::std::result::Result::Ok(Self {
+                space_id: field_space_id.unwrap_or_default(),
+                part_id: field_part_id.unwrap_or_default(),
+                cursor: field_cursor,
+                return_columns: field_return_columns.unwrap_or_default(),
+                no_columns: field_no_columns.unwrap_or_default(),
+                limit: field_limit.unwrap_or_default(),
+                start_time: field_start_time,
+                end_time: field_end_time,
+            })
+        }
+    }
+
+
+    impl ::std::default::Default for self::ScanEdgeResponse {
+        fn default() -> Self {
+            Self {
+                result: ::std::default::Default::default(),
+                edge_data: ::std::default::Default::default(),
+                has_next: ::std::default::Default::default(),
+                next_cursor: ::std::option::Option::None,
+            }
+        }
+    }
+
+    unsafe impl ::std::marker::Send for self::ScanEdgeResponse {}
+    unsafe impl ::std::marker::Sync for self::ScanEdgeResponse {}
+
+    impl ::fbthrift::GetTType for self::ScanEdgeResponse {
+        const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
+    }
+
+    impl<P> ::fbthrift::Serialize<P> for self::ScanEdgeResponse
+    where
+        P: ::fbthrift::ProtocolWriter,
+    {
+        fn write(&self, p: &mut P) {
+            p.write_struct_begin("ScanEdgeResponse");
+            p.write_field_begin("result", ::fbthrift::TType::Struct, 1);
+            ::fbthrift::Serialize::write(&self.result, p);
+            p.write_field_end();
+            p.write_field_begin("edge_data", ::fbthrift::TType::Struct, 2);
+            ::fbthrift::Serialize::write(&self.edge_data, p);
+            p.write_field_end();
+            p.write_field_begin("has_next", ::fbthrift::TType::Bool, 3);
+            ::fbthrift::Serialize::write(&self.has_next, p);
+            p.write_field_end();
+            if let ::std::option::Option::Some(some) = &self.next_cursor {
+                p.write_field_begin("next_cursor", ::fbthrift::TType::String, 4);
+                ::fbthrift::Serialize::write(some, p);
+                p.write_field_end();
+            }
+            p.write_field_stop();
+            p.write_struct_end();
+        }
+    }
+
+    impl<P> ::fbthrift::Deserialize<P> for self::ScanEdgeResponse
+    where
+        P: ::fbthrift::ProtocolReader,
+    {
+        fn read(p: &mut P) -> ::anyhow::Result<Self> {
+            let mut field_result = ::std::option::Option::None;
+            let mut field_edge_data = ::std::option::Option::None;
+            let mut field_has_next = ::std::option::Option::None;
+            let mut field_next_cursor = ::std::option::Option::None;
+            let _ = p.read_struct_begin(|_| ())?;
+            loop {
+                let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                match (fty, fid as ::std::primitive::i32) {
+                    (::fbthrift::TType::Stop, _) => break,
+                    (::fbthrift::TType::Struct, 1) => field_result = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Struct, 2) => field_edge_data = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Bool, 3) => field_has_next = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::String, 4) => field_next_cursor = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (fty, _) => p.skip(fty)?,
+                }
+                p.read_field_end()?;
+            }
+            p.read_struct_end()?;
+            ::std::result::Result::Ok(Self {
+                result: field_result.unwrap_or_default(),
+                edge_data: field_edge_data.unwrap_or_default(),
+                has_next: field_has_next.unwrap_or_default(),
+                next_cursor: field_next_cursor,
             })
         }
     }
@@ -4518,7 +4925,6 @@ pub mod types {
                 space_id: ::std::default::Default::default(),
                 parts: ::std::default::Default::default(),
                 index_id: ::std::default::Default::default(),
-                is_offline: ::std::default::Default::default(),
             }
         }
     }
@@ -4545,9 +4951,6 @@ pub mod types {
             p.write_field_begin("index_id", ::fbthrift::TType::I32, 3);
             ::fbthrift::Serialize::write(&self.index_id, p);
             p.write_field_end();
-            p.write_field_begin("is_offline", ::fbthrift::TType::Bool, 4);
-            ::fbthrift::Serialize::write(&self.is_offline, p);
-            p.write_field_end();
             p.write_field_stop();
             p.write_struct_end();
         }
@@ -4561,7 +4964,6 @@ pub mod types {
             let mut field_space_id = ::std::option::Option::None;
             let mut field_parts = ::std::option::Option::None;
             let mut field_index_id = ::std::option::Option::None;
-            let mut field_is_offline = ::std::option::Option::None;
             let _ = p.read_struct_begin(|_| ())?;
             loop {
                 let (_, fty, fid) = p.read_field_begin(|_| ())?;
@@ -4570,7 +4972,6 @@ pub mod types {
                     (::fbthrift::TType::I32, 1) => field_space_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::List, 2) => field_parts = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::I32, 3) => field_index_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::Bool, 4) => field_is_offline = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (fty, _) => p.skip(fty)?,
                 }
                 p.read_field_end()?;
@@ -4580,7 +4981,6 @@ pub mod types {
                 space_id: field_space_id.unwrap_or_default(),
                 parts: field_parts.unwrap_or_default(),
                 index_id: field_index_id.unwrap_or_default(),
-                is_offline: field_is_offline.unwrap_or_default(),
             })
         }
     }
@@ -5540,6 +5940,182 @@ pub mod services {
                     ::fbthrift::ApplicationException::new(
                         ::fbthrift::ApplicationExceptionErrorCode::MissingResult,
                         format!("Empty union {}", "UpdateEdgeExn"),
+                    )
+                    .into(),
+                )
+            }
+        }
+
+        #[derive(Clone, Debug)]
+        pub enum ScanVertexExn {
+            Success(crate::types::ScanVertexResponse),
+            ApplicationException(::fbthrift::ApplicationException),
+        }
+
+        impl ::std::convert::From<::fbthrift::ApplicationException> for ScanVertexExn {
+            fn from(exn: ::fbthrift::ApplicationException) -> Self {
+                ScanVertexExn::ApplicationException(exn)
+            }
+        }
+
+        impl ::fbthrift::GetTType for ScanVertexExn {
+            const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
+        }
+
+        impl<P> ::fbthrift::Serialize<P> for ScanVertexExn
+        where
+            P: ::fbthrift::ProtocolWriter,
+        {
+            fn write(&self, p: &mut P) {
+                p.write_struct_begin("ScanVertex");
+                match self {
+                    ScanVertexExn::Success(inner) => {
+                        p.write_field_begin(
+                            "Success",
+                            ::fbthrift::TType::Struct,
+                            0i16,
+                        );
+                        inner.write(p);
+                        p.write_field_end();
+                    }
+                    ScanVertexExn::ApplicationException(_) => panic!(
+                        "Bad union Alt field {} id {}",
+                        "ApplicationException",
+                        -2147483648i32,
+                    ),
+                }
+                p.write_field_stop();
+                p.write_struct_end();
+            }
+        }
+
+        impl<P> ::fbthrift::Deserialize<P> for ScanVertexExn
+        where
+            P: ::fbthrift::ProtocolReader,
+        {
+            fn read(p: &mut P) -> ::anyhow::Result<Self> {
+                let _ = p.read_struct_begin(|_| ())?;
+                let mut once = false;
+                let mut alt = ::std::option::Option::None;
+                loop {
+                    let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                    match ((fty, fid as ::std::primitive::i32), once) {
+                        ((::fbthrift::TType::Stop, _), _) => {
+                            p.read_field_end()?;
+                            break;
+                        }
+                        ((::fbthrift::TType::Struct, 0i32), false) => {
+                            once = true;
+                            alt = ::std::option::Option::Some(ScanVertexExn::Success(::fbthrift::Deserialize::read(p)?));
+                        }
+                        ((ty, _id), false) => p.skip(ty)?,
+                        ((badty, badid), true) => return ::std::result::Result::Err(::std::convert::From::from(
+                            ::fbthrift::ApplicationException::new(
+                                ::fbthrift::ApplicationExceptionErrorCode::ProtocolError,
+                                format!(
+                                    "unwanted extra union {} field ty {:?} id {}",
+                                    "ScanVertexExn",
+                                    badty,
+                                    badid,
+                                ),
+                            )
+                        )),
+                    }
+                    p.read_field_end()?;
+                }
+                p.read_struct_end()?;
+                alt.ok_or_else(||
+                    ::fbthrift::ApplicationException::new(
+                        ::fbthrift::ApplicationExceptionErrorCode::MissingResult,
+                        format!("Empty union {}", "ScanVertexExn"),
+                    )
+                    .into(),
+                )
+            }
+        }
+
+        #[derive(Clone, Debug)]
+        pub enum ScanEdgeExn {
+            Success(crate::types::ScanEdgeResponse),
+            ApplicationException(::fbthrift::ApplicationException),
+        }
+
+        impl ::std::convert::From<::fbthrift::ApplicationException> for ScanEdgeExn {
+            fn from(exn: ::fbthrift::ApplicationException) -> Self {
+                ScanEdgeExn::ApplicationException(exn)
+            }
+        }
+
+        impl ::fbthrift::GetTType for ScanEdgeExn {
+            const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
+        }
+
+        impl<P> ::fbthrift::Serialize<P> for ScanEdgeExn
+        where
+            P: ::fbthrift::ProtocolWriter,
+        {
+            fn write(&self, p: &mut P) {
+                p.write_struct_begin("ScanEdge");
+                match self {
+                    ScanEdgeExn::Success(inner) => {
+                        p.write_field_begin(
+                            "Success",
+                            ::fbthrift::TType::Struct,
+                            0i16,
+                        );
+                        inner.write(p);
+                        p.write_field_end();
+                    }
+                    ScanEdgeExn::ApplicationException(_) => panic!(
+                        "Bad union Alt field {} id {}",
+                        "ApplicationException",
+                        -2147483648i32,
+                    ),
+                }
+                p.write_field_stop();
+                p.write_struct_end();
+            }
+        }
+
+        impl<P> ::fbthrift::Deserialize<P> for ScanEdgeExn
+        where
+            P: ::fbthrift::ProtocolReader,
+        {
+            fn read(p: &mut P) -> ::anyhow::Result<Self> {
+                let _ = p.read_struct_begin(|_| ())?;
+                let mut once = false;
+                let mut alt = ::std::option::Option::None;
+                loop {
+                    let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                    match ((fty, fid as ::std::primitive::i32), once) {
+                        ((::fbthrift::TType::Stop, _), _) => {
+                            p.read_field_end()?;
+                            break;
+                        }
+                        ((::fbthrift::TType::Struct, 0i32), false) => {
+                            once = true;
+                            alt = ::std::option::Option::Some(ScanEdgeExn::Success(::fbthrift::Deserialize::read(p)?));
+                        }
+                        ((ty, _id), false) => p.skip(ty)?,
+                        ((badty, badid), true) => return ::std::result::Result::Err(::std::convert::From::from(
+                            ::fbthrift::ApplicationException::new(
+                                ::fbthrift::ApplicationExceptionErrorCode::ProtocolError,
+                                format!(
+                                    "unwanted extra union {} field ty {:?} id {}",
+                                    "ScanEdgeExn",
+                                    badty,
+                                    badid,
+                                ),
+                            )
+                        )),
+                    }
+                    p.read_field_end()?;
+                }
+                p.read_struct_end()?;
+                alt.ok_or_else(||
+                    ::fbthrift::ApplicationException::new(
+                        ::fbthrift::ApplicationExceptionErrorCode::MissingResult,
+                        format!("Empty union {}", "ScanEdgeExn"),
                     )
                     .into(),
                 )
@@ -7457,6 +8033,14 @@ pub mod client {
             &self,
             arg_req: &crate::types::UpdateEdgeRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::UpdateResponse, crate::errors::graph_storage_service::UpdateEdgeError>> + ::std::marker::Send + 'static>>;
+        fn scanVertex(
+            &self,
+            arg_req: &crate::types::ScanVertexRequest,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ScanVertexResponse, crate::errors::graph_storage_service::ScanVertexError>> + ::std::marker::Send + 'static>>;
+        fn scanEdge(
+            &self,
+            arg_req: &crate::types::ScanEdgeRequest,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ScanEdgeResponse, crate::errors::graph_storage_service::ScanEdgeError>> + ::std::marker::Send + 'static>>;
         fn getUUID(
             &self,
             arg_req: &crate::types::GetUUIDReq,
@@ -7925,6 +8509,118 @@ pub mod client {
                 }))
                 .boxed()
         }
+        fn scanVertex(
+            &self,
+            arg_req: &crate::types::ScanVertexRequest,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ScanVertexResponse, crate::errors::graph_storage_service::ScanVertexError>> + ::std::marker::Send + 'static>> {
+            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
+                p,
+                "scanVertex",
+                ::fbthrift::MessageType::Call,
+                // Note: we send a 0 message sequence ID from clients because
+                // this field should not be used by the server (except for some
+                // language implementations).
+                0,
+                |p| {
+                    p.write_struct_begin("args");
+                    p.write_field_begin("arg_req", ::fbthrift::TType::Struct, 1i16);
+                    ::fbthrift::Serialize::write(&arg_req, p);
+                    p.write_field_end();
+                    p.write_field_stop();
+                    p.write_struct_end();
+                },
+            ));
+            self.transport()
+                .call(request)
+                .map_err(::std::convert::From::from)
+                .and_then(|reply| ::futures::future::ready({
+                    let de = P::deserializer(reply);
+                    move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::ScanVertexResponse, crate::errors::graph_storage_service::ScanVertexError> {
+                        let p = &mut p;
+                        let (_, message_type, _) = p.read_message_begin(|_| ())?;
+                        let result = match message_type {
+                            ::fbthrift::MessageType::Reply => {
+                                let exn: crate::services::graph_storage_service::ScanVertexExn = ::fbthrift::Deserialize::read(p)?;
+                                match exn {
+                                    crate::services::graph_storage_service::ScanVertexExn::Success(x) => ::std::result::Result::Ok(x),
+                                    crate::services::graph_storage_service::ScanVertexExn::ApplicationException(ae) => {
+                                        ::std::result::Result::Err(crate::errors::graph_storage_service::ScanVertexError::ApplicationException(ae))
+                                    }
+                                }
+                            }
+                            ::fbthrift::MessageType::Exception => {
+                                let ae: ::fbthrift::ApplicationException = ::fbthrift::Deserialize::read(p)?;
+                                ::std::result::Result::Err(crate::errors::graph_storage_service::ScanVertexError::ApplicationException(ae))
+                            }
+                            ::fbthrift::MessageType::Call | ::fbthrift::MessageType::Oneway | ::fbthrift::MessageType::InvalidMessageType => {
+                                let err = ::anyhow::anyhow!("Unexpected message type {:?}", message_type);
+                                ::std::result::Result::Err(crate::errors::graph_storage_service::ScanVertexError::ThriftError(err))
+                            }
+                        };
+                        p.read_message_end()?;
+                        result
+                    }(de)
+                }))
+                .boxed()
+        }
+        fn scanEdge(
+            &self,
+            arg_req: &crate::types::ScanEdgeRequest,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ScanEdgeResponse, crate::errors::graph_storage_service::ScanEdgeError>> + ::std::marker::Send + 'static>> {
+            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
+                p,
+                "scanEdge",
+                ::fbthrift::MessageType::Call,
+                // Note: we send a 0 message sequence ID from clients because
+                // this field should not be used by the server (except for some
+                // language implementations).
+                0,
+                |p| {
+                    p.write_struct_begin("args");
+                    p.write_field_begin("arg_req", ::fbthrift::TType::Struct, 1i16);
+                    ::fbthrift::Serialize::write(&arg_req, p);
+                    p.write_field_end();
+                    p.write_field_stop();
+                    p.write_struct_end();
+                },
+            ));
+            self.transport()
+                .call(request)
+                .map_err(::std::convert::From::from)
+                .and_then(|reply| ::futures::future::ready({
+                    let de = P::deserializer(reply);
+                    move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::ScanEdgeResponse, crate::errors::graph_storage_service::ScanEdgeError> {
+                        let p = &mut p;
+                        let (_, message_type, _) = p.read_message_begin(|_| ())?;
+                        let result = match message_type {
+                            ::fbthrift::MessageType::Reply => {
+                                let exn: crate::services::graph_storage_service::ScanEdgeExn = ::fbthrift::Deserialize::read(p)?;
+                                match exn {
+                                    crate::services::graph_storage_service::ScanEdgeExn::Success(x) => ::std::result::Result::Ok(x),
+                                    crate::services::graph_storage_service::ScanEdgeExn::ApplicationException(ae) => {
+                                        ::std::result::Result::Err(crate::errors::graph_storage_service::ScanEdgeError::ApplicationException(ae))
+                                    }
+                                }
+                            }
+                            ::fbthrift::MessageType::Exception => {
+                                let ae: ::fbthrift::ApplicationException = ::fbthrift::Deserialize::read(p)?;
+                                ::std::result::Result::Err(crate::errors::graph_storage_service::ScanEdgeError::ApplicationException(ae))
+                            }
+                            ::fbthrift::MessageType::Call | ::fbthrift::MessageType::Oneway | ::fbthrift::MessageType::InvalidMessageType => {
+                                let err = ::anyhow::anyhow!("Unexpected message type {:?}", message_type);
+                                ::std::result::Result::Err(crate::errors::graph_storage_service::ScanEdgeError::ThriftError(err))
+                            }
+                        };
+                        p.read_message_end()?;
+                        result
+                    }(de)
+                }))
+                .boxed()
+        }
         fn getUUID(
             &self,
             arg_req: &crate::types::GetUUIDReq,
@@ -8161,6 +8857,22 @@ pub mod client {
             arg_req: &crate::types::UpdateEdgeRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::UpdateResponse, crate::errors::graph_storage_service::UpdateEdgeError>> + ::std::marker::Send + 'static>> {
             self.as_ref().updateEdge(
+                arg_req,
+            )
+        }
+        fn scanVertex(
+            &self,
+            arg_req: &crate::types::ScanVertexRequest,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ScanVertexResponse, crate::errors::graph_storage_service::ScanVertexError>> + ::std::marker::Send + 'static>> {
+            self.as_ref().scanVertex(
+                arg_req,
+            )
+        }
+        fn scanEdge(
+            &self,
+            arg_req: &crate::types::ScanEdgeRequest,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ScanEdgeResponse, crate::errors::graph_storage_service::ScanEdgeError>> + ::std::marker::Send + 'static>> {
+            self.as_ref().scanEdge(
                 arg_req,
             )
         }
@@ -9703,6 +10415,28 @@ pub mod server {
                 ),
             ))
         }
+        async fn scanVertex(
+            &self,
+            _req: crate::types::ScanVertexRequest,
+        ) -> ::std::result::Result<crate::types::ScanVertexResponse, crate::services::graph_storage_service::ScanVertexExn> {
+            ::std::result::Result::Err(crate::services::graph_storage_service::ScanVertexExn::ApplicationException(
+                ::fbthrift::ApplicationException::unimplemented_method(
+                    "GraphStorageService",
+                    "scanVertex",
+                ),
+            ))
+        }
+        async fn scanEdge(
+            &self,
+            _req: crate::types::ScanEdgeRequest,
+        ) -> ::std::result::Result<crate::types::ScanEdgeResponse, crate::services::graph_storage_service::ScanEdgeExn> {
+            ::std::result::Result::Err(crate::services::graph_storage_service::ScanEdgeExn::ApplicationException(
+                ::fbthrift::ApplicationException::unimplemented_method(
+                    "GraphStorageService",
+                    "scanEdge",
+                ),
+            ))
+        }
         async fn getUUID(
             &self,
             _req: crate::types::GetUUIDReq,
@@ -10171,6 +10905,108 @@ pub mod server {
             ::std::result::Result::Ok(res)
         }
 
+        async fn handle_scanVertex<'a>(
+            &'a self,
+            p: &'a mut P::Deserializer,
+            _req_ctxt: &R,
+            seqid: ::std::primitive::u32,
+        ) -> ::anyhow::Result<::fbthrift::ProtocolEncodedFinal<P>> {
+            use ::fbthrift::ProtocolReader as _;
+            let mut field_req = ::std::option::Option::None;
+            let _ = p.read_struct_begin(|_| ())?;
+            loop {
+                let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                match (fty, fid as ::std::primitive::i32) {
+                    (::fbthrift::TType::Stop, _) => break,
+                    (::fbthrift::TType::Struct, 1) => field_req = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (fty, _) => p.skip(fty)?,
+                }
+                p.read_field_end()?;
+            }
+            p.read_struct_end()?;
+            let res = self.service.scanVertex(
+                field_req.ok_or_else(|| {
+                    ::fbthrift::ApplicationException::missing_arg(
+                        "scanVertex",
+                        "req",
+                    )
+                })?,
+            ).await;
+            let res = match res {
+                ::std::result::Result::Ok(res) => {
+                    crate::services::graph_storage_service::ScanVertexExn::Success(res)
+                }
+                ::std::result::Result::Err(crate::services::graph_storage_service::ScanVertexExn::ApplicationException(aexn)) => {
+                    return ::std::result::Result::Err(aexn.into())
+                }
+                ::std::result::Result::Err(crate::services::graph_storage_service::ScanVertexExn::Success(_)) => {
+                    panic!(
+                        "{} attempted to return success via error",
+                        "scanVertex",
+                    )
+                }
+            };
+            let res = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
+                p,
+                "scanVertex",
+                ::fbthrift::MessageType::Reply,
+                seqid,
+                |p| ::fbthrift::Serialize::write(&res, p),
+            ));
+            ::std::result::Result::Ok(res)
+        }
+
+        async fn handle_scanEdge<'a>(
+            &'a self,
+            p: &'a mut P::Deserializer,
+            _req_ctxt: &R,
+            seqid: ::std::primitive::u32,
+        ) -> ::anyhow::Result<::fbthrift::ProtocolEncodedFinal<P>> {
+            use ::fbthrift::ProtocolReader as _;
+            let mut field_req = ::std::option::Option::None;
+            let _ = p.read_struct_begin(|_| ())?;
+            loop {
+                let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                match (fty, fid as ::std::primitive::i32) {
+                    (::fbthrift::TType::Stop, _) => break,
+                    (::fbthrift::TType::Struct, 1) => field_req = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (fty, _) => p.skip(fty)?,
+                }
+                p.read_field_end()?;
+            }
+            p.read_struct_end()?;
+            let res = self.service.scanEdge(
+                field_req.ok_or_else(|| {
+                    ::fbthrift::ApplicationException::missing_arg(
+                        "scanEdge",
+                        "req",
+                    )
+                })?,
+            ).await;
+            let res = match res {
+                ::std::result::Result::Ok(res) => {
+                    crate::services::graph_storage_service::ScanEdgeExn::Success(res)
+                }
+                ::std::result::Result::Err(crate::services::graph_storage_service::ScanEdgeExn::ApplicationException(aexn)) => {
+                    return ::std::result::Result::Err(aexn.into())
+                }
+                ::std::result::Result::Err(crate::services::graph_storage_service::ScanEdgeExn::Success(_)) => {
+                    panic!(
+                        "{} attempted to return success via error",
+                        "scanEdge",
+                    )
+                }
+            };
+            let res = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
+                p,
+                "scanEdge",
+                ::fbthrift::MessageType::Reply,
+                seqid,
+                |p| ::fbthrift::Serialize::write(&res, p),
+            ));
+            ::std::result::Result::Ok(res)
+        }
+
         async fn handle_getUUID<'a>(
             &'a self,
             p: &'a mut P::Deserializer,
@@ -10346,9 +11182,11 @@ pub mod server {
                 b"deleteVertices" => ::std::result::Result::Ok(5usize),
                 b"updateVertex" => ::std::result::Result::Ok(6usize),
                 b"updateEdge" => ::std::result::Result::Ok(7usize),
-                b"getUUID" => ::std::result::Result::Ok(8usize),
-                b"lookupIndex" => ::std::result::Result::Ok(9usize),
-                b"lookupAndTraverse" => ::std::result::Result::Ok(10usize),
+                b"scanVertex" => ::std::result::Result::Ok(8usize),
+                b"scanEdge" => ::std::result::Result::Ok(9usize),
+                b"getUUID" => ::std::result::Result::Ok(10usize),
+                b"lookupIndex" => ::std::result::Result::Ok(11usize),
+                b"lookupAndTraverse" => ::std::result::Result::Ok(12usize),
                 _ => ::std::result::Result::Err(::fbthrift::ApplicationException::unknown_method()),
             }
         }
@@ -10369,9 +11207,11 @@ pub mod server {
                 5usize => self.handle_deleteVertices(_p, _r, _seqid).await,
                 6usize => self.handle_updateVertex(_p, _r, _seqid).await,
                 7usize => self.handle_updateEdge(_p, _r, _seqid).await,
-                8usize => self.handle_getUUID(_p, _r, _seqid).await,
-                9usize => self.handle_lookupIndex(_p, _r, _seqid).await,
-                10usize => self.handle_lookupAndTraverse(_p, _r, _seqid).await,
+                8usize => self.handle_scanVertex(_p, _r, _seqid).await,
+                9usize => self.handle_scanEdge(_p, _r, _seqid).await,
+                10usize => self.handle_getUUID(_p, _r, _seqid).await,
+                11usize => self.handle_lookupIndex(_p, _r, _seqid).await,
+                12usize => self.handle_lookupAndTraverse(_p, _r, _seqid).await,
                 bad => panic!(
                     "{}: unexpected method idx {}",
                     "GraphStorageServiceProcessor",
@@ -11974,6 +12814,8 @@ pub mod mock {
         pub deleteVertices: r#impl::graph_storage_service::deleteVertices<'mock>,
         pub updateVertex: r#impl::graph_storage_service::updateVertex<'mock>,
         pub updateEdge: r#impl::graph_storage_service::updateEdge<'mock>,
+        pub scanVertex: r#impl::graph_storage_service::scanVertex<'mock>,
+        pub scanEdge: r#impl::graph_storage_service::scanEdge<'mock>,
         pub getUUID: r#impl::graph_storage_service::getUUID<'mock>,
         pub lookupIndex: r#impl::graph_storage_service::lookupIndex<'mock>,
         pub lookupAndTraverse: r#impl::graph_storage_service::lookupAndTraverse<'mock>,
@@ -11991,6 +12833,8 @@ pub mod mock {
                 deleteVertices: r#impl::graph_storage_service::deleteVertices::unimplemented(),
                 updateVertex: r#impl::graph_storage_service::updateVertex::unimplemented(),
                 updateEdge: r#impl::graph_storage_service::updateEdge::unimplemented(),
+                scanVertex: r#impl::graph_storage_service::scanVertex::unimplemented(),
+                scanEdge: r#impl::graph_storage_service::scanEdge::unimplemented(),
                 getUUID: r#impl::graph_storage_service::getUUID::unimplemented(),
                 lookupIndex: r#impl::graph_storage_service::lookupIndex::unimplemented(),
                 lookupAndTraverse: r#impl::graph_storage_service::lookupAndTraverse::unimplemented(),
@@ -12063,6 +12907,22 @@ pub mod mock {
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::UpdateResponse, crate::errors::graph_storage_service::UpdateEdgeError>> + ::std::marker::Send + 'static>> {
             let mut closure = self.updateEdge.closure.lock().unwrap();
             let closure: &mut dyn ::std::ops::FnMut(crate::types::UpdateEdgeRequest) -> _ = &mut **closure;
+            ::std::boxed::Box::pin(::futures::future::ready(closure(arg_req.clone())))
+        }
+        fn scanVertex(
+            &self,
+            arg_req: &crate::types::ScanVertexRequest,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ScanVertexResponse, crate::errors::graph_storage_service::ScanVertexError>> + ::std::marker::Send + 'static>> {
+            let mut closure = self.scanVertex.closure.lock().unwrap();
+            let closure: &mut dyn ::std::ops::FnMut(crate::types::ScanVertexRequest) -> _ = &mut **closure;
+            ::std::boxed::Box::pin(::futures::future::ready(closure(arg_req.clone())))
+        }
+        fn scanEdge(
+            &self,
+            arg_req: &crate::types::ScanEdgeRequest,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ScanEdgeResponse, crate::errors::graph_storage_service::ScanEdgeError>> + ::std::marker::Send + 'static>> {
+            let mut closure = self.scanEdge.closure.lock().unwrap();
+            let closure: &mut dyn ::std::ops::FnMut(crate::types::ScanEdgeRequest) -> _ = &mut **closure;
             ::std::boxed::Box::pin(::futures::future::ready(closure(arg_req.clone())))
         }
         fn getUUID(
@@ -12617,6 +13477,84 @@ pub mod mock {
                 {
                     let mut closure = self.closure.lock().unwrap();
                     *closure = ::std::boxed::Box::new(move |_: crate::types::UpdateEdgeRequest| ::std::result::Result::Err(exception.clone().into()));
+                }
+            }
+
+            pub struct scanVertex<'mock> {
+                pub(crate) closure: ::std::sync::Mutex<::std::boxed::Box<
+                    dyn ::std::ops::FnMut(crate::types::ScanVertexRequest) -> ::std::result::Result<
+                        crate::types::ScanVertexResponse,
+                        crate::errors::graph_storage_service::ScanVertexError,
+                    > + ::std::marker::Send + ::std::marker::Sync + 'mock,
+                >>,
+            }
+
+            impl<'mock> scanVertex<'mock> {
+                pub fn unimplemented() -> Self {
+                    scanVertex {
+                        closure: ::std::sync::Mutex::new(::std::boxed::Box::new(|_: crate::types::ScanVertexRequest| panic!(
+                            "{}::{} is not mocked",
+                            "GraphStorageService",
+                            "scanVertex",
+                        ))),
+                    }
+                }
+
+                pub fn ret(&self, value: crate::types::ScanVertexResponse) {
+                    self.mock(move |_: crate::types::ScanVertexRequest| value.clone());
+                }
+
+                pub fn mock(&self, mut mock: impl ::std::ops::FnMut(crate::types::ScanVertexRequest) -> crate::types::ScanVertexResponse + ::std::marker::Send + ::std::marker::Sync + 'mock) {
+                    let mut closure = self.closure.lock().unwrap();
+                    *closure = ::std::boxed::Box::new(move |req| ::std::result::Result::Ok(mock(req)));
+                }
+
+                pub fn throw<E>(&self, exception: E)
+                where
+                    E: ::std::convert::Into<crate::errors::graph_storage_service::ScanVertexError>,
+                    E: ::std::clone::Clone + ::std::marker::Send + ::std::marker::Sync + 'mock,
+                {
+                    let mut closure = self.closure.lock().unwrap();
+                    *closure = ::std::boxed::Box::new(move |_: crate::types::ScanVertexRequest| ::std::result::Result::Err(exception.clone().into()));
+                }
+            }
+
+            pub struct scanEdge<'mock> {
+                pub(crate) closure: ::std::sync::Mutex<::std::boxed::Box<
+                    dyn ::std::ops::FnMut(crate::types::ScanEdgeRequest) -> ::std::result::Result<
+                        crate::types::ScanEdgeResponse,
+                        crate::errors::graph_storage_service::ScanEdgeError,
+                    > + ::std::marker::Send + ::std::marker::Sync + 'mock,
+                >>,
+            }
+
+            impl<'mock> scanEdge<'mock> {
+                pub fn unimplemented() -> Self {
+                    scanEdge {
+                        closure: ::std::sync::Mutex::new(::std::boxed::Box::new(|_: crate::types::ScanEdgeRequest| panic!(
+                            "{}::{} is not mocked",
+                            "GraphStorageService",
+                            "scanEdge",
+                        ))),
+                    }
+                }
+
+                pub fn ret(&self, value: crate::types::ScanEdgeResponse) {
+                    self.mock(move |_: crate::types::ScanEdgeRequest| value.clone());
+                }
+
+                pub fn mock(&self, mut mock: impl ::std::ops::FnMut(crate::types::ScanEdgeRequest) -> crate::types::ScanEdgeResponse + ::std::marker::Send + ::std::marker::Sync + 'mock) {
+                    let mut closure = self.closure.lock().unwrap();
+                    *closure = ::std::boxed::Box::new(move |req| ::std::result::Result::Ok(mock(req)));
+                }
+
+                pub fn throw<E>(&self, exception: E)
+                where
+                    E: ::std::convert::Into<crate::errors::graph_storage_service::ScanEdgeError>,
+                    E: ::std::clone::Clone + ::std::marker::Send + ::std::marker::Sync + 'mock,
+                {
+                    let mut closure = self.closure.lock().unwrap();
+                    *closure = ::std::boxed::Box::new(move |_: crate::types::ScanEdgeRequest| ::std::result::Result::Err(exception.clone().into()));
                 }
             }
 
@@ -13464,6 +14402,10 @@ pub mod errors {
         pub type UpdateVertexError = ::fbthrift::NonthrowingFunctionError;
 
         pub type UpdateEdgeError = ::fbthrift::NonthrowingFunctionError;
+
+        pub type ScanVertexError = ::fbthrift::NonthrowingFunctionError;
+
+        pub type ScanEdgeError = ::fbthrift::NonthrowingFunctionError;
 
         pub type GetUUIDError = ::fbthrift::NonthrowingFunctionError;
 

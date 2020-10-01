@@ -35,6 +35,14 @@ pub mod types {
     }
 
     #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+    pub struct Time {
+        pub hour: ::std::primitive::i8,
+        pub minute: ::std::primitive::i8,
+        pub sec: ::std::primitive::i8,
+        pub microsec: ::std::primitive::i32,
+    }
+
+    #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
     pub struct DateTime {
         pub year: ::std::primitive::i16,
         pub month: ::std::primitive::i8,
@@ -43,7 +51,6 @@ pub mod types {
         pub minute: ::std::primitive::i8,
         pub sec: ::std::primitive::i8,
         pub microsec: ::std::primitive::i32,
-        pub timezone: ::std::primitive::i32,
     }
 
     #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -54,7 +61,8 @@ pub mod types {
         fVal(crate::double::Double),
         sVal(::std::vec::Vec<::std::primitive::u8>),
         dVal(crate::types::Date),
-        tVal(crate::types::DateTime),
+        tVal(crate::types::Time),
+        dtVal(crate::types::DateTime),
         vVal(crate::types::Vertex),
         eVal(crate::types::Edge),
         pVal(crate::types::Path),
@@ -335,6 +343,80 @@ pub mod types {
     }
 
 
+    impl ::std::default::Default for self::Time {
+        fn default() -> Self {
+            Self {
+                hour: ::std::default::Default::default(),
+                minute: ::std::default::Default::default(),
+                sec: ::std::default::Default::default(),
+                microsec: ::std::default::Default::default(),
+            }
+        }
+    }
+
+    unsafe impl ::std::marker::Send for self::Time {}
+    unsafe impl ::std::marker::Sync for self::Time {}
+
+    impl ::fbthrift::GetTType for self::Time {
+        const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
+    }
+
+    impl<P> ::fbthrift::Serialize<P> for self::Time
+    where
+        P: ::fbthrift::ProtocolWriter,
+    {
+        fn write(&self, p: &mut P) {
+            p.write_struct_begin("Time");
+            p.write_field_begin("hour", ::fbthrift::TType::Byte, 1);
+            ::fbthrift::Serialize::write(&self.hour, p);
+            p.write_field_end();
+            p.write_field_begin("minute", ::fbthrift::TType::Byte, 2);
+            ::fbthrift::Serialize::write(&self.minute, p);
+            p.write_field_end();
+            p.write_field_begin("sec", ::fbthrift::TType::Byte, 3);
+            ::fbthrift::Serialize::write(&self.sec, p);
+            p.write_field_end();
+            p.write_field_begin("microsec", ::fbthrift::TType::I32, 4);
+            ::fbthrift::Serialize::write(&self.microsec, p);
+            p.write_field_end();
+            p.write_field_stop();
+            p.write_struct_end();
+        }
+    }
+
+    impl<P> ::fbthrift::Deserialize<P> for self::Time
+    where
+        P: ::fbthrift::ProtocolReader,
+    {
+        fn read(p: &mut P) -> ::anyhow::Result<Self> {
+            let mut field_hour = ::std::option::Option::None;
+            let mut field_minute = ::std::option::Option::None;
+            let mut field_sec = ::std::option::Option::None;
+            let mut field_microsec = ::std::option::Option::None;
+            let _ = p.read_struct_begin(|_| ())?;
+            loop {
+                let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                match (fty, fid as ::std::primitive::i32) {
+                    (::fbthrift::TType::Stop, _) => break,
+                    (::fbthrift::TType::Byte, 1) => field_hour = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Byte, 2) => field_minute = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Byte, 3) => field_sec = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I32, 4) => field_microsec = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (fty, _) => p.skip(fty)?,
+                }
+                p.read_field_end()?;
+            }
+            p.read_struct_end()?;
+            ::std::result::Result::Ok(Self {
+                hour: field_hour.unwrap_or_default(),
+                minute: field_minute.unwrap_or_default(),
+                sec: field_sec.unwrap_or_default(),
+                microsec: field_microsec.unwrap_or_default(),
+            })
+        }
+    }
+
+
     impl ::std::default::Default for self::DateTime {
         fn default() -> Self {
             Self {
@@ -345,7 +427,6 @@ pub mod types {
                 minute: ::std::default::Default::default(),
                 sec: ::std::default::Default::default(),
                 microsec: ::std::default::Default::default(),
-                timezone: ::std::default::Default::default(),
             }
         }
     }
@@ -384,9 +465,6 @@ pub mod types {
             p.write_field_begin("microsec", ::fbthrift::TType::I32, 7);
             ::fbthrift::Serialize::write(&self.microsec, p);
             p.write_field_end();
-            p.write_field_begin("timezone", ::fbthrift::TType::I32, 8);
-            ::fbthrift::Serialize::write(&self.timezone, p);
-            p.write_field_end();
             p.write_field_stop();
             p.write_struct_end();
         }
@@ -404,7 +482,6 @@ pub mod types {
             let mut field_minute = ::std::option::Option::None;
             let mut field_sec = ::std::option::Option::None;
             let mut field_microsec = ::std::option::Option::None;
-            let mut field_timezone = ::std::option::Option::None;
             let _ = p.read_struct_begin(|_| ())?;
             loop {
                 let (_, fty, fid) = p.read_field_begin(|_| ())?;
@@ -417,7 +494,6 @@ pub mod types {
                     (::fbthrift::TType::Byte, 5) => field_minute = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::Byte, 6) => field_sec = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::I32, 7) => field_microsec = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::I32, 8) => field_timezone = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (fty, _) => p.skip(fty)?,
                 }
                 p.read_field_end()?;
@@ -431,7 +507,6 @@ pub mod types {
                 minute: field_minute.unwrap_or_default(),
                 sec: field_sec.unwrap_or_default(),
                 microsec: field_microsec.unwrap_or_default(),
-                timezone: field_timezone.unwrap_or_default(),
             })
         }
     }
@@ -490,38 +565,43 @@ pub mod types {
                     ::fbthrift::Serialize::write(inner, p);
                     p.write_field_end();
                 }
+                Value::dtVal(inner) => {
+                    p.write_field_begin("dtVal", ::fbthrift::TType::Struct, 8);
+                    ::fbthrift::Serialize::write(inner, p);
+                    p.write_field_end();
+                }
                 Value::vVal(inner) => {
-                    p.write_field_begin("vVal", ::fbthrift::TType::Struct, 8);
+                    p.write_field_begin("vVal", ::fbthrift::TType::Struct, 9);
                     ::fbthrift::Serialize::write(inner, p);
                     p.write_field_end();
                 }
                 Value::eVal(inner) => {
-                    p.write_field_begin("eVal", ::fbthrift::TType::Struct, 9);
+                    p.write_field_begin("eVal", ::fbthrift::TType::Struct, 10);
                     ::fbthrift::Serialize::write(inner, p);
                     p.write_field_end();
                 }
                 Value::pVal(inner) => {
-                    p.write_field_begin("pVal", ::fbthrift::TType::Struct, 10);
+                    p.write_field_begin("pVal", ::fbthrift::TType::Struct, 11);
                     ::fbthrift::Serialize::write(inner, p);
                     p.write_field_end();
                 }
                 Value::lVal(inner) => {
-                    p.write_field_begin("lVal", ::fbthrift::TType::Struct, 11);
+                    p.write_field_begin("lVal", ::fbthrift::TType::Struct, 12);
                     ::fbthrift::Serialize::write(inner, p);
                     p.write_field_end();
                 }
                 Value::mVal(inner) => {
-                    p.write_field_begin("mVal", ::fbthrift::TType::Struct, 12);
+                    p.write_field_begin("mVal", ::fbthrift::TType::Struct, 13);
                     ::fbthrift::Serialize::write(inner, p);
                     p.write_field_end();
                 }
                 Value::uVal(inner) => {
-                    p.write_field_begin("uVal", ::fbthrift::TType::Struct, 13);
+                    p.write_field_begin("uVal", ::fbthrift::TType::Struct, 14);
                     ::fbthrift::Serialize::write(inner, p);
                     p.write_field_end();
                 }
                 Value::gVal(inner) => {
-                    p.write_field_begin("gVal", ::fbthrift::TType::Struct, 14);
+                    p.write_field_begin("gVal", ::fbthrift::TType::Struct, 15);
                     ::fbthrift::Serialize::write(inner, p);
                     p.write_field_end();
                 }
@@ -578,29 +658,33 @@ pub mod types {
                     }
                     (::fbthrift::TType::Struct, 8, false) => {
                         once = true;
-                        alt = ::std::option::Option::Some(Value::vVal(::fbthrift::Deserialize::read(p)?));
+                        alt = ::std::option::Option::Some(Value::dtVal(::fbthrift::Deserialize::read(p)?));
                     }
                     (::fbthrift::TType::Struct, 9, false) => {
                         once = true;
-                        alt = ::std::option::Option::Some(Value::eVal(::fbthrift::Deserialize::read(p)?));
+                        alt = ::std::option::Option::Some(Value::vVal(::fbthrift::Deserialize::read(p)?));
                     }
                     (::fbthrift::TType::Struct, 10, false) => {
                         once = true;
-                        alt = ::std::option::Option::Some(Value::pVal(::fbthrift::Deserialize::read(p)?));
+                        alt = ::std::option::Option::Some(Value::eVal(::fbthrift::Deserialize::read(p)?));
                     }
                     (::fbthrift::TType::Struct, 11, false) => {
                         once = true;
-                        alt = ::std::option::Option::Some(Value::lVal(::fbthrift::Deserialize::read(p)?));
+                        alt = ::std::option::Option::Some(Value::pVal(::fbthrift::Deserialize::read(p)?));
                     }
                     (::fbthrift::TType::Struct, 12, false) => {
                         once = true;
-                        alt = ::std::option::Option::Some(Value::mVal(::fbthrift::Deserialize::read(p)?));
+                        alt = ::std::option::Option::Some(Value::lVal(::fbthrift::Deserialize::read(p)?));
                     }
                     (::fbthrift::TType::Struct, 13, false) => {
                         once = true;
-                        alt = ::std::option::Option::Some(Value::uVal(::fbthrift::Deserialize::read(p)?));
+                        alt = ::std::option::Option::Some(Value::mVal(::fbthrift::Deserialize::read(p)?));
                     }
                     (::fbthrift::TType::Struct, 14, false) => {
+                        once = true;
+                        alt = ::std::option::Option::Some(Value::uVal(::fbthrift::Deserialize::read(p)?));
+                    }
+                    (::fbthrift::TType::Struct, 15, false) => {
                         once = true;
                         alt = ::std::option::Option::Some(Value::gVal(::fbthrift::Deserialize::read(p)?));
                     }
