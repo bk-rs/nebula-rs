@@ -7,7 +7,7 @@ use std::io;
 use std::time::Duration;
 
 use fbthrift_transport::AsyncTransportConfiguration;
-use mobc_nebula_graph::{NebulaGraphClientConfiguration, NebulaGraphConnectionManager};
+use mobc_nebula::{GraphClientConfiguration, GraphConnectionManager};
 use nebula_graph_client::{GraphTransportResponseHandler, Query as _};
 
 #[async_std::main]
@@ -39,9 +39,9 @@ async fn run() -> io::Result<()> {
 
     //
     let client_configuration =
-        NebulaGraphClientConfiguration::new(domain, port, username, password, space);
+        GraphClientConfiguration::new(domain, port, username, password, space);
     let transport_configuration = AsyncTransportConfiguration::new(GraphTransportResponseHandler);
-    let manager = NebulaGraphConnectionManager::new(client_configuration, transport_configuration);
+    let manager = GraphConnectionManager::new(client_configuration, transport_configuration);
 
     /*
     etc/nebula-graphd.conf
