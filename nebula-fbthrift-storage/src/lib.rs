@@ -178,11 +178,12 @@ pub mod types {
         pub result: crate::types::ResponseCommon,
     }
 
-    #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+    #[derive(Clone, Debug, PartialEq)]
     pub struct AddPartReq {
         pub space_id: common::types::GraphSpaceID,
         pub part_id: common::types::PartitionID,
         pub as_learner: ::std::primitive::bool,
+        pub peers: ::std::vec::Vec<common::types::HostAddr>,
     }
 
     #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -2590,6 +2591,7 @@ pub mod types {
                 space_id: ::std::default::Default::default(),
                 part_id: ::std::default::Default::default(),
                 as_learner: ::std::default::Default::default(),
+                peers: ::std::default::Default::default(),
             }
         }
     }
@@ -2616,6 +2618,9 @@ pub mod types {
             p.write_field_begin("as_learner", ::fbthrift::TType::Bool, 3);
             ::fbthrift::Serialize::write(&self.as_learner, p);
             p.write_field_end();
+            p.write_field_begin("peers", ::fbthrift::TType::List, 4);
+            ::fbthrift::Serialize::write(&self.peers, p);
+            p.write_field_end();
             p.write_field_stop();
             p.write_struct_end();
         }
@@ -2629,6 +2634,7 @@ pub mod types {
             let mut field_space_id = ::std::option::Option::None;
             let mut field_part_id = ::std::option::Option::None;
             let mut field_as_learner = ::std::option::Option::None;
+            let mut field_peers = ::std::option::Option::None;
             let _ = p.read_struct_begin(|_| ())?;
             loop {
                 let (_, fty, fid) = p.read_field_begin(|_| ())?;
@@ -2637,6 +2643,7 @@ pub mod types {
                     (::fbthrift::TType::I32, 1) => field_space_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::I32, 2) => field_part_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::Bool, 3) => field_as_learner = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::List, 4) => field_peers = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (fty, _) => p.skip(fty)?,
                 }
                 p.read_field_end()?;
@@ -2646,6 +2653,7 @@ pub mod types {
                 space_id: field_space_id.unwrap_or_default(),
                 part_id: field_part_id.unwrap_or_default(),
                 as_learner: field_as_learner.unwrap_or_default(),
+                peers: field_peers.unwrap_or_default(),
             })
         }
     }

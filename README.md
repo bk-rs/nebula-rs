@@ -28,7 +28,7 @@ cargo build-all-features
 ```
 cd
 git clone https://github.com/vesoft-inc/nebula.git && cd nebula
-git checkout v1.0.1
+git checkout v1.1.0
 
 thrift1 --out /tmp --gen mstch_rust src/interface/common.thrift
 mv /tmp/lib.rs nebula-fbthrift-common/src/lib.rs
