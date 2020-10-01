@@ -18,8 +18,8 @@ serde_feature = ["serde", "serde-nebula-fbthrift-graph"]
 
 [dependencies]
 fbthrift = { package = "fbthrift-git", version = "0.0.2+617c2e9", default-features = false, features = [] }
-nebula-fbthrift-graph = { path = "../nebula-fbthrift-graph", version = "0.1", default-features = false, features = [] }
-nebula-fbthrift-graph-v2 = { path = "../nebula-fbthrift-graph-v2", version = "0.1", default-features = false, features = [] }
+nebula-fbthrift-graph = { path = "../nebula-fbthrift/nebula-fbthrift-graph", version = "0.1", default-features = false, features = [] }
+nebula-fbthrift-graph-v2 = { path = "../nebula-fbthrift/nebula-fbthrift-graph-v2", version = "0.1", default-features = false, features = [] }
 
 bytes = { version = "0.5", default-features = false, features = [] }
 async-trait = { version = "0.1", default-features = false, features = [] }
