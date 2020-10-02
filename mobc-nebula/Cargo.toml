@@ -1,6 +1,6 @@
 [package]
 name = "mobc-nebula"
-version = "0.4.3"
+version = "0.5.0"
 authors = ["vkill <vkill.net@gmail.com>"]
 edition = "2018"
 description = "mobc Nebula Graph/Meta/Storage pool"
@@ -25,7 +25,7 @@ cfg-if = { version = "0.1", default-features = false, features = [] }
 
 mobc = { version = "0.5", default-features = false, features = ["async-std", "unstable"], optional = true }
 
-nebula-client = { path = "../nebula-client", version = "0.3", default-features = false, features = [], optional = true }
+nebula-client = { path = "../nebula-client", version = "0.4", default-features = false, features = [], optional = true }
 
 tokio02 = { package = "tokio", version = "0.2", default-features = false, features = ["net"], optional = true }
 async-std = { version = "1.6", default-features = false, features = ["default"], optional = true }

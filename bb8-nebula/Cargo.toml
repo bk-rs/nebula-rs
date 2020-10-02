@@ -1,6 +1,6 @@
 [package]
 name = "bb8-nebula"
-version = "0.4.3"
+version = "0.5.0"
 authors = ["vkill <vkill.net@gmail.com>"]
 edition = "2018"
 description = "bb8 Nebula Graph/Meta/Storage pool"
@@ -23,4 +23,4 @@ bb8 = { version = "0.4", default-features = false, features = [] }
 async-trait = { version = "0.1", default-features = false, features = [] }
 tokio = { version = "0.2", default-features = false, features = ["net"] }
 
-nebula-client = { path = "../nebula-client", version = "0.3", default-features = false, features = [], optional = true }
+nebula-client = { path = "../nebula-client", version = "0.4", default-features = false, features = [], optional = true }
