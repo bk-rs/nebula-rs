@@ -15,6 +15,8 @@ readme = "README.md"
 [features]
 default = ["graph"]
 graph = ["nebula-fbthrift-graph", "nebula-fbthrift-graph-v2", "serde", "serde-nebula-fbthrift-graph"]
+meta = ["nebula-fbthrift-meta"]
+storage = ["nebula-fbthrift-storage"]
 
 [dependencies]
 fbthrift = { package = "fbthrift-git", version = "0.0.2", default-features = false, features = [] }
@@ -27,6 +29,10 @@ fbthrift-transport-response-handler = { version = "0.4" }
 
 nebula-fbthrift-graph = { path = "../nebula-fbthrift/nebula-fbthrift-graph", version = "0.1", default-features = false, features = [], optional = true }
 nebula-fbthrift-graph-v2 = { path = "../nebula-fbthrift/nebula-fbthrift-graph-v2", version = "0.1", default-features = false, features = [], optional = true }
+
+nebula-fbthrift-meta = { path = "../nebula-fbthrift/nebula-fbthrift-meta", version = "0.1", default-features = false, features = [], optional = true }
+
+nebula-fbthrift-storage = { path = "../nebula-fbthrift/nebula-fbthrift-storage", version = "0.1", default-features = false, features = [], optional = true }
 
 serde = { version = "1.0", default-features = false, features = ["derive"], optional = true }
 serde-nebula-fbthrift-graph = { path = "../serde-nebula-fbthrift-graph", version = "0.1", default-features = false, features = ["chrono"], optional = true }
