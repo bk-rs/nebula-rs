@@ -2,6 +2,8 @@
 
 ### async-std
 
+* [count edge](demos/async-std/src/count_edge.rs)
+* [count vertex](demos/async-std/src/count_vertex.rs)
 * [graph client](demos/async-std/src/graph_client.rs)
 * [graph CRUD](demos/async-std/src/graph_crud.rs)
 * [mobc graph pool](demos/async-std/src/mobc_graph_pool.rs)

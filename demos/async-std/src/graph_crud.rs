@@ -1,5 +1,5 @@
 /*
-cargo run -p nebula-graph-demo-async-std --bin graph_crud 127.0.0.1 3699 user 'password' 'space'
+cargo run -p nebula-demo-async-std --bin graph_crud 127.0.0.1 3699 user 'password' 'space'
 */
 
 use std::env;
@@ -11,7 +11,7 @@ use async_std::task;
 
 use chrono::{serde::ts_seconds, DateTime, Utc};
 use fbthrift_transport::{AsyncTransport, AsyncTransportConfiguration};
-use nebula_graph_client::{AsyncGraphClient, GraphTransportResponseHandler, Query as _};
+use nebula_client::{GraphClient, GraphQuery as _, GraphTransportResponseHandler};
 use serde::Deserialize;
 
 #[async_std::main]
@@ -52,7 +52,7 @@ async fn run() -> io::Result<()> {
         stream,
         AsyncTransportConfiguration::new(GraphTransportResponseHandler),
     );
-    let client = AsyncGraphClient::new(transport);
+    let client = GraphClient::new(transport);
 
     let mut session = client
         .authenticate(username.as_str(), password.as_str())

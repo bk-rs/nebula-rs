@@ -1,8 +1,16 @@
 [package]
-name = "nebula-graph-demo-async-std"
+name = "nebula-demo-async-std"
 version = "0.1.0"
 authors = ["vkill <vkill.net@gmail.com>"]
 edition = "2018"
+
+[[bin]]
+name = "count_edge"
+path = "src/count_edge.rs"
+
+[[bin]]
+name = "count_vertex"
+path = "src/count_vertex.rs"
 
 [[bin]]
 name = "graph_client"
@@ -26,14 +34,18 @@ path = "src/v2_mobc_graph_pool.rs"
 
 [dependencies]
 # non-pool
-nebula-graph-client = { path = "../../nebula-graph-client", version = "0.3" }
+nebula-client = { path = "../../nebula-client", version = "0.3", features = ["graph", "meta", "storage"] }
 fbthrift-transport = { version = "0.4", features = ["futures_io"] }
 
 # mobc
 mobc = "0.5"
-mobc-nebula-graph = { path = "../../mobc-nebula-graph", version = "0.4", features = ["async_std"] }
+mobc-nebula = { path = "../../mobc-nebula", version = "0.4", features = ["async_std", "graph"] }
 
 # common
 async-std = { version = "1.6", default-features = false, features = ["default", "attributes"] }
 serde = { version = "1.0", features = ["derive"] }
 chrono = { version = "0.4", features = ["serde"] }
+
+nebula-fbthrift-meta = { path = "../../nebula-fbthrift/nebula-fbthrift-meta", version = "0.1" }
+
+nebula-fbthrift-storage = { path = "../../nebula-fbthrift/nebula-fbthrift-storage", version = "0.1" }

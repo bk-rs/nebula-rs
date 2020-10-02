@@ -1,5 +1,5 @@
 /*
-cargo run -p nebula-graph-demo-async-std --bin v2_mobc_graph_pool 127.0.0.1 3699 user 'password'
+cargo run -p nebula-demo-async-std --bin v2_mobc_graph_pool 127.0.0.1 3699 user 'password'
 */
 
 use std::env;
@@ -7,7 +7,7 @@ use std::io;
 use std::time::Duration;
 
 use fbthrift_transport::DefaultAsyncTransportConfiguration;
-use mobc_nebula_graph::v2::{NebulaGraphClientConfiguration, NebulaGraphConnectionManager};
+use mobc_nebula::v2::{GraphClientConfiguration, GraphConnectionManager};
 
 #[async_std::main]
 async fn main() -> io::Result<()> {
@@ -38,9 +38,9 @@ async fn run() -> io::Result<()> {
 
     //
     let client_configuration =
-        NebulaGraphClientConfiguration::new(domain, port, username, password, space);
+        GraphClientConfiguration::new(domain, port, username, password, space);
     let transport_configuration = DefaultAsyncTransportConfiguration::default();
-    let manager = NebulaGraphConnectionManager::new(client_configuration, transport_configuration);
+    let manager = GraphConnectionManager::new(client_configuration, transport_configuration);
 
     /*
     etc/nebula-graphd.conf

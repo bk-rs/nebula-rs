@@ -1,5 +1,5 @@
 /*
-cargo run -p nebula-graph-demo-async-std --bin v2_graph_client 127.0.0.1 3699 user 'password'
+cargo run -p nebula-demo-async-std --bin v2_graph_client 127.0.0.1 3699 user 'password'
 */
 
 use std::env;
@@ -8,7 +8,7 @@ use std::io;
 use async_std::net::TcpStream;
 
 use fbthrift_transport::{AsyncTransport, DefaultAsyncTransportConfiguration};
-use nebula_graph_client::v2::AsyncGraphClient;
+use nebula_client::v2::GraphClient;
 
 #[async_std::main]
 async fn main() -> io::Result<()> {
@@ -42,7 +42,7 @@ async fn run() -> io::Result<()> {
 
     //
     let transport = AsyncTransport::new(stream, DefaultAsyncTransportConfiguration::default());
-    let client = AsyncGraphClient::new(transport);
+    let client = GraphClient::new(transport);
 
     let mut session = client
         .authenticate(&username.as_bytes().to_vec(), &password.as_bytes().to_vec())

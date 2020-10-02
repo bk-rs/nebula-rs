@@ -1,13 +1,13 @@
 /*
-cargo run -p nebula-graph-demo-tokio --bin bb8_graph_pool 127.0.0.1 3699 user 'password'
+cargo run -p nebula-demo-tokio --bin bb8_graph_pool 127.0.0.1 3699 user 'password'
 */
 
 use std::env;
 use std::io;
 
-use bb8_nebula_graph::{NebulaGraphClientConfiguration, NebulaGraphConnectionManager};
+use bb8_nebula::{GraphClientConfiguration, GraphConnectionManager};
 use fbthrift_transport::AsyncTransportConfiguration;
-use nebula_graph_client::{GraphTransportResponseHandler, Query as _};
+use nebula_client::{GraphQuery as _, GraphTransportResponseHandler};
 
 #[tokio::main]
 async fn main() -> io::Result<()> {
@@ -38,9 +38,9 @@ async fn run() -> io::Result<()> {
 
     //
     let client_configuration =
-        NebulaGraphClientConfiguration::new(domain, port, username, password, space);
+        GraphClientConfiguration::new(domain, port, username, password, space);
     let transport_configuration = AsyncTransportConfiguration::new(GraphTransportResponseHandler);
-    let manager = NebulaGraphConnectionManager::new(client_configuration, transport_configuration);
+    let manager = GraphConnectionManager::new(client_configuration, transport_configuration);
     let pool = bb8::Pool::builder().max_size(1).build(manager).await?;
 
     //
