@@ -7,7 +7,7 @@ use std::io;
 
 use bb8_nebula::{GraphClientConfiguration, GraphConnectionManager};
 use fbthrift_transport::AsyncTransportConfiguration;
-use nebula_graph_client::{GraphTransportResponseHandler, Query as _};
+use nebula_client::{GraphQuery as _, GraphTransportResponseHandler};
 
 #[tokio::main]
 async fn main() -> io::Result<()> {

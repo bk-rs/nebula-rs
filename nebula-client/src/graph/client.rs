@@ -10,12 +10,12 @@ use nebula_fbthrift_graph::{
     types::{ErrorCode, ExecutionResponse},
 };
 
-use crate::query::{Query, QueryError, QueryOutput};
+use super::query::{GraphQuery, GraphQueryError, GraphQueryOutput};
 
 //
 //
 //
-struct AsyncGraphConnection<T>
+struct GraphConnection<T>
 where
     T: Transport,
     Bytes: ::fbthrift::Framing<DecBuf = ::fbthrift::FramingDecoded<T>>,
@@ -25,7 +25,7 @@ where
     service: GraphServiceImpl<BinaryProtocol, T>,
 }
 
-impl<T> AsyncGraphConnection<T>
+impl<T> GraphConnection<T>
 where
     T: Transport,
     Bytes: ::fbthrift::Framing<DecBuf = ::fbthrift::FramingDecoded<T>>,
@@ -42,17 +42,17 @@ where
 //
 //
 //
-pub struct AsyncGraphClient<T>
+pub struct GraphClient<T>
 where
     T: Transport,
     Bytes: ::fbthrift::Framing<DecBuf = ::fbthrift::FramingDecoded<T>>,
     ::fbthrift::ProtocolEncoded<BinaryProtocol>:
         ::fbthrift::BufMutExt<Final = ::fbthrift::FramingEncodedFinal<T>>,
 {
-    connection: AsyncGraphConnection<T>,
+    connection: GraphConnection<T>,
 }
 
-impl<T> AsyncGraphClient<T>
+impl<T> GraphClient<T>
 where
     T: Transport,
     Bytes: ::fbthrift::Framing<DecBuf = ::fbthrift::FramingDecoded<T>>,
@@ -61,7 +61,7 @@ where
 {
     pub fn new(transport: T) -> Self {
         Self {
-            connection: AsyncGraphConnection::new(transport),
+            connection: GraphConnection::new(transport),
         }
     }
 
@@ -69,7 +69,7 @@ where
         self,
         username: &str,
         password: &str,
-    ) -> result::Result<AsyncGraphSession<T>, AuthenticateError> {
+    ) -> result::Result<GraphSession<T>, AuthenticateError> {
         let res = self
             .connection
             .service
@@ -91,33 +91,33 @@ where
             )
         })?;
 
-        Ok(AsyncGraphSession::new(self.connection, session_id))
+        Ok(GraphSession::new(self.connection, session_id))
     }
 }
 
 //
 //
 //
-pub struct AsyncGraphSession<T>
+pub struct GraphSession<T>
 where
     T: Transport,
     Bytes: ::fbthrift::Framing<DecBuf = ::fbthrift::FramingDecoded<T>>,
     ::fbthrift::ProtocolEncoded<BinaryProtocol>:
         ::fbthrift::BufMutExt<Final = ::fbthrift::FramingEncodedFinal<T>>,
 {
-    connection: AsyncGraphConnection<T>,
+    connection: GraphConnection<T>,
     session_id: i64,
     close_required: bool,
 }
 
-impl<T> AsyncGraphSession<T>
+impl<T> GraphSession<T>
 where
     T: Transport,
     Bytes: ::fbthrift::Framing<DecBuf = ::fbthrift::FramingDecoded<T>>,
     ::fbthrift::ProtocolEncoded<BinaryProtocol>:
         ::fbthrift::BufMutExt<Final = ::fbthrift::FramingEncodedFinal<T>>,
 {
-    fn new(connection: AsyncGraphConnection<T>, session_id: i64) -> Self {
+    fn new(connection: GraphConnection<T>, session_id: i64) -> Self {
         Self {
             connection,
             session_id,
@@ -167,52 +167,32 @@ where
 //
 //
 //
-cfg_if::cfg_if! {
-    if #[cfg(feature = "serde_feature")] {
-        use serde::de::DeserializeOwned;
+use serde::de::DeserializeOwned;
 
-        #[async_trait]
-        impl<T> Query for AsyncGraphSession<T>
-        where
-            T: Transport + Send + Sync,
-            Bytes: ::fbthrift::Framing<DecBuf = ::fbthrift::FramingDecoded<T>>,
-            ::fbthrift::ProtocolEncoded<BinaryProtocol>:
-                ::fbthrift::BufMutExt<Final = ::fbthrift::FramingEncodedFinal<T>>,
-        {
-            async fn query_as<D: DeserializeOwned>(&mut self, stmt: &str) -> result::Result<QueryOutput<D>, QueryError> {
-                let res = self
-                    .execute(stmt)
-                    .await
-                    .map_err(|err| QueryError::ExecuteError(err))?;
+#[async_trait]
+impl<T> GraphQuery for GraphSession<T>
+where
+    T: Transport + Send + Sync,
+    Bytes: ::fbthrift::Framing<DecBuf = ::fbthrift::FramingDecoded<T>>,
+    ::fbthrift::ProtocolEncoded<BinaryProtocol>:
+        ::fbthrift::BufMutExt<Final = ::fbthrift::FramingEncodedFinal<T>>,
+{
+    async fn query_as<D: DeserializeOwned>(
+        &mut self,
+        stmt: &str,
+    ) -> result::Result<GraphQueryOutput<D>, GraphQueryError> {
+        let res = self
+            .execute(stmt)
+            .await
+            .map_err(|err| GraphQueryError::ExecuteError(err))?;
 
-                if res.error_code != ErrorCode::SUCCEEDED {
-                    return Err(QueryError::ResponseError(res.error_code, res.error_msg));
-                }
-
-                QueryOutput::new(res)
-            }
+        if res.error_code != ErrorCode::SUCCEEDED {
+            return Err(GraphQueryError::ResponseError(
+                res.error_code,
+                res.error_msg,
+            ));
         }
-    } else {
-        #[async_trait]
-        impl<T> Query for AsyncGraphSession<T>
-        where
-            T: Transport + Send + Sync,
-            Bytes: ::fbthrift::Framing<DecBuf = ::fbthrift::FramingDecoded<T>>,
-            ::fbthrift::ProtocolEncoded<BinaryProtocol>:
-                ::fbthrift::BufMutExt<Final = ::fbthrift::FramingEncodedFinal<T>>,
-        {
-            async fn query(&mut self, stmt: &str) -> result::Result<QueryOutput, QueryError> {
-                let res = self
-                    .execute(stmt)
-                    .await
-                    .map_err(|err| QueryError::ExecuteError(err))?;
 
-                if res.error_code != ErrorCode::SUCCEEDED {
-                    return Err(QueryError::ResponseError(res.error_code, res.error_msg));
-                }
-
-                Ok(QueryOutput::new(res))
-            }
-        }
+        GraphQueryOutput::new(res)
     }
 }

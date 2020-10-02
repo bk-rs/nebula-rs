@@ -8,7 +8,7 @@ use std::time::Duration;
 
 use fbthrift_transport::AsyncTransportConfiguration;
 use mobc_nebula::{GraphClientConfiguration, GraphConnectionManager};
-use nebula_graph_client::{GraphTransportResponseHandler, Query as _};
+use nebula_client::{GraphQuery as _, GraphTransportResponseHandler};
 
 #[async_std::main]
 async fn main() -> io::Result<()> {

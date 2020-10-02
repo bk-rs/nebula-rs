@@ -8,7 +8,7 @@ use std::io;
 use tokio::net::TcpStream;
 
 use fbthrift_transport::{AsyncTransport, DefaultAsyncTransportConfiguration};
-use nebula_graph_client::v2::AsyncGraphClient;
+use nebula_client::v2::GraphClient;
 
 #[tokio::main]
 async fn main() -> io::Result<()> {
@@ -42,7 +42,7 @@ async fn run() -> io::Result<()> {
 
     //
     let transport = AsyncTransport::new(stream, DefaultAsyncTransportConfiguration::default());
-    let client = AsyncGraphClient::new(transport);
+    let client = GraphClient::new(transport);
 
     let mut session = client
         .authenticate(&username.as_bytes().to_vec(), &password.as_bytes().to_vec())

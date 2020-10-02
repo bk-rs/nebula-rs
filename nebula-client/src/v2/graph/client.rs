@@ -11,7 +11,7 @@ use nebula_fbthrift_graph_v2::{
 //
 //
 //
-struct AsyncGraphConnection<T>
+struct GraphConnection<T>
 where
     T: Transport,
     Bytes: ::fbthrift::Framing<DecBuf = ::fbthrift::FramingDecoded<T>>,
@@ -21,7 +21,7 @@ where
     service: GraphServiceImpl<BinaryProtocol, T>,
 }
 
-impl<T> AsyncGraphConnection<T>
+impl<T> GraphConnection<T>
 where
     T: Transport,
     Bytes: ::fbthrift::Framing<DecBuf = ::fbthrift::FramingDecoded<T>>,
@@ -38,17 +38,17 @@ where
 //
 //
 //
-pub struct AsyncGraphClient<T>
+pub struct GraphClient<T>
 where
     T: Transport,
     Bytes: ::fbthrift::Framing<DecBuf = ::fbthrift::FramingDecoded<T>>,
     ::fbthrift::ProtocolEncoded<BinaryProtocol>:
         ::fbthrift::BufMutExt<Final = ::fbthrift::FramingEncodedFinal<T>>,
 {
-    connection: AsyncGraphConnection<T>,
+    connection: GraphConnection<T>,
 }
 
-impl<T> AsyncGraphClient<T>
+impl<T> GraphClient<T>
 where
     T: Transport,
     Bytes: ::fbthrift::Framing<DecBuf = ::fbthrift::FramingDecoded<T>>,
@@ -57,7 +57,7 @@ where
 {
     pub fn new(transport: T) -> Self {
         Self {
-            connection: AsyncGraphConnection::new(transport),
+            connection: GraphConnection::new(transport),
         }
     }
 
@@ -65,7 +65,7 @@ where
         self,
         username: &Vec<u8>,
         password: &Vec<u8>,
-    ) -> result::Result<AsyncGraphSession<T>, AuthenticateError> {
+    ) -> result::Result<GraphSession<T>, AuthenticateError> {
         let res = self
             .connection
             .service
@@ -88,33 +88,33 @@ where
             )
         })?;
 
-        Ok(AsyncGraphSession::new(self.connection, session_id))
+        Ok(GraphSession::new(self.connection, session_id))
     }
 }
 
 //
 //
 //
-pub struct AsyncGraphSession<T>
+pub struct GraphSession<T>
 where
     T: Transport,
     Bytes: ::fbthrift::Framing<DecBuf = ::fbthrift::FramingDecoded<T>>,
     ::fbthrift::ProtocolEncoded<BinaryProtocol>:
         ::fbthrift::BufMutExt<Final = ::fbthrift::FramingEncodedFinal<T>>,
 {
-    connection: AsyncGraphConnection<T>,
+    connection: GraphConnection<T>,
     session_id: i64,
     close_required: bool,
 }
 
-impl<T> AsyncGraphSession<T>
+impl<T> GraphSession<T>
 where
     T: Transport,
     Bytes: ::fbthrift::Framing<DecBuf = ::fbthrift::FramingDecoded<T>>,
     ::fbthrift::ProtocolEncoded<BinaryProtocol>:
         ::fbthrift::BufMutExt<Final = ::fbthrift::FramingEncodedFinal<T>>,
 {
-    fn new(connection: AsyncGraphConnection<T>, session_id: i64) -> Self {
+    fn new(connection: GraphConnection<T>, session_id: i64) -> Self {
         Self {
             connection,
             session_id,

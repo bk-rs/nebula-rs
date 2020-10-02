@@ -7,7 +7,7 @@ use fbthrift_transport::{
     fbthrift_transport_response_handler::ResponseHandler, AsyncTransport,
     AsyncTransportConfiguration,
 };
-use nebula_graph_client::{AsyncGraphClient, AsyncGraphSession};
+use nebula_client::{GraphClient, GraphSession};
 use tokio::net::TcpStream;
 
 #[derive(Debug, Clone)]
@@ -62,7 +62,7 @@ where
 
     async fn get_async_connection(
         &self,
-    ) -> result::Result<AsyncGraphSession<AsyncTransport<TcpStream, H>>, io::Error> {
+    ) -> result::Result<GraphSession<AsyncTransport<TcpStream, H>>, io::Error> {
         let addr = format!(
             "{}:{}",
             self.client_configuration.host, self.client_configuration.port
@@ -71,7 +71,7 @@ where
 
         let transport = AsyncTransport::new(stream, self.transport_configuration.clone());
 
-        let client = AsyncGraphClient::new(transport);
+        let client = GraphClient::new(transport);
 
         let mut session = client
             .authenticate(
@@ -97,7 +97,7 @@ impl<H> bb8::ManageConnection for GraphConnectionManager<H>
 where
     H: ResponseHandler + Send + Sync + 'static + Unpin,
 {
-    type Connection = AsyncGraphSession<AsyncTransport<TcpStream, H>>;
+    type Connection = GraphSession<AsyncTransport<TcpStream, H>>;
     type Error = io::Error;
 
     async fn connect(&self) -> result::Result<Self::Connection, Self::Error> {
