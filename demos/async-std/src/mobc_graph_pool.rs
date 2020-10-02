@@ -1,5 +1,5 @@
 /*
-cargo run -p nebula-graph-demo-async-std --bin mobc_graph_pool 127.0.0.1 3699 user 'password'
+cargo run -p nebula-demo-async-std --bin mobc_graph_pool 127.0.0.1 3699 user 'password'
 */
 
 use std::env;

@@ -1,5 +1,5 @@
 [package]
-name = "nebula-graph-demo-async-std"
+name = "nebula-demo-async-std"
 version = "0.1.0"
 authors = ["vkill <vkill.net@gmail.com>"]
 edition = "2018"

@@ -1,5 +1,5 @@
 [package]
-name = "nebula-graph-demo-tokio"
+name = "nebula-demo-tokio"
 version = "0.1.0"
 authors = ["vkill <vkill.net@gmail.com>"]
 edition = "2018"

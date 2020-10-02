@@ -1,5 +1,5 @@
 /*
-cargo run -p nebula-graph-demo-async-std --bin graph_crud 127.0.0.1 3699 user 'password' 'space'
+cargo run -p nebula-demo-async-std --bin graph_crud 127.0.0.1 3699 user 'password' 'space'
 */
 
 use std::env;
