@@ -17,7 +17,7 @@ default = ["graph"]
 graph = ["nebula-fbthrift-graph", "nebula-fbthrift-graph-v2", "serde", "serde-nebula-fbthrift-graph"]
 
 [dependencies]
-fbthrift = { package = "fbthrift-git", version = "0.0.2+617c2e9", default-features = false, features = [] }
+fbthrift = { package = "fbthrift-git", version = "0.0.2", default-features = false, features = [] }
 
 bytes = { version = "0.5", default-features = false, features = [] }
 async-trait = { version = "0.1", default-features = false, features = [] }
