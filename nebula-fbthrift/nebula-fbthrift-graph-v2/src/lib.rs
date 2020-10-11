@@ -131,23 +131,22 @@ pub mod types {
 
     impl ::std::fmt::Display for ErrorCode {
         fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-            let s: &::std::primitive::str = match *self {
-                ErrorCode::SUCCEEDED => "SUCCEEDED",
-                ErrorCode::E_DISCONNECTED => "E_DISCONNECTED",
-                ErrorCode::E_FAIL_TO_CONNECT => "E_FAIL_TO_CONNECT",
-                ErrorCode::E_RPC_FAILURE => "E_RPC_FAILURE",
-                ErrorCode::E_BAD_USERNAME_PASSWORD => "E_BAD_USERNAME_PASSWORD",
-                ErrorCode::E_SESSION_INVALID => "E_SESSION_INVALID",
-                ErrorCode::E_SESSION_TIMEOUT => "E_SESSION_TIMEOUT",
-                ErrorCode::E_SYNTAX_ERROR => "E_SYNTAX_ERROR",
-                ErrorCode::E_EXECUTION_ERROR => "E_EXECUTION_ERROR",
-                ErrorCode::E_STATEMENT_EMTPY => "E_STATEMENT_EMTPY",
-                ErrorCode::E_USER_NOT_FOUND => "E_USER_NOT_FOUND",
-                ErrorCode::E_BAD_PERMISSION => "E_BAD_PERMISSION",
-                ErrorCode::E_SEMANTIC_ERROR => "E_SEMANTIC_ERROR",
-                ErrorCode(x) => return write!(fmt, "{}", x),
-            };
-            write!(fmt, "{}", s)
+            static VARIANTS_BY_NUMBER: &[(&::std::primitive::str, ::std::primitive::i32)] = &[
+                ("E_SEMANTIC_ERROR", -12),
+                ("E_BAD_PERMISSION", -11),
+                ("E_USER_NOT_FOUND", -10),
+                ("E_STATEMENT_EMTPY", -9),
+                ("E_EXECUTION_ERROR", -8),
+                ("E_SYNTAX_ERROR", -7),
+                ("E_SESSION_TIMEOUT", -6),
+                ("E_SESSION_INVALID", -5),
+                ("E_BAD_USERNAME_PASSWORD", -4),
+                ("E_RPC_FAILURE", -3),
+                ("E_FAIL_TO_CONNECT", -2),
+                ("E_DISCONNECTED", -1),
+                ("SUCCEEDED", 0),
+            ];
+            ::fbthrift::help::enum_display(VARIANTS_BY_NUMBER, fmt, self.0)
         }
     }
 
@@ -161,22 +160,22 @@ pub mod types {
         type Err = ::anyhow::Error;
 
         fn from_str(string: &::std::primitive::str) -> ::std::result::Result<Self, Self::Err> {
-            match string {
-                "SUCCEEDED" => ::std::result::Result::Ok(ErrorCode::SUCCEEDED),
-                "E_DISCONNECTED" => ::std::result::Result::Ok(ErrorCode::E_DISCONNECTED),
-                "E_FAIL_TO_CONNECT" => ::std::result::Result::Ok(ErrorCode::E_FAIL_TO_CONNECT),
-                "E_RPC_FAILURE" => ::std::result::Result::Ok(ErrorCode::E_RPC_FAILURE),
-                "E_BAD_USERNAME_PASSWORD" => ::std::result::Result::Ok(ErrorCode::E_BAD_USERNAME_PASSWORD),
-                "E_SESSION_INVALID" => ::std::result::Result::Ok(ErrorCode::E_SESSION_INVALID),
-                "E_SESSION_TIMEOUT" => ::std::result::Result::Ok(ErrorCode::E_SESSION_TIMEOUT),
-                "E_SYNTAX_ERROR" => ::std::result::Result::Ok(ErrorCode::E_SYNTAX_ERROR),
-                "E_EXECUTION_ERROR" => ::std::result::Result::Ok(ErrorCode::E_EXECUTION_ERROR),
-                "E_STATEMENT_EMTPY" => ::std::result::Result::Ok(ErrorCode::E_STATEMENT_EMTPY),
-                "E_USER_NOT_FOUND" => ::std::result::Result::Ok(ErrorCode::E_USER_NOT_FOUND),
-                "E_BAD_PERMISSION" => ::std::result::Result::Ok(ErrorCode::E_BAD_PERMISSION),
-                "E_SEMANTIC_ERROR" => ::std::result::Result::Ok(ErrorCode::E_SEMANTIC_ERROR),
-                _ => ::anyhow::bail!("Unable to parse {} as ErrorCode", string),
-            }
+            static VARIANTS_BY_NAME: &[(&::std::primitive::str, ::std::primitive::i32)] = &[
+                ("E_BAD_PERMISSION", -11),
+                ("E_BAD_USERNAME_PASSWORD", -4),
+                ("E_DISCONNECTED", -1),
+                ("E_EXECUTION_ERROR", -8),
+                ("E_FAIL_TO_CONNECT", -2),
+                ("E_RPC_FAILURE", -3),
+                ("E_SEMANTIC_ERROR", -12),
+                ("E_SESSION_INVALID", -5),
+                ("E_SESSION_TIMEOUT", -6),
+                ("E_STATEMENT_EMTPY", -9),
+                ("E_SYNTAX_ERROR", -7),
+                ("E_USER_NOT_FOUND", -10),
+                ("SUCCEEDED", 0),
+            ];
+            ::fbthrift::help::enum_from_str(VARIANTS_BY_NAME, string, "ErrorCode").map(ErrorCode)
         }
     }
 
@@ -252,13 +251,19 @@ pub mod types {
         P: ::fbthrift::ProtocolReader,
     {
         fn read(p: &mut P) -> ::anyhow::Result<Self> {
+            static FIELDS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("exec_duration_in_us", ::fbthrift::TType::I64, 2),
+                ::fbthrift::Field::new("other_stats", ::fbthrift::TType::Map, 4),
+                ::fbthrift::Field::new("rows", ::fbthrift::TType::I64, 1),
+                ::fbthrift::Field::new("total_duration_in_us", ::fbthrift::TType::I64, 3),
+            ];
             let mut field_rows = ::std::option::Option::None;
             let mut field_exec_duration_in_us = ::std::option::Option::None;
             let mut field_total_duration_in_us = ::std::option::Option::None;
             let mut field_other_stats = ::std::option::Option::None;
             let _ = p.read_struct_begin(|_| ())?;
             loop {
-                let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                let (_, fty, fid) = p.read_field_begin(|_| (), FIELDS)?;
                 match (fty, fid as ::std::primitive::i32) {
                     (::fbthrift::TType::Stop, _) => break,
                     (::fbthrift::TType::I64, 1) => field_rows = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
@@ -318,11 +323,15 @@ pub mod types {
         P: ::fbthrift::ProtocolReader,
     {
         fn read(p: &mut P) -> ::anyhow::Result<Self> {
+            static FIELDS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("condition_node_id", ::fbthrift::TType::I64, 2),
+                ::fbthrift::Field::new("is_do_branch", ::fbthrift::TType::Bool, 1),
+            ];
             let mut field_is_do_branch = ::std::option::Option::None;
             let mut field_condition_node_id = ::std::option::Option::None;
             let _ = p.read_struct_begin(|_| ())?;
             loop {
-                let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                let (_, fty, fid) = p.read_field_begin(|_| (), FIELDS)?;
                 match (fty, fid as ::std::primitive::i32) {
                     (::fbthrift::TType::Stop, _) => break,
                     (::fbthrift::TType::Bool, 1) => field_is_do_branch = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
@@ -378,11 +387,15 @@ pub mod types {
         P: ::fbthrift::ProtocolReader,
     {
         fn read(p: &mut P) -> ::anyhow::Result<Self> {
+            static FIELDS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("key", ::fbthrift::TType::String, 1),
+                ::fbthrift::Field::new("value", ::fbthrift::TType::String, 2),
+            ];
             let mut field_key = ::std::option::Option::None;
             let mut field_value = ::std::option::Option::None;
             let _ = p.read_struct_begin(|_| ())?;
             loop {
-                let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                let (_, fty, fid) = p.read_field_begin(|_| (), FIELDS)?;
                 match (fty, fid as ::std::primitive::i32) {
                     (::fbthrift::TType::Stop, _) => break,
                     (::fbthrift::TType::String, 1) => field_key = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
@@ -466,6 +479,15 @@ pub mod types {
         P: ::fbthrift::ProtocolReader,
     {
         fn read(p: &mut P) -> ::anyhow::Result<Self> {
+            static FIELDS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("branch_info", ::fbthrift::TType::Struct, 6),
+                ::fbthrift::Field::new("dependencies", ::fbthrift::TType::List, 7),
+                ::fbthrift::Field::new("description", ::fbthrift::TType::List, 4),
+                ::fbthrift::Field::new("id", ::fbthrift::TType::I64, 2),
+                ::fbthrift::Field::new("name", ::fbthrift::TType::String, 1),
+                ::fbthrift::Field::new("output_var", ::fbthrift::TType::String, 3),
+                ::fbthrift::Field::new("profiles", ::fbthrift::TType::List, 5),
+            ];
             let mut field_name = ::std::option::Option::None;
             let mut field_id = ::std::option::Option::None;
             let mut field_output_var = ::std::option::Option::None;
@@ -475,7 +497,7 @@ pub mod types {
             let mut field_dependencies = ::std::option::Option::None;
             let _ = p.read_struct_begin(|_| ())?;
             loop {
-                let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                let (_, fty, fid) = p.read_field_begin(|_| (), FIELDS)?;
                 match (fty, fid as ::std::primitive::i32) {
                     (::fbthrift::TType::Stop, _) => break,
                     (::fbthrift::TType::String, 1) => field_name = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
@@ -545,12 +567,17 @@ pub mod types {
         P: ::fbthrift::ProtocolReader,
     {
         fn read(p: &mut P) -> ::anyhow::Result<Self> {
+            static FIELDS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("format", ::fbthrift::TType::String, 3),
+                ::fbthrift::Field::new("node_index_map", ::fbthrift::TType::Map, 2),
+                ::fbthrift::Field::new("plan_node_descs", ::fbthrift::TType::List, 1),
+            ];
             let mut field_plan_node_descs = ::std::option::Option::None;
             let mut field_node_index_map = ::std::option::Option::None;
             let mut field_format = ::std::option::Option::None;
             let _ = p.read_struct_begin(|_| ())?;
             loop {
-                let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                let (_, fty, fid) = p.read_field_begin(|_| (), FIELDS)?;
                 match (fty, fid as ::std::primitive::i32) {
                     (::fbthrift::TType::Stop, _) => break,
                     (::fbthrift::TType::List, 1) => field_plan_node_descs = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
@@ -638,6 +665,15 @@ pub mod types {
         P: ::fbthrift::ProtocolReader,
     {
         fn read(p: &mut P) -> ::anyhow::Result<Self> {
+            static FIELDS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("comment", ::fbthrift::TType::String, 7),
+                ::fbthrift::Field::new("data", ::fbthrift::TType::Struct, 3),
+                ::fbthrift::Field::new("error_code", ::fbthrift::TType::I32, 1),
+                ::fbthrift::Field::new("error_msg", ::fbthrift::TType::String, 5),
+                ::fbthrift::Field::new("latency_in_us", ::fbthrift::TType::I32, 2),
+                ::fbthrift::Field::new("plan_desc", ::fbthrift::TType::Struct, 6),
+                ::fbthrift::Field::new("space_name", ::fbthrift::TType::String, 4),
+            ];
             let mut field_error_code = ::std::option::Option::None;
             let mut field_latency_in_us = ::std::option::Option::None;
             let mut field_data = ::std::option::Option::None;
@@ -647,7 +683,7 @@ pub mod types {
             let mut field_comment = ::std::option::Option::None;
             let _ = p.read_struct_begin(|_| ())?;
             loop {
-                let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                let (_, fty, fid) = p.read_field_begin(|_| (), FIELDS)?;
                 match (fty, fid as ::std::primitive::i32) {
                     (::fbthrift::TType::Stop, _) => break,
                     (::fbthrift::TType::I32, 1) => field_error_code = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
@@ -721,12 +757,17 @@ pub mod types {
         P: ::fbthrift::ProtocolReader,
     {
         fn read(p: &mut P) -> ::anyhow::Result<Self> {
+            static FIELDS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("error_code", ::fbthrift::TType::I32, 1),
+                ::fbthrift::Field::new("error_msg", ::fbthrift::TType::String, 2),
+                ::fbthrift::Field::new("session_id", ::fbthrift::TType::I64, 3),
+            ];
             let mut field_error_code = ::std::option::Option::None;
             let mut field_error_msg = ::std::option::Option::None;
             let mut field_session_id = ::std::option::Option::None;
             let _ = p.read_struct_begin(|_| ())?;
             loop {
-                let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                let (_, fty, fid) = p.read_field_begin(|_| (), FIELDS)?;
                 match (fty, fid as ::std::primitive::i32) {
                     (::fbthrift::TType::Stop, _) => break,
                     (::fbthrift::TType::I32, 1) => field_error_code = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
@@ -802,11 +843,14 @@ pub mod services {
             P: ::fbthrift::ProtocolReader,
         {
             fn read(p: &mut P) -> ::anyhow::Result<Self> {
+                static RETURNS: &[::fbthrift::Field] = &[
+                    ::fbthrift::Field::new("Success", ::fbthrift::TType::Struct, 0),
+                ];
                 let _ = p.read_struct_begin(|_| ())?;
                 let mut once = false;
                 let mut alt = ::std::option::Option::None;
                 loop {
-                    let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                    let (_, fty, fid) = p.read_field_begin(|_| (), RETURNS)?;
                     match ((fty, fid as ::std::primitive::i32), once) {
                         ((::fbthrift::TType::Stop, _), _) => {
                             p.read_field_end()?;
@@ -890,11 +934,14 @@ pub mod services {
             P: ::fbthrift::ProtocolReader,
         {
             fn read(p: &mut P) -> ::anyhow::Result<Self> {
+                static RETURNS: &[::fbthrift::Field] = &[
+                    ::fbthrift::Field::new("Success", ::fbthrift::TType::Void, 0),
+                ];
                 let _ = p.read_struct_begin(|_| ())?;
                 let mut once = false;
                 let mut alt = SignoutExn::Success(());
                 loop {
-                    let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                    let (_, fty, fid) = p.read_field_begin(|_| (), RETURNS)?;
                     match ((fty, fid as ::std::primitive::i32), once) {
                         ((::fbthrift::TType::Stop, _), _) => {
                             p.read_field_end()?;
@@ -972,11 +1019,14 @@ pub mod services {
             P: ::fbthrift::ProtocolReader,
         {
             fn read(p: &mut P) -> ::anyhow::Result<Self> {
+                static RETURNS: &[::fbthrift::Field] = &[
+                    ::fbthrift::Field::new("Success", ::fbthrift::TType::Struct, 0),
+                ];
                 let _ = p.read_struct_begin(|_| ())?;
                 let mut once = false;
                 let mut alt = ::std::option::Option::None;
                 loop {
-                    let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                    let (_, fty, fid) = p.read_field_begin(|_| (), RETURNS)?;
                     match ((fty, fid as ::std::primitive::i32), once) {
                         ((::fbthrift::TType::Stop, _), _) => {
                             p.read_field_end()?;
@@ -1060,11 +1110,14 @@ pub mod services {
             P: ::fbthrift::ProtocolReader,
         {
             fn read(p: &mut P) -> ::anyhow::Result<Self> {
+                static RETURNS: &[::fbthrift::Field] = &[
+                    ::fbthrift::Field::new("Success", ::fbthrift::TType::String, 0),
+                ];
                 let _ = p.read_struct_begin(|_| ())?;
                 let mut once = false;
                 let mut alt = ::std::option::Option::None;
                 loop {
-                    let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                    let (_, fty, fid) = p.read_field_begin(|_| (), RETURNS)?;
                     match ((fty, fid as ::std::primitive::i32), once) {
                         ((::fbthrift::TType::Stop, _), _) => {
                             p.read_field_end()?;
@@ -1561,11 +1614,15 @@ pub mod server {
             seqid: ::std::primitive::u32,
         ) -> ::anyhow::Result<::fbthrift::ProtocolEncodedFinal<P>> {
             use ::fbthrift::ProtocolReader as _;
+            static ARGS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("password", ::fbthrift::TType::String, 2),
+                ::fbthrift::Field::new("username", ::fbthrift::TType::String, 1),
+            ];
             let mut field_username = ::std::option::Option::None;
             let mut field_password = ::std::option::Option::None;
             let _ = p.read_struct_begin(|_| ())?;
             loop {
-                let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                let (_, fty, fid) = p.read_field_begin(|_| (), ARGS)?;
                 match (fty, fid as ::std::primitive::i32) {
                     (::fbthrift::TType::Stop, _) => break,
                     (::fbthrift::TType::String, 1) => field_username = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
@@ -1620,10 +1677,13 @@ pub mod server {
             seqid: ::std::primitive::u32,
         ) -> ::anyhow::Result<::fbthrift::ProtocolEncodedFinal<P>> {
             use ::fbthrift::ProtocolReader as _;
+            static ARGS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("sessionId", ::fbthrift::TType::I64, 1),
+            ];
             let mut field_sessionId = ::std::option::Option::None;
             let _ = p.read_struct_begin(|_| ())?;
             loop {
-                let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                let (_, fty, fid) = p.read_field_begin(|_| (), ARGS)?;
                 match (fty, fid as ::std::primitive::i32) {
                     (::fbthrift::TType::Stop, _) => break,
                     (::fbthrift::TType::I64, 1) => field_sessionId = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
@@ -1671,11 +1731,15 @@ pub mod server {
             seqid: ::std::primitive::u32,
         ) -> ::anyhow::Result<::fbthrift::ProtocolEncodedFinal<P>> {
             use ::fbthrift::ProtocolReader as _;
+            static ARGS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("sessionId", ::fbthrift::TType::I64, 1),
+                ::fbthrift::Field::new("stmt", ::fbthrift::TType::String, 2),
+            ];
             let mut field_sessionId = ::std::option::Option::None;
             let mut field_stmt = ::std::option::Option::None;
             let _ = p.read_struct_begin(|_| ())?;
             loop {
-                let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                let (_, fty, fid) = p.read_field_begin(|_| (), ARGS)?;
                 match (fty, fid as ::std::primitive::i32) {
                     (::fbthrift::TType::Stop, _) => break,
                     (::fbthrift::TType::I64, 1) => field_sessionId = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
@@ -1730,11 +1794,15 @@ pub mod server {
             seqid: ::std::primitive::u32,
         ) -> ::anyhow::Result<::fbthrift::ProtocolEncodedFinal<P>> {
             use ::fbthrift::ProtocolReader as _;
+            static ARGS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("sessionId", ::fbthrift::TType::I64, 1),
+                ::fbthrift::Field::new("stmt", ::fbthrift::TType::String, 2),
+            ];
             let mut field_sessionId = ::std::option::Option::None;
             let mut field_stmt = ::std::option::Option::None;
             let _ = p.read_struct_begin(|_| ())?;
             loop {
-                let (_, fty, fid) = p.read_field_begin(|_| ())?;
+                let (_, fty, fid) = p.read_field_begin(|_| (), ARGS)?;
                 match (fty, fid as ::std::primitive::i32) {
                     (::fbthrift::TType::Stop, _) => break,
                     (::fbthrift::TType::I64, 1) => field_sessionId = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
@@ -1942,6 +2010,12 @@ pub mod server {
 ///             mock: impl FnMut(FunctionRequest) -> FunctionResponse + Send + Sync + 'mock,
 ///         );
 ///
+///         // invoke closure to compute response
+///         pub fn mock_result(
+///             &self,
+///             mock: impl FnMut(FunctionRequest) -> Result<FunctionResponse, crate::services::MyService::MyFunctionExn> + Send + Sync + 'mock,
+///         );
+///
 ///         // return one of the function's declared exceptions
 ///         pub fn throw<E>(&self, exception: E)
 ///         where
@@ -1970,6 +2044,9 @@ pub mod server {
 ///
 ///         // or throw one of the function's exceptions
 ///         mock.myFunction.throw(StorageException::ItFailed);
+///
+///         // or compute a Result (useful if your exceptions aren't Clone)
+///         mock.myFunction.mock_result(|request| Err(...));
 ///
 ///         let out = do_the_thing(mock).wait().unwrap();
 ///         assert!(out.what_i_expected());
@@ -2070,6 +2147,11 @@ pub mod mock {
                     *closure = ::std::boxed::Box::new(move |username, password| ::std::result::Result::Ok(mock(username, password)));
                 }
 
+                pub fn mock_result(&self, mut mock: impl ::std::ops::FnMut(::std::vec::Vec<::std::primitive::u8>, ::std::vec::Vec<::std::primitive::u8>) -> ::std::result::Result<crate::types::AuthResponse, crate::errors::graph_service::AuthenticateError> + ::std::marker::Send + ::std::marker::Sync + 'mock) {
+                    let mut closure = self.closure.lock().unwrap();
+                    *closure = ::std::boxed::Box::new(move |username, password| mock(username, password));
+                }
+
                 pub fn throw<E>(&self, exception: E)
                 where
                     E: ::std::convert::Into<crate::errors::graph_service::AuthenticateError>,
@@ -2107,6 +2189,11 @@ pub mod mock {
                 pub fn mock(&self, mut mock: impl ::std::ops::FnMut(::std::primitive::i64) -> () + ::std::marker::Send + ::std::marker::Sync + 'mock) {
                     let mut closure = self.closure.lock().unwrap();
                     *closure = ::std::boxed::Box::new(move |sessionId| ::std::result::Result::Ok(mock(sessionId)));
+                }
+
+                pub fn mock_result(&self, mut mock: impl ::std::ops::FnMut(::std::primitive::i64) -> ::std::result::Result<(), crate::errors::graph_service::SignoutError> + ::std::marker::Send + ::std::marker::Sync + 'mock) {
+                    let mut closure = self.closure.lock().unwrap();
+                    *closure = ::std::boxed::Box::new(move |sessionId| mock(sessionId));
                 }
 
                 pub fn throw<E>(&self, exception: E)
@@ -2148,6 +2235,11 @@ pub mod mock {
                     *closure = ::std::boxed::Box::new(move |sessionId, stmt| ::std::result::Result::Ok(mock(sessionId, stmt)));
                 }
 
+                pub fn mock_result(&self, mut mock: impl ::std::ops::FnMut(::std::primitive::i64, ::std::vec::Vec<::std::primitive::u8>) -> ::std::result::Result<crate::types::ExecutionResponse, crate::errors::graph_service::ExecuteError> + ::std::marker::Send + ::std::marker::Sync + 'mock) {
+                    let mut closure = self.closure.lock().unwrap();
+                    *closure = ::std::boxed::Box::new(move |sessionId, stmt| mock(sessionId, stmt));
+                }
+
                 pub fn throw<E>(&self, exception: E)
                 where
                     E: ::std::convert::Into<crate::errors::graph_service::ExecuteError>,
@@ -2185,6 +2277,11 @@ pub mod mock {
                 pub fn mock(&self, mut mock: impl ::std::ops::FnMut(::std::primitive::i64, ::std::vec::Vec<::std::primitive::u8>) -> ::std::vec::Vec<::std::primitive::u8> + ::std::marker::Send + ::std::marker::Sync + 'mock) {
                     let mut closure = self.closure.lock().unwrap();
                     *closure = ::std::boxed::Box::new(move |sessionId, stmt| ::std::result::Result::Ok(mock(sessionId, stmt)));
+                }
+
+                pub fn mock_result(&self, mut mock: impl ::std::ops::FnMut(::std::primitive::i64, ::std::vec::Vec<::std::primitive::u8>) -> ::std::result::Result<::std::vec::Vec<::std::primitive::u8>, crate::errors::graph_service::ExecuteJsonError> + ::std::marker::Send + ::std::marker::Sync + 'mock) {
+                    let mut closure = self.closure.lock().unwrap();
+                    *closure = ::std::boxed::Box::new(move |sessionId, stmt| mock(sessionId, stmt));
                 }
 
                 pub fn throw<E>(&self, exception: E)
