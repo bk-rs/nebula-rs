@@ -102,11 +102,11 @@ async fn run() -> io::Result<()> {
         #[serde(rename(deserialize = "FOO.field_timestamp"), with = "ts_seconds")]
         field_timestamp: DateTime<Utc>,
     }
-    let foo = session
+    let query_output = session
         .query_as::<Foo>(&format!(r#"LOOKUP ON {tag_name} WHERE {tag_name}.field_string == "1" YIELD {tag_name}.field_string, {tag_name}.field_int, {tag_name}.field_double, {tag_name}.field_bool, {tag_name}.field_timestamp"#, tag_name = tag_name))
         .await
         .unwrap();
-    println!("{:?}", foo);
+    println!("{:?}", query_output);
 
     session
         .query(&format!("DELETE VERTEX {vid}", vid = vid))
