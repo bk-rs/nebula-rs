@@ -1,7 +1,7 @@
 
 ## Build fbthrift libs
 
-[build fbthrift](https://github.com/bk-rs/fbthrift-transport/blob/master/README_fbthrift.md)
+First of all, [build fbthrift](https://github.com/bk-rs/fbthrift-git-rs/wiki/Build-fbthrift-on-Ubuntu-20.04)
 
 ```
 cd
