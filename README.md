@@ -20,5 +20,9 @@
 ## Dev
 
 ```
+cargo fmt -p nebula-client bb8-nebula mobc-nebula serde-nebula-fbthrift-graph -- --check
+```
+
+```
 cargo build-all-features
 ```
