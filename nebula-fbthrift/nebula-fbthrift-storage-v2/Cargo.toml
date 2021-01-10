@@ -1,6 +1,6 @@
 [package]
 name = "nebula-fbthrift-storage-v2"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["vkill <vkill.net@gmail.com>"]
 edition = "2018"
 description = "Nebula Graph v2 storage interface"
