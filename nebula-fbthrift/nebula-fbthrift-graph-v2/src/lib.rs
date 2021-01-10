@@ -79,10 +79,11 @@ pub mod types {
         pub const E_SESSION_TIMEOUT: Self = ErrorCode(-6i32);
         pub const E_SYNTAX_ERROR: Self = ErrorCode(-7i32);
         pub const E_EXECUTION_ERROR: Self = ErrorCode(-8i32);
-        pub const E_STATEMENT_EMTPY: Self = ErrorCode(-9i32);
+        pub const E_STATEMENT_EMPTY: Self = ErrorCode(-9i32);
         pub const E_USER_NOT_FOUND: Self = ErrorCode(-10i32);
         pub const E_BAD_PERMISSION: Self = ErrorCode(-11i32);
         pub const E_SEMANTIC_ERROR: Self = ErrorCode(-12i32);
+        pub const E_TOO_MANY_CONNECTIONS: Self = ErrorCode(-13i32);
     }
 
     impl ::fbthrift::ThriftEnum for ErrorCode {
@@ -97,10 +98,11 @@ pub mod types {
                 (ErrorCode::E_SESSION_TIMEOUT, "E_SESSION_TIMEOUT"),
                 (ErrorCode::E_SYNTAX_ERROR, "E_SYNTAX_ERROR"),
                 (ErrorCode::E_EXECUTION_ERROR, "E_EXECUTION_ERROR"),
-                (ErrorCode::E_STATEMENT_EMTPY, "E_STATEMENT_EMTPY"),
+                (ErrorCode::E_STATEMENT_EMPTY, "E_STATEMENT_EMPTY"),
                 (ErrorCode::E_USER_NOT_FOUND, "E_USER_NOT_FOUND"),
                 (ErrorCode::E_BAD_PERMISSION, "E_BAD_PERMISSION"),
                 (ErrorCode::E_SEMANTIC_ERROR, "E_SEMANTIC_ERROR"),
+                (ErrorCode::E_TOO_MANY_CONNECTIONS, "E_TOO_MANY_CONNECTIONS"),
             ]
         }
 
@@ -115,10 +117,11 @@ pub mod types {
                 "E_SESSION_TIMEOUT",
                 "E_SYNTAX_ERROR",
                 "E_EXECUTION_ERROR",
-                "E_STATEMENT_EMTPY",
+                "E_STATEMENT_EMPTY",
                 "E_USER_NOT_FOUND",
                 "E_BAD_PERMISSION",
                 "E_SEMANTIC_ERROR",
+                "E_TOO_MANY_CONNECTIONS",
             ]
         }
 
@@ -133,10 +136,11 @@ pub mod types {
                 ErrorCode::E_SESSION_TIMEOUT,
                 ErrorCode::E_SYNTAX_ERROR,
                 ErrorCode::E_EXECUTION_ERROR,
-                ErrorCode::E_STATEMENT_EMTPY,
+                ErrorCode::E_STATEMENT_EMPTY,
                 ErrorCode::E_USER_NOT_FOUND,
                 ErrorCode::E_BAD_PERMISSION,
                 ErrorCode::E_SEMANTIC_ERROR,
+                ErrorCode::E_TOO_MANY_CONNECTIONS,
             ]
         }
     }
@@ -171,10 +175,11 @@ pub mod types {
     impl ::std::fmt::Display for ErrorCode {
         fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
             static VARIANTS_BY_NUMBER: &[(&::std::primitive::str, ::std::primitive::i32)] = &[
+                ("E_TOO_MANY_CONNECTIONS", -13),
                 ("E_SEMANTIC_ERROR", -12),
                 ("E_BAD_PERMISSION", -11),
                 ("E_USER_NOT_FOUND", -10),
-                ("E_STATEMENT_EMTPY", -9),
+                ("E_STATEMENT_EMPTY", -9),
                 ("E_EXECUTION_ERROR", -8),
                 ("E_SYNTAX_ERROR", -7),
                 ("E_SESSION_TIMEOUT", -6),
@@ -209,8 +214,9 @@ pub mod types {
                 ("E_SEMANTIC_ERROR", -12),
                 ("E_SESSION_INVALID", -5),
                 ("E_SESSION_TIMEOUT", -6),
-                ("E_STATEMENT_EMTPY", -9),
+                ("E_STATEMENT_EMPTY", -9),
                 ("E_SYNTAX_ERROR", -7),
+                ("E_TOO_MANY_CONNECTIONS", -13),
                 ("E_USER_NOT_FOUND", -10),
                 ("SUCCEEDED", 0),
             ];

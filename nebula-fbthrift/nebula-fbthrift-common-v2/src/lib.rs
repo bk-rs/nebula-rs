@@ -20,13 +20,17 @@ pub mod types {
 
     pub type EdgeRanking = ::std::primitive::i64;
 
-    pub type VertexID = ::std::vec::Vec<::std::primitive::u8>;
+    pub type LogID = ::std::primitive::i64;
+
+    pub type TermID = ::std::primitive::i64;
 
     pub type Timestamp = ::std::primitive::i64;
 
     pub type IndexID = ::std::primitive::i32;
 
     pub type Port = ::std::primitive::i32;
+
+    pub type SessionID = ::std::primitive::i64;
 
     #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
     pub struct Date {
@@ -67,25 +71,25 @@ pub mod types {
         vVal(crate::types::Vertex),
         eVal(crate::types::Edge),
         pVal(crate::types::Path),
-        lVal(crate::types::List),
-        mVal(crate::types::Map),
-        uVal(crate::types::Set),
+        lVal(crate::types::NList),
+        mVal(crate::types::NMap),
+        uVal(crate::types::NSet),
         gVal(crate::types::DataSet),
         UnknownField(::std::primitive::i32),
     }
 
     #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
-    pub struct List {
+    pub struct NList {
         pub values: ::std::vec::Vec<crate::types::Value>,
     }
 
     #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
-    pub struct Map {
+    pub struct NMap {
         pub kvs: ::std::collections::BTreeMap<::std::vec::Vec<::std::primitive::u8>, crate::types::Value>,
     }
 
     #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
-    pub struct Set {
+    pub struct NSet {
         pub values: ::std::collections::BTreeSet<crate::types::Value>,
     }
 
@@ -108,14 +112,14 @@ pub mod types {
 
     #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
     pub struct Vertex {
-        pub vid: crate::types::VertexID,
+        pub vid: Box<crate::types::Value>,
         pub tags: ::std::vec::Vec<crate::types::Tag>,
     }
 
     #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
     pub struct Edge {
-        pub src: crate::types::VertexID,
-        pub dst: crate::types::VertexID,
+        pub src: Box<crate::types::Value>,
+        pub dst: Box<crate::types::Value>,
         pub type_: crate::types::EdgeType,
         pub name: ::std::vec::Vec<::std::primitive::u8>,
         pub ranking: crate::types::EdgeRanking,
@@ -147,6 +151,17 @@ pub mod types {
     pub struct KeyValue {
         pub key: ::std::vec::Vec<::std::primitive::u8>,
         pub value: ::std::vec::Vec<::std::primitive::u8>,
+    }
+
+    #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+    pub struct LogInfo {
+        pub log_id: crate::types::LogID,
+        pub term_id: crate::types::TermID,
+    }
+
+    #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+    pub struct PartitionBackupInfo {
+        pub info: ::std::collections::BTreeMap<crate::types::PartitionID, crate::types::LogInfo>,
     }
 
     #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -294,6 +309,8 @@ pub mod types {
             ::std::result::Result::Ok(NullType::from(p.read_i32()?))
         }
     }
+
+
 
 
 
@@ -771,7 +788,7 @@ pub mod types {
         }
     }
 
-    impl ::std::default::Default for self::List {
+    impl ::std::default::Default for self::NList {
         fn default() -> Self {
             Self {
                 values: ::std::default::Default::default(),
@@ -779,19 +796,19 @@ pub mod types {
         }
     }
 
-    unsafe impl ::std::marker::Send for self::List {}
-    unsafe impl ::std::marker::Sync for self::List {}
+    unsafe impl ::std::marker::Send for self::NList {}
+    unsafe impl ::std::marker::Sync for self::NList {}
 
-    impl ::fbthrift::GetTType for self::List {
+    impl ::fbthrift::GetTType for self::NList {
         const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
     }
 
-    impl<P> ::fbthrift::Serialize<P> for self::List
+    impl<P> ::fbthrift::Serialize<P> for self::NList
     where
         P: ::fbthrift::ProtocolWriter,
     {
         fn write(&self, p: &mut P) {
-            p.write_struct_begin("List");
+            p.write_struct_begin("NList");
             p.write_field_begin("values", ::fbthrift::TType::List, 1);
             ::fbthrift::Serialize::write(&self.values, p);
             p.write_field_end();
@@ -800,7 +817,7 @@ pub mod types {
         }
     }
 
-    impl<P> ::fbthrift::Deserialize<P> for self::List
+    impl<P> ::fbthrift::Deserialize<P> for self::NList
     where
         P: ::fbthrift::ProtocolReader,
     {
@@ -827,7 +844,7 @@ pub mod types {
     }
 
 
-    impl ::std::default::Default for self::Map {
+    impl ::std::default::Default for self::NMap {
         fn default() -> Self {
             Self {
                 kvs: ::std::default::Default::default(),
@@ -835,19 +852,19 @@ pub mod types {
         }
     }
 
-    unsafe impl ::std::marker::Send for self::Map {}
-    unsafe impl ::std::marker::Sync for self::Map {}
+    unsafe impl ::std::marker::Send for self::NMap {}
+    unsafe impl ::std::marker::Sync for self::NMap {}
 
-    impl ::fbthrift::GetTType for self::Map {
+    impl ::fbthrift::GetTType for self::NMap {
         const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
     }
 
-    impl<P> ::fbthrift::Serialize<P> for self::Map
+    impl<P> ::fbthrift::Serialize<P> for self::NMap
     where
         P: ::fbthrift::ProtocolWriter,
     {
         fn write(&self, p: &mut P) {
-            p.write_struct_begin("Map");
+            p.write_struct_begin("NMap");
             p.write_field_begin("kvs", ::fbthrift::TType::Map, 1);
             ::fbthrift::Serialize::write(&self.kvs, p);
             p.write_field_end();
@@ -856,7 +873,7 @@ pub mod types {
         }
     }
 
-    impl<P> ::fbthrift::Deserialize<P> for self::Map
+    impl<P> ::fbthrift::Deserialize<P> for self::NMap
     where
         P: ::fbthrift::ProtocolReader,
     {
@@ -883,7 +900,7 @@ pub mod types {
     }
 
 
-    impl ::std::default::Default for self::Set {
+    impl ::std::default::Default for self::NSet {
         fn default() -> Self {
             Self {
                 values: ::std::default::Default::default(),
@@ -891,19 +908,19 @@ pub mod types {
         }
     }
 
-    unsafe impl ::std::marker::Send for self::Set {}
-    unsafe impl ::std::marker::Sync for self::Set {}
+    unsafe impl ::std::marker::Send for self::NSet {}
+    unsafe impl ::std::marker::Sync for self::NSet {}
 
-    impl ::fbthrift::GetTType for self::Set {
+    impl ::fbthrift::GetTType for self::NSet {
         const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
     }
 
-    impl<P> ::fbthrift::Serialize<P> for self::Set
+    impl<P> ::fbthrift::Serialize<P> for self::NSet
     where
         P: ::fbthrift::ProtocolWriter,
     {
         fn write(&self, p: &mut P) {
-            p.write_struct_begin("Set");
+            p.write_struct_begin("NSet");
             p.write_field_begin("values", ::fbthrift::TType::Set, 1);
             ::fbthrift::Serialize::write(&self.values, p);
             p.write_field_end();
@@ -912,7 +929,7 @@ pub mod types {
         }
     }
 
-    impl<P> ::fbthrift::Deserialize<P> for self::Set
+    impl<P> ::fbthrift::Deserialize<P> for self::NSet
     where
         P: ::fbthrift::ProtocolReader,
     {
@@ -1145,7 +1162,7 @@ pub mod types {
     {
         fn write(&self, p: &mut P) {
             p.write_struct_begin("Vertex");
-            p.write_field_begin("vid", ::fbthrift::TType::String, 1);
+            p.write_field_begin("vid", ::fbthrift::TType::Struct, 1);
             ::fbthrift::Serialize::write(&self.vid, p);
             p.write_field_end();
             p.write_field_begin("tags", ::fbthrift::TType::List, 2);
@@ -1163,7 +1180,7 @@ pub mod types {
         fn read(p: &mut P) -> ::anyhow::Result<Self> {
             static FIELDS: &[::fbthrift::Field] = &[
                 ::fbthrift::Field::new("tags", ::fbthrift::TType::List, 2),
-                ::fbthrift::Field::new("vid", ::fbthrift::TType::String, 1),
+                ::fbthrift::Field::new("vid", ::fbthrift::TType::Struct, 1),
             ];
             let mut field_vid = ::std::option::Option::None;
             let mut field_tags = ::std::option::Option::None;
@@ -1172,7 +1189,7 @@ pub mod types {
                 let (_, fty, fid) = p.read_field_begin(|_| (), FIELDS)?;
                 match (fty, fid as ::std::primitive::i32) {
                     (::fbthrift::TType::Stop, _) => break,
-                    (::fbthrift::TType::String, 1) => field_vid = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Struct, 1) => field_vid = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::List, 2) => field_tags = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (fty, _) => p.skip(fty)?,
                 }
@@ -1213,10 +1230,10 @@ pub mod types {
     {
         fn write(&self, p: &mut P) {
             p.write_struct_begin("Edge");
-            p.write_field_begin("src", ::fbthrift::TType::String, 1);
+            p.write_field_begin("src", ::fbthrift::TType::Struct, 1);
             ::fbthrift::Serialize::write(&self.src, p);
             p.write_field_end();
-            p.write_field_begin("dst", ::fbthrift::TType::String, 2);
+            p.write_field_begin("dst", ::fbthrift::TType::Struct, 2);
             ::fbthrift::Serialize::write(&self.dst, p);
             p.write_field_end();
             p.write_field_begin("type", ::fbthrift::TType::I32, 3);
@@ -1242,11 +1259,11 @@ pub mod types {
     {
         fn read(p: &mut P) -> ::anyhow::Result<Self> {
             static FIELDS: &[::fbthrift::Field] = &[
-                ::fbthrift::Field::new("dst", ::fbthrift::TType::String, 2),
+                ::fbthrift::Field::new("dst", ::fbthrift::TType::Struct, 2),
                 ::fbthrift::Field::new("name", ::fbthrift::TType::String, 4),
                 ::fbthrift::Field::new("props", ::fbthrift::TType::Map, 6),
                 ::fbthrift::Field::new("ranking", ::fbthrift::TType::I64, 5),
-                ::fbthrift::Field::new("src", ::fbthrift::TType::String, 1),
+                ::fbthrift::Field::new("src", ::fbthrift::TType::Struct, 1),
                 ::fbthrift::Field::new("type", ::fbthrift::TType::I32, 3),
             ];
             let mut field_src = ::std::option::Option::None;
@@ -1260,8 +1277,8 @@ pub mod types {
                 let (_, fty, fid) = p.read_field_begin(|_| (), FIELDS)?;
                 match (fty, fid as ::std::primitive::i32) {
                     (::fbthrift::TType::Stop, _) => break,
-                    (::fbthrift::TType::String, 1) => field_src = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::String, 2) => field_dst = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Struct, 1) => field_src = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Struct, 2) => field_dst = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::I32, 3) => field_type = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::String, 4) => field_name = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::I64, 5) => field_ranking = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
@@ -1558,6 +1575,126 @@ pub mod types {
             ::std::result::Result::Ok(Self {
                 key: field_key.unwrap_or_default(),
                 value: field_value.unwrap_or_default(),
+            })
+        }
+    }
+
+
+    impl ::std::default::Default for self::LogInfo {
+        fn default() -> Self {
+            Self {
+                log_id: ::std::default::Default::default(),
+                term_id: ::std::default::Default::default(),
+            }
+        }
+    }
+
+    unsafe impl ::std::marker::Send for self::LogInfo {}
+    unsafe impl ::std::marker::Sync for self::LogInfo {}
+
+    impl ::fbthrift::GetTType for self::LogInfo {
+        const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
+    }
+
+    impl<P> ::fbthrift::Serialize<P> for self::LogInfo
+    where
+        P: ::fbthrift::ProtocolWriter,
+    {
+        fn write(&self, p: &mut P) {
+            p.write_struct_begin("LogInfo");
+            p.write_field_begin("log_id", ::fbthrift::TType::I64, 1);
+            ::fbthrift::Serialize::write(&self.log_id, p);
+            p.write_field_end();
+            p.write_field_begin("term_id", ::fbthrift::TType::I64, 2);
+            ::fbthrift::Serialize::write(&self.term_id, p);
+            p.write_field_end();
+            p.write_field_stop();
+            p.write_struct_end();
+        }
+    }
+
+    impl<P> ::fbthrift::Deserialize<P> for self::LogInfo
+    where
+        P: ::fbthrift::ProtocolReader,
+    {
+        fn read(p: &mut P) -> ::anyhow::Result<Self> {
+            static FIELDS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("log_id", ::fbthrift::TType::I64, 1),
+                ::fbthrift::Field::new("term_id", ::fbthrift::TType::I64, 2),
+            ];
+            let mut field_log_id = ::std::option::Option::None;
+            let mut field_term_id = ::std::option::Option::None;
+            let _ = p.read_struct_begin(|_| ())?;
+            loop {
+                let (_, fty, fid) = p.read_field_begin(|_| (), FIELDS)?;
+                match (fty, fid as ::std::primitive::i32) {
+                    (::fbthrift::TType::Stop, _) => break,
+                    (::fbthrift::TType::I64, 1) => field_log_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I64, 2) => field_term_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (fty, _) => p.skip(fty)?,
+                }
+                p.read_field_end()?;
+            }
+            p.read_struct_end()?;
+            ::std::result::Result::Ok(Self {
+                log_id: field_log_id.unwrap_or_default(),
+                term_id: field_term_id.unwrap_or_default(),
+            })
+        }
+    }
+
+
+    impl ::std::default::Default for self::PartitionBackupInfo {
+        fn default() -> Self {
+            Self {
+                info: ::std::default::Default::default(),
+            }
+        }
+    }
+
+    unsafe impl ::std::marker::Send for self::PartitionBackupInfo {}
+    unsafe impl ::std::marker::Sync for self::PartitionBackupInfo {}
+
+    impl ::fbthrift::GetTType for self::PartitionBackupInfo {
+        const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
+    }
+
+    impl<P> ::fbthrift::Serialize<P> for self::PartitionBackupInfo
+    where
+        P: ::fbthrift::ProtocolWriter,
+    {
+        fn write(&self, p: &mut P) {
+            p.write_struct_begin("PartitionBackupInfo");
+            p.write_field_begin("info", ::fbthrift::TType::Map, 1);
+            ::fbthrift::Serialize::write(&self.info, p);
+            p.write_field_end();
+            p.write_field_stop();
+            p.write_struct_end();
+        }
+    }
+
+    impl<P> ::fbthrift::Deserialize<P> for self::PartitionBackupInfo
+    where
+        P: ::fbthrift::ProtocolReader,
+    {
+        fn read(p: &mut P) -> ::anyhow::Result<Self> {
+            static FIELDS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("info", ::fbthrift::TType::Map, 1),
+            ];
+            let mut field_info = ::std::option::Option::None;
+            let _ = p.read_struct_begin(|_| ())?;
+            loop {
+                let (_, fty, fid) = p.read_field_begin(|_| (), FIELDS)?;
+                match (fty, fid as ::std::primitive::i32) {
+                    (::fbthrift::TType::Stop, _) => break,
+                    (::fbthrift::TType::Map, 1) => field_info = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (fty, _) => p.skip(fty)?,
+                }
+                p.read_field_end()?;
+            }
+            p.read_struct_end()?;
+            ::std::result::Result::Ok(Self {
+                info: field_info.unwrap_or_default(),
             })
         }
     }

@@ -91,7 +91,6 @@ pub mod types {
     #[derive(Clone, Debug, PartialEq)]
     pub struct GetPropRequest {
         pub space_id: common::types::GraphSpaceID,
-        pub column_names: ::std::vec::Vec<::std::vec::Vec<::std::primitive::u8>>,
         pub parts: ::std::collections::BTreeMap<common::types::PartitionID, ::std::vec::Vec<common::types::Row>>,
         pub vertex_props: ::std::option::Option<::std::vec::Vec<crate::types::VertexProp>>,
         pub edge_props: ::std::option::Option<::std::vec::Vec<crate::types::EdgeProp>>,
@@ -207,7 +206,7 @@ pub mod types {
     #[derive(Clone, Debug, PartialEq)]
     pub struct GetUUIDResp {
         pub result: crate::types::ResponseCommon,
-        pub id: common::types::VertexID,
+        pub id: common::types::Value,
     }
 
     #[derive(Clone, Debug, PartialEq)]
@@ -260,7 +259,6 @@ pub mod types {
         pub part_id: common::types::PartitionID,
         pub cursor: ::std::option::Option<::std::vec::Vec<::std::primitive::u8>>,
         pub return_columns: crate::types::VertexProp,
-        pub no_columns: ::std::primitive::bool,
         pub limit: ::std::primitive::i32,
         pub start_time: ::std::option::Option<::std::primitive::i64>,
         pub end_time: ::std::option::Option<::std::primitive::i64>,
@@ -283,7 +281,6 @@ pub mod types {
         pub part_id: common::types::PartitionID,
         pub cursor: ::std::option::Option<::std::vec::Vec<::std::primitive::u8>>,
         pub return_columns: crate::types::EdgeProp,
-        pub no_columns: ::std::primitive::bool,
         pub limit: ::std::primitive::i32,
         pub start_time: ::std::option::Option<::std::primitive::i64>,
         pub end_time: ::std::option::Option<::std::primitive::i64>,
@@ -414,6 +411,25 @@ pub mod types {
     }
 
     #[derive(Clone, Debug, PartialEq)]
+    pub struct CreateCPResp {
+        pub result: crate::types::ResponseCommon,
+        pub path: ::std::vec::Vec<::std::primitive::u8>,
+    }
+
+    #[derive(Clone, Debug, PartialEq)]
+    pub struct PartitionInfoResp {
+        pub result: crate::types::ResponseCommon,
+        pub backup_name: ::std::vec::Vec<::std::primitive::u8>,
+        pub partition_info: common::types::PartitionBackupInfo,
+    }
+
+    #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+    pub struct PartitionInfoRequest {
+        pub space_id: common::types::GraphSpaceID,
+        pub backup_name: ::std::vec::Vec<::std::primitive::u8>,
+    }
+
+    #[derive(Clone, Debug, PartialEq)]
     pub struct KVGetRequest {
         pub space_id: common::types::GraphSpaceID,
         pub parts: ::std::collections::BTreeMap<common::types::PartitionID, ::std::vec::Vec<::std::vec::Vec<::std::primitive::u8>>>,
@@ -436,6 +452,28 @@ pub mod types {
     pub struct KVRemoveRequest {
         pub space_id: common::types::GraphSpaceID,
         pub parts: ::std::collections::BTreeMap<common::types::PartitionID, ::std::vec::Vec<::std::vec::Vec<::std::primitive::u8>>>,
+    }
+
+    #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+    pub struct InternalTxnRequest {
+        pub txn_id: ::std::primitive::i64,
+        pub space_id: ::std::primitive::i32,
+        pub part_id: ::std::primitive::i32,
+        pub position: ::std::primitive::i32,
+        pub data: ::std::vec::Vec<::std::vec::Vec<::std::vec::Vec<::std::primitive::u8>>>,
+    }
+
+    #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+    pub struct GetValueRequest {
+        pub space_id: common::types::GraphSpaceID,
+        pub part_id: common::types::PartitionID,
+        pub key: ::std::vec::Vec<::std::primitive::u8>,
+    }
+
+    #[derive(Clone, Debug, PartialEq)]
+    pub struct GetValueResponse {
+        pub result: crate::types::ResponseCommon,
+        pub value: ::std::vec::Vec<::std::primitive::u8>,
     }
 
     #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -479,9 +517,12 @@ pub mod types {
         pub const E_LOAD_META_FAILED: Self = ErrorCode(-51i32);
         pub const E_FAILED_TO_CHECKPOINT: Self = ErrorCode(-60i32);
         pub const E_CHECKPOINT_BLOCKED: Self = ErrorCode(-61i32);
+        pub const E_BACKUP_FAILED: Self = ErrorCode(-65i32);
         pub const E_PARTIAL_RESULT: Self = ErrorCode(-71i32);
         pub const E_FILTER_OUT: Self = ErrorCode(-81i32);
         pub const E_INVALID_DATA: Self = ErrorCode(-82i32);
+        pub const E_MUTATE_EDGE_CONFLICT: Self = ErrorCode(-85i32);
+        pub const E_OUTDATED_LOCK: Self = ErrorCode(-86i32);
         pub const E_INVALID_TASK_PARA: Self = ErrorCode(-90i32);
         pub const E_USER_CANCEL: Self = ErrorCode(-99i32);
         pub const E_UNKNOWN: Self = ErrorCode(-100i32);
@@ -527,9 +568,12 @@ pub mod types {
                 (ErrorCode::E_LOAD_META_FAILED, "E_LOAD_META_FAILED"),
                 (ErrorCode::E_FAILED_TO_CHECKPOINT, "E_FAILED_TO_CHECKPOINT"),
                 (ErrorCode::E_CHECKPOINT_BLOCKED, "E_CHECKPOINT_BLOCKED"),
+                (ErrorCode::E_BACKUP_FAILED, "E_BACKUP_FAILED"),
                 (ErrorCode::E_PARTIAL_RESULT, "E_PARTIAL_RESULT"),
                 (ErrorCode::E_FILTER_OUT, "E_FILTER_OUT"),
                 (ErrorCode::E_INVALID_DATA, "E_INVALID_DATA"),
+                (ErrorCode::E_MUTATE_EDGE_CONFLICT, "E_MUTATE_EDGE_CONFLICT"),
+                (ErrorCode::E_OUTDATED_LOCK, "E_OUTDATED_LOCK"),
                 (ErrorCode::E_INVALID_TASK_PARA, "E_INVALID_TASK_PARA"),
                 (ErrorCode::E_USER_CANCEL, "E_USER_CANCEL"),
                 (ErrorCode::E_UNKNOWN, "E_UNKNOWN"),
@@ -575,9 +619,12 @@ pub mod types {
                 "E_LOAD_META_FAILED",
                 "E_FAILED_TO_CHECKPOINT",
                 "E_CHECKPOINT_BLOCKED",
+                "E_BACKUP_FAILED",
                 "E_PARTIAL_RESULT",
                 "E_FILTER_OUT",
                 "E_INVALID_DATA",
+                "E_MUTATE_EDGE_CONFLICT",
+                "E_OUTDATED_LOCK",
                 "E_INVALID_TASK_PARA",
                 "E_USER_CANCEL",
                 "E_UNKNOWN",
@@ -623,9 +670,12 @@ pub mod types {
                 ErrorCode::E_LOAD_META_FAILED,
                 ErrorCode::E_FAILED_TO_CHECKPOINT,
                 ErrorCode::E_CHECKPOINT_BLOCKED,
+                ErrorCode::E_BACKUP_FAILED,
                 ErrorCode::E_PARTIAL_RESULT,
                 ErrorCode::E_FILTER_OUT,
                 ErrorCode::E_INVALID_DATA,
+                ErrorCode::E_MUTATE_EDGE_CONFLICT,
+                ErrorCode::E_OUTDATED_LOCK,
                 ErrorCode::E_INVALID_TASK_PARA,
                 ErrorCode::E_USER_CANCEL,
                 ErrorCode::E_UNKNOWN,
@@ -666,9 +716,12 @@ pub mod types {
                 ("E_UNKNOWN", -100),
                 ("E_USER_CANCEL", -99),
                 ("E_INVALID_TASK_PARA", -90),
+                ("E_OUTDATED_LOCK", -86),
+                ("E_MUTATE_EDGE_CONFLICT", -85),
                 ("E_INVALID_DATA", -82),
                 ("E_FILTER_OUT", -81),
                 ("E_PARTIAL_RESULT", -71),
+                ("E_BACKUP_FAILED", -65),
                 ("E_CHECKPOINT_BLOCKED", -61),
                 ("E_FAILED_TO_CHECKPOINT", -60),
                 ("E_LOAD_META_FAILED", -51),
@@ -723,6 +776,7 @@ pub mod types {
         fn from_str(string: &::std::primitive::str) -> ::std::result::Result<Self, Self::Err> {
             static VARIANTS_BY_NAME: &[(&::std::primitive::str, ::std::primitive::i32)] = &[
                 ("E_ATOMIC_OP_FAILED", -24),
+                ("E_BACKUP_FAILED", -65),
                 ("E_CHECKPOINT_BLOCKED", -61),
                 ("E_CONSENSUS_ERROR", -16),
                 ("E_DATA_TYPE_MISMATCH", -17),
@@ -750,8 +804,10 @@ pub mod types {
                 ("E_KEY_NOT_FOUND", -15),
                 ("E_LEADER_CHANGED", -11),
                 ("E_LOAD_META_FAILED", -51),
+                ("E_MUTATE_EDGE_CONFLICT", -85),
                 ("E_NOT_NULLABLE", -21),
                 ("E_NO_TRANSFORMED", -49),
+                ("E_OUTDATED_LOCK", -86),
                 ("E_OUT_OF_RANGE", -23),
                 ("E_PARTIAL_RESULT", -71),
                 ("E_PART_NOT_FOUND", -14),
@@ -2192,7 +2248,6 @@ pub mod types {
         fn default() -> Self {
             Self {
                 space_id: ::std::default::Default::default(),
-                column_names: ::std::default::Default::default(),
                 parts: ::std::default::Default::default(),
                 vertex_props: ::std::option::Option::None,
                 edge_props: ::std::option::Option::None,
@@ -2221,42 +2276,39 @@ pub mod types {
             p.write_field_begin("space_id", ::fbthrift::TType::I32, 1);
             ::fbthrift::Serialize::write(&self.space_id, p);
             p.write_field_end();
-            p.write_field_begin("column_names", ::fbthrift::TType::List, 2);
-            ::fbthrift::Serialize::write(&self.column_names, p);
-            p.write_field_end();
-            p.write_field_begin("parts", ::fbthrift::TType::Map, 3);
+            p.write_field_begin("parts", ::fbthrift::TType::Map, 2);
             ::fbthrift::Serialize::write(&self.parts, p);
             p.write_field_end();
             if let ::std::option::Option::Some(some) = &self.vertex_props {
-                p.write_field_begin("vertex_props", ::fbthrift::TType::List, 4);
+                p.write_field_begin("vertex_props", ::fbthrift::TType::List, 3);
                 ::fbthrift::Serialize::write(some, p);
                 p.write_field_end();
             }
             if let ::std::option::Option::Some(some) = &self.edge_props {
-                p.write_field_begin("edge_props", ::fbthrift::TType::List, 5);
+                p.write_field_begin("edge_props", ::fbthrift::TType::List, 4);
                 ::fbthrift::Serialize::write(some, p);
                 p.write_field_end();
             }
             if let ::std::option::Option::Some(some) = &self.expressions {
-                p.write_field_begin("expressions", ::fbthrift::TType::List, 6);
+                p.write_field_begin("expressions", ::fbthrift::TType::List, 5);
                 ::fbthrift::Serialize::write(some, p);
                 p.write_field_end();
             }
-            p.write_field_begin("dedup", ::fbthrift::TType::Bool, 7);
+            p.write_field_begin("dedup", ::fbthrift::TType::Bool, 6);
             ::fbthrift::Serialize::write(&self.dedup, p);
             p.write_field_end();
             if let ::std::option::Option::Some(some) = &self.order_by {
-                p.write_field_begin("order_by", ::fbthrift::TType::List, 8);
+                p.write_field_begin("order_by", ::fbthrift::TType::List, 7);
                 ::fbthrift::Serialize::write(some, p);
                 p.write_field_end();
             }
             if let ::std::option::Option::Some(some) = &self.limit {
-                p.write_field_begin("limit", ::fbthrift::TType::I64, 9);
+                p.write_field_begin("limit", ::fbthrift::TType::I64, 8);
                 ::fbthrift::Serialize::write(some, p);
                 p.write_field_end();
             }
             if let ::std::option::Option::Some(some) = &self.filter {
-                p.write_field_begin("filter", ::fbthrift::TType::String, 10);
+                p.write_field_begin("filter", ::fbthrift::TType::String, 9);
                 ::fbthrift::Serialize::write(some, p);
                 p.write_field_end();
             }
@@ -2271,19 +2323,17 @@ pub mod types {
     {
         fn read(p: &mut P) -> ::anyhow::Result<Self> {
             static FIELDS: &[::fbthrift::Field] = &[
-                ::fbthrift::Field::new("column_names", ::fbthrift::TType::List, 2),
-                ::fbthrift::Field::new("dedup", ::fbthrift::TType::Bool, 7),
-                ::fbthrift::Field::new("edge_props", ::fbthrift::TType::List, 5),
-                ::fbthrift::Field::new("expressions", ::fbthrift::TType::List, 6),
-                ::fbthrift::Field::new("filter", ::fbthrift::TType::String, 10),
-                ::fbthrift::Field::new("limit", ::fbthrift::TType::I64, 9),
-                ::fbthrift::Field::new("order_by", ::fbthrift::TType::List, 8),
-                ::fbthrift::Field::new("parts", ::fbthrift::TType::Map, 3),
+                ::fbthrift::Field::new("dedup", ::fbthrift::TType::Bool, 6),
+                ::fbthrift::Field::new("edge_props", ::fbthrift::TType::List, 4),
+                ::fbthrift::Field::new("expressions", ::fbthrift::TType::List, 5),
+                ::fbthrift::Field::new("filter", ::fbthrift::TType::String, 9),
+                ::fbthrift::Field::new("limit", ::fbthrift::TType::I64, 8),
+                ::fbthrift::Field::new("order_by", ::fbthrift::TType::List, 7),
+                ::fbthrift::Field::new("parts", ::fbthrift::TType::Map, 2),
                 ::fbthrift::Field::new("space_id", ::fbthrift::TType::I32, 1),
-                ::fbthrift::Field::new("vertex_props", ::fbthrift::TType::List, 4),
+                ::fbthrift::Field::new("vertex_props", ::fbthrift::TType::List, 3),
             ];
             let mut field_space_id = ::std::option::Option::None;
-            let mut field_column_names = ::std::option::Option::None;
             let mut field_parts = ::std::option::Option::None;
             let mut field_vertex_props = ::std::option::Option::None;
             let mut field_edge_props = ::std::option::Option::None;
@@ -2298,15 +2348,14 @@ pub mod types {
                 match (fty, fid as ::std::primitive::i32) {
                     (::fbthrift::TType::Stop, _) => break,
                     (::fbthrift::TType::I32, 1) => field_space_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::List, 2) => field_column_names = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::Map, 3) => field_parts = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::List, 4) => field_vertex_props = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::List, 5) => field_edge_props = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::List, 6) => field_expressions = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::Bool, 7) => field_dedup = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::List, 8) => field_order_by = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::I64, 9) => field_limit = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::String, 10) => field_filter = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Map, 2) => field_parts = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::List, 3) => field_vertex_props = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::List, 4) => field_edge_props = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::List, 5) => field_expressions = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Bool, 6) => field_dedup = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::List, 7) => field_order_by = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I64, 8) => field_limit = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::String, 9) => field_filter = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (fty, _) => p.skip(fty)?,
                 }
                 p.read_field_end()?;
@@ -2314,7 +2363,6 @@ pub mod types {
             p.read_struct_end()?;
             ::std::result::Result::Ok(Self {
                 space_id: field_space_id.unwrap_or_default(),
-                column_names: field_column_names.unwrap_or_default(),
                 parts: field_parts.unwrap_or_default(),
                 vertex_props: field_vertex_props,
                 edge_props: field_edge_props,
@@ -3409,7 +3457,7 @@ pub mod types {
             p.write_field_begin("result", ::fbthrift::TType::Struct, 1);
             ::fbthrift::Serialize::write(&self.result, p);
             p.write_field_end();
-            p.write_field_begin("id", ::fbthrift::TType::String, 2);
+            p.write_field_begin("id", ::fbthrift::TType::Struct, 2);
             ::fbthrift::Serialize::write(&self.id, p);
             p.write_field_end();
             p.write_field_stop();
@@ -3423,7 +3471,7 @@ pub mod types {
     {
         fn read(p: &mut P) -> ::anyhow::Result<Self> {
             static FIELDS: &[::fbthrift::Field] = &[
-                ::fbthrift::Field::new("id", ::fbthrift::TType::String, 2),
+                ::fbthrift::Field::new("id", ::fbthrift::TType::Struct, 2),
                 ::fbthrift::Field::new("result", ::fbthrift::TType::Struct, 1),
             ];
             let mut field_result = ::std::option::Option::None;
@@ -3434,7 +3482,7 @@ pub mod types {
                 match (fty, fid as ::std::primitive::i32) {
                     (::fbthrift::TType::Stop, _) => break,
                     (::fbthrift::TType::Struct, 1) => field_result = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::String, 2) => field_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Struct, 2) => field_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (fty, _) => p.skip(fty)?,
                 }
                 p.read_field_end()?;
@@ -3907,7 +3955,6 @@ pub mod types {
                 part_id: ::std::default::Default::default(),
                 cursor: ::std::option::Option::None,
                 return_columns: ::std::default::Default::default(),
-                no_columns: ::std::default::Default::default(),
                 limit: ::std::default::Default::default(),
                 start_time: ::std::option::Option::None,
                 end_time: ::std::option::Option::None,
@@ -3945,31 +3992,28 @@ pub mod types {
             p.write_field_begin("return_columns", ::fbthrift::TType::Struct, 4);
             ::fbthrift::Serialize::write(&self.return_columns, p);
             p.write_field_end();
-            p.write_field_begin("no_columns", ::fbthrift::TType::Bool, 5);
-            ::fbthrift::Serialize::write(&self.no_columns, p);
-            p.write_field_end();
-            p.write_field_begin("limit", ::fbthrift::TType::I32, 6);
+            p.write_field_begin("limit", ::fbthrift::TType::I32, 5);
             ::fbthrift::Serialize::write(&self.limit, p);
             p.write_field_end();
             if let ::std::option::Option::Some(some) = &self.start_time {
-                p.write_field_begin("start_time", ::fbthrift::TType::I64, 7);
+                p.write_field_begin("start_time", ::fbthrift::TType::I64, 6);
                 ::fbthrift::Serialize::write(some, p);
                 p.write_field_end();
             }
             if let ::std::option::Option::Some(some) = &self.end_time {
-                p.write_field_begin("end_time", ::fbthrift::TType::I64, 8);
+                p.write_field_begin("end_time", ::fbthrift::TType::I64, 7);
                 ::fbthrift::Serialize::write(some, p);
                 p.write_field_end();
             }
             if let ::std::option::Option::Some(some) = &self.filter {
-                p.write_field_begin("filter", ::fbthrift::TType::String, 9);
+                p.write_field_begin("filter", ::fbthrift::TType::String, 8);
                 ::fbthrift::Serialize::write(some, p);
                 p.write_field_end();
             }
-            p.write_field_begin("only_latest_version", ::fbthrift::TType::Bool, 10);
+            p.write_field_begin("only_latest_version", ::fbthrift::TType::Bool, 9);
             ::fbthrift::Serialize::write(&self.only_latest_version, p);
             p.write_field_end();
-            p.write_field_begin("enable_read_from_follower", ::fbthrift::TType::Bool, 11);
+            p.write_field_begin("enable_read_from_follower", ::fbthrift::TType::Bool, 10);
             ::fbthrift::Serialize::write(&self.enable_read_from_follower, p);
             p.write_field_end();
             p.write_field_stop();
@@ -3984,22 +4028,20 @@ pub mod types {
         fn read(p: &mut P) -> ::anyhow::Result<Self> {
             static FIELDS: &[::fbthrift::Field] = &[
                 ::fbthrift::Field::new("cursor", ::fbthrift::TType::String, 3),
-                ::fbthrift::Field::new("enable_read_from_follower", ::fbthrift::TType::Bool, 11),
-                ::fbthrift::Field::new("end_time", ::fbthrift::TType::I64, 8),
-                ::fbthrift::Field::new("filter", ::fbthrift::TType::String, 9),
-                ::fbthrift::Field::new("limit", ::fbthrift::TType::I32, 6),
-                ::fbthrift::Field::new("no_columns", ::fbthrift::TType::Bool, 5),
-                ::fbthrift::Field::new("only_latest_version", ::fbthrift::TType::Bool, 10),
+                ::fbthrift::Field::new("enable_read_from_follower", ::fbthrift::TType::Bool, 10),
+                ::fbthrift::Field::new("end_time", ::fbthrift::TType::I64, 7),
+                ::fbthrift::Field::new("filter", ::fbthrift::TType::String, 8),
+                ::fbthrift::Field::new("limit", ::fbthrift::TType::I32, 5),
+                ::fbthrift::Field::new("only_latest_version", ::fbthrift::TType::Bool, 9),
                 ::fbthrift::Field::new("part_id", ::fbthrift::TType::I32, 2),
                 ::fbthrift::Field::new("return_columns", ::fbthrift::TType::Struct, 4),
                 ::fbthrift::Field::new("space_id", ::fbthrift::TType::I32, 1),
-                ::fbthrift::Field::new("start_time", ::fbthrift::TType::I64, 7),
+                ::fbthrift::Field::new("start_time", ::fbthrift::TType::I64, 6),
             ];
             let mut field_space_id = ::std::option::Option::None;
             let mut field_part_id = ::std::option::Option::None;
             let mut field_cursor = ::std::option::Option::None;
             let mut field_return_columns = ::std::option::Option::None;
-            let mut field_no_columns = ::std::option::Option::None;
             let mut field_limit = ::std::option::Option::None;
             let mut field_start_time = ::std::option::Option::None;
             let mut field_end_time = ::std::option::Option::None;
@@ -4015,13 +4057,12 @@ pub mod types {
                     (::fbthrift::TType::I32, 2) => field_part_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::String, 3) => field_cursor = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::Struct, 4) => field_return_columns = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::Bool, 5) => field_no_columns = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::I32, 6) => field_limit = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::I64, 7) => field_start_time = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::I64, 8) => field_end_time = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::String, 9) => field_filter = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::Bool, 10) => field_only_latest_version = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::Bool, 11) => field_enable_read_from_follower = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I32, 5) => field_limit = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I64, 6) => field_start_time = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I64, 7) => field_end_time = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::String, 8) => field_filter = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Bool, 9) => field_only_latest_version = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Bool, 10) => field_enable_read_from_follower = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (fty, _) => p.skip(fty)?,
                 }
                 p.read_field_end()?;
@@ -4032,7 +4073,6 @@ pub mod types {
                 part_id: field_part_id.unwrap_or_default(),
                 cursor: field_cursor,
                 return_columns: field_return_columns.unwrap_or_default(),
-                no_columns: field_no_columns.unwrap_or_default(),
                 limit: field_limit.unwrap_or_default(),
                 start_time: field_start_time,
                 end_time: field_end_time,
@@ -4133,7 +4173,6 @@ pub mod types {
                 part_id: ::std::default::Default::default(),
                 cursor: ::std::option::Option::None,
                 return_columns: ::std::default::Default::default(),
-                no_columns: ::std::default::Default::default(),
                 limit: ::std::default::Default::default(),
                 start_time: ::std::option::Option::None,
                 end_time: ::std::option::Option::None,
@@ -4171,31 +4210,28 @@ pub mod types {
             p.write_field_begin("return_columns", ::fbthrift::TType::Struct, 4);
             ::fbthrift::Serialize::write(&self.return_columns, p);
             p.write_field_end();
-            p.write_field_begin("no_columns", ::fbthrift::TType::Bool, 5);
-            ::fbthrift::Serialize::write(&self.no_columns, p);
-            p.write_field_end();
-            p.write_field_begin("limit", ::fbthrift::TType::I32, 6);
+            p.write_field_begin("limit", ::fbthrift::TType::I32, 5);
             ::fbthrift::Serialize::write(&self.limit, p);
             p.write_field_end();
             if let ::std::option::Option::Some(some) = &self.start_time {
-                p.write_field_begin("start_time", ::fbthrift::TType::I64, 7);
+                p.write_field_begin("start_time", ::fbthrift::TType::I64, 6);
                 ::fbthrift::Serialize::write(some, p);
                 p.write_field_end();
             }
             if let ::std::option::Option::Some(some) = &self.end_time {
-                p.write_field_begin("end_time", ::fbthrift::TType::I64, 8);
+                p.write_field_begin("end_time", ::fbthrift::TType::I64, 7);
                 ::fbthrift::Serialize::write(some, p);
                 p.write_field_end();
             }
             if let ::std::option::Option::Some(some) = &self.filter {
-                p.write_field_begin("filter", ::fbthrift::TType::String, 9);
+                p.write_field_begin("filter", ::fbthrift::TType::String, 8);
                 ::fbthrift::Serialize::write(some, p);
                 p.write_field_end();
             }
-            p.write_field_begin("only_latest_version", ::fbthrift::TType::Bool, 10);
+            p.write_field_begin("only_latest_version", ::fbthrift::TType::Bool, 9);
             ::fbthrift::Serialize::write(&self.only_latest_version, p);
             p.write_field_end();
-            p.write_field_begin("enable_read_from_follower", ::fbthrift::TType::Bool, 11);
+            p.write_field_begin("enable_read_from_follower", ::fbthrift::TType::Bool, 10);
             ::fbthrift::Serialize::write(&self.enable_read_from_follower, p);
             p.write_field_end();
             p.write_field_stop();
@@ -4210,22 +4246,20 @@ pub mod types {
         fn read(p: &mut P) -> ::anyhow::Result<Self> {
             static FIELDS: &[::fbthrift::Field] = &[
                 ::fbthrift::Field::new("cursor", ::fbthrift::TType::String, 3),
-                ::fbthrift::Field::new("enable_read_from_follower", ::fbthrift::TType::Bool, 11),
-                ::fbthrift::Field::new("end_time", ::fbthrift::TType::I64, 8),
-                ::fbthrift::Field::new("filter", ::fbthrift::TType::String, 9),
-                ::fbthrift::Field::new("limit", ::fbthrift::TType::I32, 6),
-                ::fbthrift::Field::new("no_columns", ::fbthrift::TType::Bool, 5),
-                ::fbthrift::Field::new("only_latest_version", ::fbthrift::TType::Bool, 10),
+                ::fbthrift::Field::new("enable_read_from_follower", ::fbthrift::TType::Bool, 10),
+                ::fbthrift::Field::new("end_time", ::fbthrift::TType::I64, 7),
+                ::fbthrift::Field::new("filter", ::fbthrift::TType::String, 8),
+                ::fbthrift::Field::new("limit", ::fbthrift::TType::I32, 5),
+                ::fbthrift::Field::new("only_latest_version", ::fbthrift::TType::Bool, 9),
                 ::fbthrift::Field::new("part_id", ::fbthrift::TType::I32, 2),
                 ::fbthrift::Field::new("return_columns", ::fbthrift::TType::Struct, 4),
                 ::fbthrift::Field::new("space_id", ::fbthrift::TType::I32, 1),
-                ::fbthrift::Field::new("start_time", ::fbthrift::TType::I64, 7),
+                ::fbthrift::Field::new("start_time", ::fbthrift::TType::I64, 6),
             ];
             let mut field_space_id = ::std::option::Option::None;
             let mut field_part_id = ::std::option::Option::None;
             let mut field_cursor = ::std::option::Option::None;
             let mut field_return_columns = ::std::option::Option::None;
-            let mut field_no_columns = ::std::option::Option::None;
             let mut field_limit = ::std::option::Option::None;
             let mut field_start_time = ::std::option::Option::None;
             let mut field_end_time = ::std::option::Option::None;
@@ -4241,13 +4275,12 @@ pub mod types {
                     (::fbthrift::TType::I32, 2) => field_part_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::String, 3) => field_cursor = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::Struct, 4) => field_return_columns = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::Bool, 5) => field_no_columns = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::I32, 6) => field_limit = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::I64, 7) => field_start_time = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::I64, 8) => field_end_time = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::String, 9) => field_filter = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::Bool, 10) => field_only_latest_version = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::Bool, 11) => field_enable_read_from_follower = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I32, 5) => field_limit = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I64, 6) => field_start_time = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I64, 7) => field_end_time = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::String, 8) => field_filter = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Bool, 9) => field_only_latest_version = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Bool, 10) => field_enable_read_from_follower = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (fty, _) => p.skip(fty)?,
                 }
                 p.read_field_end()?;
@@ -4258,7 +4291,6 @@ pub mod types {
                 part_id: field_part_id.unwrap_or_default(),
                 cursor: field_cursor,
                 return_columns: field_return_columns.unwrap_or_default(),
-                no_columns: field_no_columns.unwrap_or_default(),
                 limit: field_limit.unwrap_or_default(),
                 start_time: field_start_time,
                 end_time: field_end_time,
@@ -5536,6 +5568,206 @@ pub mod types {
     }
 
 
+    impl ::std::default::Default for self::CreateCPResp {
+        fn default() -> Self {
+            Self {
+                result: ::std::default::Default::default(),
+                path: ::std::default::Default::default(),
+            }
+        }
+    }
+
+    unsafe impl ::std::marker::Send for self::CreateCPResp {}
+    unsafe impl ::std::marker::Sync for self::CreateCPResp {}
+
+    impl ::fbthrift::GetTType for self::CreateCPResp {
+        const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
+    }
+
+    impl<P> ::fbthrift::Serialize<P> for self::CreateCPResp
+    where
+        P: ::fbthrift::ProtocolWriter,
+    {
+        fn write(&self, p: &mut P) {
+            p.write_struct_begin("CreateCPResp");
+            p.write_field_begin("result", ::fbthrift::TType::Struct, 1);
+            ::fbthrift::Serialize::write(&self.result, p);
+            p.write_field_end();
+            p.write_field_begin("path", ::fbthrift::TType::String, 2);
+            ::fbthrift::Serialize::write(&self.path, p);
+            p.write_field_end();
+            p.write_field_stop();
+            p.write_struct_end();
+        }
+    }
+
+    impl<P> ::fbthrift::Deserialize<P> for self::CreateCPResp
+    where
+        P: ::fbthrift::ProtocolReader,
+    {
+        fn read(p: &mut P) -> ::anyhow::Result<Self> {
+            static FIELDS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("path", ::fbthrift::TType::String, 2),
+                ::fbthrift::Field::new("result", ::fbthrift::TType::Struct, 1),
+            ];
+            let mut field_result = ::std::option::Option::None;
+            let mut field_path = ::std::option::Option::None;
+            let _ = p.read_struct_begin(|_| ())?;
+            loop {
+                let (_, fty, fid) = p.read_field_begin(|_| (), FIELDS)?;
+                match (fty, fid as ::std::primitive::i32) {
+                    (::fbthrift::TType::Stop, _) => break,
+                    (::fbthrift::TType::Struct, 1) => field_result = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::String, 2) => field_path = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (fty, _) => p.skip(fty)?,
+                }
+                p.read_field_end()?;
+            }
+            p.read_struct_end()?;
+            ::std::result::Result::Ok(Self {
+                result: field_result.unwrap_or_default(),
+                path: field_path.unwrap_or_default(),
+            })
+        }
+    }
+
+
+    impl ::std::default::Default for self::PartitionInfoResp {
+        fn default() -> Self {
+            Self {
+                result: ::std::default::Default::default(),
+                backup_name: ::std::default::Default::default(),
+                partition_info: ::std::default::Default::default(),
+            }
+        }
+    }
+
+    unsafe impl ::std::marker::Send for self::PartitionInfoResp {}
+    unsafe impl ::std::marker::Sync for self::PartitionInfoResp {}
+
+    impl ::fbthrift::GetTType for self::PartitionInfoResp {
+        const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
+    }
+
+    impl<P> ::fbthrift::Serialize<P> for self::PartitionInfoResp
+    where
+        P: ::fbthrift::ProtocolWriter,
+    {
+        fn write(&self, p: &mut P) {
+            p.write_struct_begin("PartitionInfoResp");
+            p.write_field_begin("result", ::fbthrift::TType::Struct, 1);
+            ::fbthrift::Serialize::write(&self.result, p);
+            p.write_field_end();
+            p.write_field_begin("backup_name", ::fbthrift::TType::String, 2);
+            ::fbthrift::Serialize::write(&self.backup_name, p);
+            p.write_field_end();
+            p.write_field_begin("partition_info", ::fbthrift::TType::Struct, 3);
+            ::fbthrift::Serialize::write(&self.partition_info, p);
+            p.write_field_end();
+            p.write_field_stop();
+            p.write_struct_end();
+        }
+    }
+
+    impl<P> ::fbthrift::Deserialize<P> for self::PartitionInfoResp
+    where
+        P: ::fbthrift::ProtocolReader,
+    {
+        fn read(p: &mut P) -> ::anyhow::Result<Self> {
+            static FIELDS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("backup_name", ::fbthrift::TType::String, 2),
+                ::fbthrift::Field::new("partition_info", ::fbthrift::TType::Struct, 3),
+                ::fbthrift::Field::new("result", ::fbthrift::TType::Struct, 1),
+            ];
+            let mut field_result = ::std::option::Option::None;
+            let mut field_backup_name = ::std::option::Option::None;
+            let mut field_partition_info = ::std::option::Option::None;
+            let _ = p.read_struct_begin(|_| ())?;
+            loop {
+                let (_, fty, fid) = p.read_field_begin(|_| (), FIELDS)?;
+                match (fty, fid as ::std::primitive::i32) {
+                    (::fbthrift::TType::Stop, _) => break,
+                    (::fbthrift::TType::Struct, 1) => field_result = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::String, 2) => field_backup_name = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::Struct, 3) => field_partition_info = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (fty, _) => p.skip(fty)?,
+                }
+                p.read_field_end()?;
+            }
+            p.read_struct_end()?;
+            ::std::result::Result::Ok(Self {
+                result: field_result.unwrap_or_default(),
+                backup_name: field_backup_name.unwrap_or_default(),
+                partition_info: field_partition_info.unwrap_or_default(),
+            })
+        }
+    }
+
+
+    impl ::std::default::Default for self::PartitionInfoRequest {
+        fn default() -> Self {
+            Self {
+                space_id: ::std::default::Default::default(),
+                backup_name: ::std::default::Default::default(),
+            }
+        }
+    }
+
+    unsafe impl ::std::marker::Send for self::PartitionInfoRequest {}
+    unsafe impl ::std::marker::Sync for self::PartitionInfoRequest {}
+
+    impl ::fbthrift::GetTType for self::PartitionInfoRequest {
+        const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
+    }
+
+    impl<P> ::fbthrift::Serialize<P> for self::PartitionInfoRequest
+    where
+        P: ::fbthrift::ProtocolWriter,
+    {
+        fn write(&self, p: &mut P) {
+            p.write_struct_begin("PartitionInfoRequest");
+            p.write_field_begin("space_id", ::fbthrift::TType::I32, 1);
+            ::fbthrift::Serialize::write(&self.space_id, p);
+            p.write_field_end();
+            p.write_field_begin("backup_name", ::fbthrift::TType::String, 2);
+            ::fbthrift::Serialize::write(&self.backup_name, p);
+            p.write_field_end();
+            p.write_field_stop();
+            p.write_struct_end();
+        }
+    }
+
+    impl<P> ::fbthrift::Deserialize<P> for self::PartitionInfoRequest
+    where
+        P: ::fbthrift::ProtocolReader,
+    {
+        fn read(p: &mut P) -> ::anyhow::Result<Self> {
+            static FIELDS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("backup_name", ::fbthrift::TType::String, 2),
+                ::fbthrift::Field::new("space_id", ::fbthrift::TType::I32, 1),
+            ];
+            let mut field_space_id = ::std::option::Option::None;
+            let mut field_backup_name = ::std::option::Option::None;
+            let _ = p.read_struct_begin(|_| ())?;
+            loop {
+                let (_, fty, fid) = p.read_field_begin(|_| (), FIELDS)?;
+                match (fty, fid as ::std::primitive::i32) {
+                    (::fbthrift::TType::Stop, _) => break,
+                    (::fbthrift::TType::I32, 1) => field_space_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::String, 2) => field_backup_name = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (fty, _) => p.skip(fty)?,
+                }
+                p.read_field_end()?;
+            }
+            p.read_struct_end()?;
+            ::std::result::Result::Ok(Self {
+                space_id: field_space_id.unwrap_or_default(),
+                backup_name: field_backup_name.unwrap_or_default(),
+            })
+        }
+    }
+
+
     impl ::std::default::Default for self::KVGetRequest {
         fn default() -> Self {
             Self {
@@ -5795,6 +6027,230 @@ pub mod types {
             ::std::result::Result::Ok(Self {
                 space_id: field_space_id.unwrap_or_default(),
                 parts: field_parts.unwrap_or_default(),
+            })
+        }
+    }
+
+
+    impl ::std::default::Default for self::InternalTxnRequest {
+        fn default() -> Self {
+            Self {
+                txn_id: ::std::default::Default::default(),
+                space_id: ::std::default::Default::default(),
+                part_id: ::std::default::Default::default(),
+                position: ::std::default::Default::default(),
+                data: ::std::default::Default::default(),
+            }
+        }
+    }
+
+    unsafe impl ::std::marker::Send for self::InternalTxnRequest {}
+    unsafe impl ::std::marker::Sync for self::InternalTxnRequest {}
+
+    impl ::fbthrift::GetTType for self::InternalTxnRequest {
+        const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
+    }
+
+    impl<P> ::fbthrift::Serialize<P> for self::InternalTxnRequest
+    where
+        P: ::fbthrift::ProtocolWriter,
+    {
+        fn write(&self, p: &mut P) {
+            p.write_struct_begin("InternalTxnRequest");
+            p.write_field_begin("txn_id", ::fbthrift::TType::I64, 1);
+            ::fbthrift::Serialize::write(&self.txn_id, p);
+            p.write_field_end();
+            p.write_field_begin("space_id", ::fbthrift::TType::I32, 2);
+            ::fbthrift::Serialize::write(&self.space_id, p);
+            p.write_field_end();
+            p.write_field_begin("part_id", ::fbthrift::TType::I32, 3);
+            ::fbthrift::Serialize::write(&self.part_id, p);
+            p.write_field_end();
+            p.write_field_begin("position", ::fbthrift::TType::I32, 4);
+            ::fbthrift::Serialize::write(&self.position, p);
+            p.write_field_end();
+            p.write_field_begin("data", ::fbthrift::TType::List, 5);
+            ::fbthrift::Serialize::write(&self.data, p);
+            p.write_field_end();
+            p.write_field_stop();
+            p.write_struct_end();
+        }
+    }
+
+    impl<P> ::fbthrift::Deserialize<P> for self::InternalTxnRequest
+    where
+        P: ::fbthrift::ProtocolReader,
+    {
+        fn read(p: &mut P) -> ::anyhow::Result<Self> {
+            static FIELDS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("data", ::fbthrift::TType::List, 5),
+                ::fbthrift::Field::new("part_id", ::fbthrift::TType::I32, 3),
+                ::fbthrift::Field::new("position", ::fbthrift::TType::I32, 4),
+                ::fbthrift::Field::new("space_id", ::fbthrift::TType::I32, 2),
+                ::fbthrift::Field::new("txn_id", ::fbthrift::TType::I64, 1),
+            ];
+            let mut field_txn_id = ::std::option::Option::None;
+            let mut field_space_id = ::std::option::Option::None;
+            let mut field_part_id = ::std::option::Option::None;
+            let mut field_position = ::std::option::Option::None;
+            let mut field_data = ::std::option::Option::None;
+            let _ = p.read_struct_begin(|_| ())?;
+            loop {
+                let (_, fty, fid) = p.read_field_begin(|_| (), FIELDS)?;
+                match (fty, fid as ::std::primitive::i32) {
+                    (::fbthrift::TType::Stop, _) => break,
+                    (::fbthrift::TType::I64, 1) => field_txn_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I32, 2) => field_space_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I32, 3) => field_part_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I32, 4) => field_position = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::List, 5) => field_data = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (fty, _) => p.skip(fty)?,
+                }
+                p.read_field_end()?;
+            }
+            p.read_struct_end()?;
+            ::std::result::Result::Ok(Self {
+                txn_id: field_txn_id.unwrap_or_default(),
+                space_id: field_space_id.unwrap_or_default(),
+                part_id: field_part_id.unwrap_or_default(),
+                position: field_position.unwrap_or_default(),
+                data: field_data.unwrap_or_default(),
+            })
+        }
+    }
+
+
+    impl ::std::default::Default for self::GetValueRequest {
+        fn default() -> Self {
+            Self {
+                space_id: ::std::default::Default::default(),
+                part_id: ::std::default::Default::default(),
+                key: ::std::default::Default::default(),
+            }
+        }
+    }
+
+    unsafe impl ::std::marker::Send for self::GetValueRequest {}
+    unsafe impl ::std::marker::Sync for self::GetValueRequest {}
+
+    impl ::fbthrift::GetTType for self::GetValueRequest {
+        const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
+    }
+
+    impl<P> ::fbthrift::Serialize<P> for self::GetValueRequest
+    where
+        P: ::fbthrift::ProtocolWriter,
+    {
+        fn write(&self, p: &mut P) {
+            p.write_struct_begin("GetValueRequest");
+            p.write_field_begin("space_id", ::fbthrift::TType::I32, 1);
+            ::fbthrift::Serialize::write(&self.space_id, p);
+            p.write_field_end();
+            p.write_field_begin("part_id", ::fbthrift::TType::I32, 2);
+            ::fbthrift::Serialize::write(&self.part_id, p);
+            p.write_field_end();
+            p.write_field_begin("key", ::fbthrift::TType::String, 3);
+            ::fbthrift::Serialize::write(&self.key, p);
+            p.write_field_end();
+            p.write_field_stop();
+            p.write_struct_end();
+        }
+    }
+
+    impl<P> ::fbthrift::Deserialize<P> for self::GetValueRequest
+    where
+        P: ::fbthrift::ProtocolReader,
+    {
+        fn read(p: &mut P) -> ::anyhow::Result<Self> {
+            static FIELDS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("key", ::fbthrift::TType::String, 3),
+                ::fbthrift::Field::new("part_id", ::fbthrift::TType::I32, 2),
+                ::fbthrift::Field::new("space_id", ::fbthrift::TType::I32, 1),
+            ];
+            let mut field_space_id = ::std::option::Option::None;
+            let mut field_part_id = ::std::option::Option::None;
+            let mut field_key = ::std::option::Option::None;
+            let _ = p.read_struct_begin(|_| ())?;
+            loop {
+                let (_, fty, fid) = p.read_field_begin(|_| (), FIELDS)?;
+                match (fty, fid as ::std::primitive::i32) {
+                    (::fbthrift::TType::Stop, _) => break,
+                    (::fbthrift::TType::I32, 1) => field_space_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I32, 2) => field_part_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::String, 3) => field_key = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (fty, _) => p.skip(fty)?,
+                }
+                p.read_field_end()?;
+            }
+            p.read_struct_end()?;
+            ::std::result::Result::Ok(Self {
+                space_id: field_space_id.unwrap_or_default(),
+                part_id: field_part_id.unwrap_or_default(),
+                key: field_key.unwrap_or_default(),
+            })
+        }
+    }
+
+
+    impl ::std::default::Default for self::GetValueResponse {
+        fn default() -> Self {
+            Self {
+                result: ::std::default::Default::default(),
+                value: ::std::default::Default::default(),
+            }
+        }
+    }
+
+    unsafe impl ::std::marker::Send for self::GetValueResponse {}
+    unsafe impl ::std::marker::Sync for self::GetValueResponse {}
+
+    impl ::fbthrift::GetTType for self::GetValueResponse {
+        const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
+    }
+
+    impl<P> ::fbthrift::Serialize<P> for self::GetValueResponse
+    where
+        P: ::fbthrift::ProtocolWriter,
+    {
+        fn write(&self, p: &mut P) {
+            p.write_struct_begin("GetValueResponse");
+            p.write_field_begin("result", ::fbthrift::TType::Struct, 1);
+            ::fbthrift::Serialize::write(&self.result, p);
+            p.write_field_end();
+            p.write_field_begin("value", ::fbthrift::TType::String, 2);
+            ::fbthrift::Serialize::write(&self.value, p);
+            p.write_field_end();
+            p.write_field_stop();
+            p.write_struct_end();
+        }
+    }
+
+    impl<P> ::fbthrift::Deserialize<P> for self::GetValueResponse
+    where
+        P: ::fbthrift::ProtocolReader,
+    {
+        fn read(p: &mut P) -> ::anyhow::Result<Self> {
+            static FIELDS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("result", ::fbthrift::TType::Struct, 1),
+                ::fbthrift::Field::new("value", ::fbthrift::TType::String, 2),
+            ];
+            let mut field_result = ::std::option::Option::None;
+            let mut field_value = ::std::option::Option::None;
+            let _ = p.read_struct_begin(|_| ())?;
+            loop {
+                let (_, fty, fid) = p.read_field_begin(|_| (), FIELDS)?;
+                match (fty, fid as ::std::primitive::i32) {
+                    (::fbthrift::TType::Stop, _) => break,
+                    (::fbthrift::TType::Struct, 1) => field_result = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::String, 2) => field_value = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (fty, _) => p.skip(fty)?,
+                }
+                p.read_field_end()?;
+            }
+            p.read_struct_end()?;
+            ::std::result::Result::Ok(Self {
+                result: field_result.unwrap_or_default(),
+                value: field_value.unwrap_or_default(),
             })
         }
     }
@@ -6991,6 +7447,97 @@ pub mod services {
                 )
             }
         }
+
+        #[derive(Clone, Debug)]
+        pub enum AddEdgesAtomicExn {
+            Success(crate::types::ExecResponse),
+            ApplicationException(::fbthrift::ApplicationException),
+        }
+
+        impl ::std::convert::From<::fbthrift::ApplicationException> for AddEdgesAtomicExn {
+            fn from(exn: ::fbthrift::ApplicationException) -> Self {
+                AddEdgesAtomicExn::ApplicationException(exn)
+            }
+        }
+
+        impl ::fbthrift::GetTType for AddEdgesAtomicExn {
+            const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
+        }
+
+        impl<P> ::fbthrift::Serialize<P> for AddEdgesAtomicExn
+        where
+            P: ::fbthrift::ProtocolWriter,
+        {
+            fn write(&self, p: &mut P) {
+                p.write_struct_begin("AddEdgesAtomic");
+                match self {
+                    AddEdgesAtomicExn::Success(inner) => {
+                        p.write_field_begin(
+                            "Success",
+                            ::fbthrift::TType::Struct,
+                            0i16,
+                        );
+                        inner.write(p);
+                        p.write_field_end();
+                    }
+                    AddEdgesAtomicExn::ApplicationException(_) => panic!(
+                        "Bad union Alt field {} id {}",
+                        "ApplicationException",
+                        -2147483648i32,
+                    ),
+                }
+                p.write_field_stop();
+                p.write_struct_end();
+            }
+        }
+
+        impl<P> ::fbthrift::Deserialize<P> for AddEdgesAtomicExn
+        where
+            P: ::fbthrift::ProtocolReader,
+        {
+            fn read(p: &mut P) -> ::anyhow::Result<Self> {
+                static RETURNS: &[::fbthrift::Field] = &[
+                    ::fbthrift::Field::new("Success", ::fbthrift::TType::Struct, 0),
+                ];
+                let _ = p.read_struct_begin(|_| ())?;
+                let mut once = false;
+                let mut alt = ::std::option::Option::None;
+                loop {
+                    let (_, fty, fid) = p.read_field_begin(|_| (), RETURNS)?;
+                    match ((fty, fid as ::std::primitive::i32), once) {
+                        ((::fbthrift::TType::Stop, _), _) => {
+                            p.read_field_end()?;
+                            break;
+                        }
+                        ((::fbthrift::TType::Struct, 0i32), false) => {
+                            once = true;
+                            alt = ::std::option::Option::Some(AddEdgesAtomicExn::Success(::fbthrift::Deserialize::read(p)?));
+                        }
+                        ((ty, _id), false) => p.skip(ty)?,
+                        ((badty, badid), true) => return ::std::result::Result::Err(::std::convert::From::from(
+                            ::fbthrift::ApplicationException::new(
+                                ::fbthrift::ApplicationExceptionErrorCode::ProtocolError,
+                                format!(
+                                    "unwanted extra union {} field ty {:?} id {}",
+                                    "AddEdgesAtomicExn",
+                                    badty,
+                                    badid,
+                                ),
+                            )
+                        )),
+                    }
+                    p.read_field_end()?;
+                }
+                p.read_struct_end()?;
+                alt.ok_or_else(||
+                    ::fbthrift::ApplicationException::new(
+                        ::fbthrift::ApplicationExceptionErrorCode::MissingResult,
+                        format!("Empty union {}", "AddEdgesAtomicExn"),
+                    )
+                    .into(),
+                )
+            }
+        }
     }
 
     pub mod storage_admin_service {
@@ -7543,7 +8090,7 @@ pub mod services {
 
         #[derive(Clone, Debug)]
         pub enum CreateCheckpointExn {
-            Success(crate::types::AdminExecResp),
+            Success(crate::types::CreateCPResp),
             ApplicationException(::fbthrift::ApplicationException),
         }
 
@@ -8636,6 +9183,191 @@ pub mod services {
             }
         }
     }
+
+    pub mod internal_storage_service {
+
+        #[derive(Clone, Debug)]
+        pub enum GetValueExn {
+            Success(crate::types::GetValueResponse),
+            ApplicationException(::fbthrift::ApplicationException),
+        }
+
+        impl ::std::convert::From<::fbthrift::ApplicationException> for GetValueExn {
+            fn from(exn: ::fbthrift::ApplicationException) -> Self {
+                GetValueExn::ApplicationException(exn)
+            }
+        }
+
+        impl ::fbthrift::GetTType for GetValueExn {
+            const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
+        }
+
+        impl<P> ::fbthrift::Serialize<P> for GetValueExn
+        where
+            P: ::fbthrift::ProtocolWriter,
+        {
+            fn write(&self, p: &mut P) {
+                p.write_struct_begin("GetValue");
+                match self {
+                    GetValueExn::Success(inner) => {
+                        p.write_field_begin(
+                            "Success",
+                            ::fbthrift::TType::Struct,
+                            0i16,
+                        );
+                        inner.write(p);
+                        p.write_field_end();
+                    }
+                    GetValueExn::ApplicationException(_) => panic!(
+                        "Bad union Alt field {} id {}",
+                        "ApplicationException",
+                        -2147483648i32,
+                    ),
+                }
+                p.write_field_stop();
+                p.write_struct_end();
+            }
+        }
+
+        impl<P> ::fbthrift::Deserialize<P> for GetValueExn
+        where
+            P: ::fbthrift::ProtocolReader,
+        {
+            fn read(p: &mut P) -> ::anyhow::Result<Self> {
+                static RETURNS: &[::fbthrift::Field] = &[
+                    ::fbthrift::Field::new("Success", ::fbthrift::TType::Struct, 0),
+                ];
+                let _ = p.read_struct_begin(|_| ())?;
+                let mut once = false;
+                let mut alt = ::std::option::Option::None;
+                loop {
+                    let (_, fty, fid) = p.read_field_begin(|_| (), RETURNS)?;
+                    match ((fty, fid as ::std::primitive::i32), once) {
+                        ((::fbthrift::TType::Stop, _), _) => {
+                            p.read_field_end()?;
+                            break;
+                        }
+                        ((::fbthrift::TType::Struct, 0i32), false) => {
+                            once = true;
+                            alt = ::std::option::Option::Some(GetValueExn::Success(::fbthrift::Deserialize::read(p)?));
+                        }
+                        ((ty, _id), false) => p.skip(ty)?,
+                        ((badty, badid), true) => return ::std::result::Result::Err(::std::convert::From::from(
+                            ::fbthrift::ApplicationException::new(
+                                ::fbthrift::ApplicationExceptionErrorCode::ProtocolError,
+                                format!(
+                                    "unwanted extra union {} field ty {:?} id {}",
+                                    "GetValueExn",
+                                    badty,
+                                    badid,
+                                ),
+                            )
+                        )),
+                    }
+                    p.read_field_end()?;
+                }
+                p.read_struct_end()?;
+                alt.ok_or_else(||
+                    ::fbthrift::ApplicationException::new(
+                        ::fbthrift::ApplicationExceptionErrorCode::MissingResult,
+                        format!("Empty union {}", "GetValueExn"),
+                    )
+                    .into(),
+                )
+            }
+        }
+
+        #[derive(Clone, Debug)]
+        pub enum ForwardTransactionExn {
+            Success(crate::types::ExecResponse),
+            ApplicationException(::fbthrift::ApplicationException),
+        }
+
+        impl ::std::convert::From<::fbthrift::ApplicationException> for ForwardTransactionExn {
+            fn from(exn: ::fbthrift::ApplicationException) -> Self {
+                ForwardTransactionExn::ApplicationException(exn)
+            }
+        }
+
+        impl ::fbthrift::GetTType for ForwardTransactionExn {
+            const TTYPE: ::fbthrift::TType = ::fbthrift::TType::Struct;
+        }
+
+        impl<P> ::fbthrift::Serialize<P> for ForwardTransactionExn
+        where
+            P: ::fbthrift::ProtocolWriter,
+        {
+            fn write(&self, p: &mut P) {
+                p.write_struct_begin("ForwardTransaction");
+                match self {
+                    ForwardTransactionExn::Success(inner) => {
+                        p.write_field_begin(
+                            "Success",
+                            ::fbthrift::TType::Struct,
+                            0i16,
+                        );
+                        inner.write(p);
+                        p.write_field_end();
+                    }
+                    ForwardTransactionExn::ApplicationException(_) => panic!(
+                        "Bad union Alt field {} id {}",
+                        "ApplicationException",
+                        -2147483648i32,
+                    ),
+                }
+                p.write_field_stop();
+                p.write_struct_end();
+            }
+        }
+
+        impl<P> ::fbthrift::Deserialize<P> for ForwardTransactionExn
+        where
+            P: ::fbthrift::ProtocolReader,
+        {
+            fn read(p: &mut P) -> ::anyhow::Result<Self> {
+                static RETURNS: &[::fbthrift::Field] = &[
+                    ::fbthrift::Field::new("Success", ::fbthrift::TType::Struct, 0),
+                ];
+                let _ = p.read_struct_begin(|_| ())?;
+                let mut once = false;
+                let mut alt = ::std::option::Option::None;
+                loop {
+                    let (_, fty, fid) = p.read_field_begin(|_| (), RETURNS)?;
+                    match ((fty, fid as ::std::primitive::i32), once) {
+                        ((::fbthrift::TType::Stop, _), _) => {
+                            p.read_field_end()?;
+                            break;
+                        }
+                        ((::fbthrift::TType::Struct, 0i32), false) => {
+                            once = true;
+                            alt = ::std::option::Option::Some(ForwardTransactionExn::Success(::fbthrift::Deserialize::read(p)?));
+                        }
+                        ((ty, _id), false) => p.skip(ty)?,
+                        ((badty, badid), true) => return ::std::result::Result::Err(::std::convert::From::from(
+                            ::fbthrift::ApplicationException::new(
+                                ::fbthrift::ApplicationExceptionErrorCode::ProtocolError,
+                                format!(
+                                    "unwanted extra union {} field ty {:?} id {}",
+                                    "ForwardTransactionExn",
+                                    badty,
+                                    badid,
+                                ),
+                            )
+                        )),
+                    }
+                    p.read_field_end()?;
+                }
+                p.read_struct_end()?;
+                alt.ok_or_else(||
+                    ::fbthrift::ApplicationException::new(
+                        ::fbthrift::ApplicationExceptionErrorCode::MissingResult,
+                        format!("Empty union {}", "ForwardTransactionExn"),
+                    )
+                    .into(),
+                )
+            }
+        }
+    }
 }
 
 pub mod client {
@@ -8713,6 +9445,10 @@ pub mod client {
             &self,
             arg_req: &crate::types::LookupAndTraverseRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::GetNeighborsResponse, crate::errors::graph_storage_service::LookupAndTraverseError>> + ::std::marker::Send + 'static>>;
+        fn addEdgesAtomic(
+            &self,
+            arg_req: &crate::types::AddEdgesRequest,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ExecResponse, crate::errors::graph_storage_service::AddEdgesAtomicError>> + ::std::marker::Send + 'static>>;
     }
 
     impl<P, T> GraphStorageService for GraphStorageServiceImpl<P, T>
@@ -9449,6 +10185,62 @@ pub mod client {
                 }))
                 .boxed()
         }
+        fn addEdgesAtomic(
+            &self,
+            arg_req: &crate::types::AddEdgesRequest,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ExecResponse, crate::errors::graph_storage_service::AddEdgesAtomicError>> + ::std::marker::Send + 'static>> {
+            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
+                p,
+                "addEdgesAtomic",
+                ::fbthrift::MessageType::Call,
+                // Note: we send a 0 message sequence ID from clients because
+                // this field should not be used by the server (except for some
+                // language implementations).
+                0,
+                |p| {
+                    p.write_struct_begin("args");
+                    p.write_field_begin("arg_req", ::fbthrift::TType::Struct, 1i16);
+                    ::fbthrift::Serialize::write(&arg_req, p);
+                    p.write_field_end();
+                    p.write_field_stop();
+                    p.write_struct_end();
+                },
+            ));
+            self.transport()
+                .call(request)
+                .map_err(::std::convert::From::from)
+                .and_then(|reply| ::futures::future::ready({
+                    let de = P::deserializer(reply);
+                    move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::ExecResponse, crate::errors::graph_storage_service::AddEdgesAtomicError> {
+                        let p = &mut p;
+                        let (_, message_type, _) = p.read_message_begin(|_| ())?;
+                        let result = match message_type {
+                            ::fbthrift::MessageType::Reply => {
+                                let exn: crate::services::graph_storage_service::AddEdgesAtomicExn = ::fbthrift::Deserialize::read(p)?;
+                                match exn {
+                                    crate::services::graph_storage_service::AddEdgesAtomicExn::Success(x) => ::std::result::Result::Ok(x),
+                                    crate::services::graph_storage_service::AddEdgesAtomicExn::ApplicationException(ae) => {
+                                        ::std::result::Result::Err(crate::errors::graph_storage_service::AddEdgesAtomicError::ApplicationException(ae))
+                                    }
+                                }
+                            }
+                            ::fbthrift::MessageType::Exception => {
+                                let ae: ::fbthrift::ApplicationException = ::fbthrift::Deserialize::read(p)?;
+                                ::std::result::Result::Err(crate::errors::graph_storage_service::AddEdgesAtomicError::ApplicationException(ae))
+                            }
+                            ::fbthrift::MessageType::Call | ::fbthrift::MessageType::Oneway | ::fbthrift::MessageType::InvalidMessageType => {
+                                let err = ::anyhow::anyhow!("Unexpected message type {:?}", message_type);
+                                ::std::result::Result::Err(crate::errors::graph_storage_service::AddEdgesAtomicError::ThriftError(err))
+                            }
+                        };
+                        p.read_message_end()?;
+                        result
+                    }(de)
+                }))
+                .boxed()
+        }
     }
 
     impl<'a, T> GraphStorageService for T
@@ -9560,6 +10352,14 @@ pub mod client {
                 arg_req,
             )
         }
+        fn addEdgesAtomic(
+            &self,
+            arg_req: &crate::types::AddEdgesRequest,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ExecResponse, crate::errors::graph_storage_service::AddEdgesAtomicError>> + ::std::marker::Send + 'static>> {
+            self.as_ref().addEdgesAtomic(
+                arg_req,
+            )
+        }
     }
 
     pub struct make_GraphStorageService;
@@ -9652,7 +10452,7 @@ pub mod client {
         fn createCheckpoint(
             &self,
             arg_req: &crate::types::CreateCPRequest,
-        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::CreateCheckpointError>> + ::std::marker::Send + 'static>>;
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::CreateCPResp, crate::errors::storage_admin_service::CreateCheckpointError>> + ::std::marker::Send + 'static>>;
         fn dropCheckpoint(
             &self,
             arg_req: &crate::types::DropCPRequest,
@@ -10032,7 +10832,7 @@ pub mod client {
         fn createCheckpoint(
             &self,
             arg_req: &crate::types::CreateCPRequest,
-        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::CreateCheckpointError>> + ::std::marker::Send + 'static>> {
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::CreateCPResp, crate::errors::storage_admin_service::CreateCheckpointError>> + ::std::marker::Send + 'static>> {
             use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
@@ -10057,7 +10857,7 @@ pub mod client {
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
-                    move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::CreateCheckpointError> {
+                    move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::CreateCPResp, crate::errors::storage_admin_service::CreateCheckpointError> {
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -10591,7 +11391,7 @@ pub mod client {
         fn createCheckpoint(
             &self,
             arg_req: &crate::types::CreateCPRequest,
-        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::CreateCheckpointError>> + ::std::marker::Send + 'static>> {
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::CreateCPResp, crate::errors::storage_admin_service::CreateCheckpointError>> + ::std::marker::Send + 'static>> {
             self.as_ref().createCheckpoint(
                 arg_req,
             )
@@ -10988,6 +11788,222 @@ pub mod client {
             GeneralStorageService::new(protocol, transport)
         }
     }
+    pub struct InternalStorageServiceImpl<P, T> {
+        transport: T,
+        _phantom: ::std::marker::PhantomData<fn() -> P>,
+    }
+
+    impl<P, T> InternalStorageServiceImpl<P, T> {
+        pub fn new(
+            transport: T,
+        ) -> Self {
+            Self {
+                transport,
+                _phantom: ::std::marker::PhantomData,
+            }
+        }
+
+        pub fn transport(&self) -> &T {
+            &self.transport
+        }
+    }
+
+    pub trait InternalStorageService: ::std::marker::Send {
+        fn getValue(
+            &self,
+            arg_req: &crate::types::GetValueRequest,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::GetValueResponse, crate::errors::internal_storage_service::GetValueError>> + ::std::marker::Send + 'static>>;
+        fn forwardTransaction(
+            &self,
+            arg_req: &crate::types::InternalTxnRequest,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ExecResponse, crate::errors::internal_storage_service::ForwardTransactionError>> + ::std::marker::Send + 'static>>;
+    }
+
+    impl<P, T> InternalStorageService for InternalStorageServiceImpl<P, T>
+    where
+        P: ::fbthrift::Protocol,
+        T: ::fbthrift::Transport,
+        P::Frame: ::fbthrift::Framing<DecBuf = ::fbthrift::FramingDecoded<T>>,
+        ::fbthrift::ProtocolEncoded<P>: ::fbthrift::BufMutExt<Final = ::fbthrift::FramingEncodedFinal<T>>,
+    {        fn getValue(
+            &self,
+            arg_req: &crate::types::GetValueRequest,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::GetValueResponse, crate::errors::internal_storage_service::GetValueError>> + ::std::marker::Send + 'static>> {
+            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
+                p,
+                "getValue",
+                ::fbthrift::MessageType::Call,
+                // Note: we send a 0 message sequence ID from clients because
+                // this field should not be used by the server (except for some
+                // language implementations).
+                0,
+                |p| {
+                    p.write_struct_begin("args");
+                    p.write_field_begin("arg_req", ::fbthrift::TType::Struct, 1i16);
+                    ::fbthrift::Serialize::write(&arg_req, p);
+                    p.write_field_end();
+                    p.write_field_stop();
+                    p.write_struct_end();
+                },
+            ));
+            self.transport()
+                .call(request)
+                .map_err(::std::convert::From::from)
+                .and_then(|reply| ::futures::future::ready({
+                    let de = P::deserializer(reply);
+                    move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::GetValueResponse, crate::errors::internal_storage_service::GetValueError> {
+                        let p = &mut p;
+                        let (_, message_type, _) = p.read_message_begin(|_| ())?;
+                        let result = match message_type {
+                            ::fbthrift::MessageType::Reply => {
+                                let exn: crate::services::internal_storage_service::GetValueExn = ::fbthrift::Deserialize::read(p)?;
+                                match exn {
+                                    crate::services::internal_storage_service::GetValueExn::Success(x) => ::std::result::Result::Ok(x),
+                                    crate::services::internal_storage_service::GetValueExn::ApplicationException(ae) => {
+                                        ::std::result::Result::Err(crate::errors::internal_storage_service::GetValueError::ApplicationException(ae))
+                                    }
+                                }
+                            }
+                            ::fbthrift::MessageType::Exception => {
+                                let ae: ::fbthrift::ApplicationException = ::fbthrift::Deserialize::read(p)?;
+                                ::std::result::Result::Err(crate::errors::internal_storage_service::GetValueError::ApplicationException(ae))
+                            }
+                            ::fbthrift::MessageType::Call | ::fbthrift::MessageType::Oneway | ::fbthrift::MessageType::InvalidMessageType => {
+                                let err = ::anyhow::anyhow!("Unexpected message type {:?}", message_type);
+                                ::std::result::Result::Err(crate::errors::internal_storage_service::GetValueError::ThriftError(err))
+                            }
+                        };
+                        p.read_message_end()?;
+                        result
+                    }(de)
+                }))
+                .boxed()
+        }
+        fn forwardTransaction(
+            &self,
+            arg_req: &crate::types::InternalTxnRequest,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ExecResponse, crate::errors::internal_storage_service::ForwardTransactionError>> + ::std::marker::Send + 'static>> {
+            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
+                p,
+                "forwardTransaction",
+                ::fbthrift::MessageType::Call,
+                // Note: we send a 0 message sequence ID from clients because
+                // this field should not be used by the server (except for some
+                // language implementations).
+                0,
+                |p| {
+                    p.write_struct_begin("args");
+                    p.write_field_begin("arg_req", ::fbthrift::TType::Struct, 1i16);
+                    ::fbthrift::Serialize::write(&arg_req, p);
+                    p.write_field_end();
+                    p.write_field_stop();
+                    p.write_struct_end();
+                },
+            ));
+            self.transport()
+                .call(request)
+                .map_err(::std::convert::From::from)
+                .and_then(|reply| ::futures::future::ready({
+                    let de = P::deserializer(reply);
+                    move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::ExecResponse, crate::errors::internal_storage_service::ForwardTransactionError> {
+                        let p = &mut p;
+                        let (_, message_type, _) = p.read_message_begin(|_| ())?;
+                        let result = match message_type {
+                            ::fbthrift::MessageType::Reply => {
+                                let exn: crate::services::internal_storage_service::ForwardTransactionExn = ::fbthrift::Deserialize::read(p)?;
+                                match exn {
+                                    crate::services::internal_storage_service::ForwardTransactionExn::Success(x) => ::std::result::Result::Ok(x),
+                                    crate::services::internal_storage_service::ForwardTransactionExn::ApplicationException(ae) => {
+                                        ::std::result::Result::Err(crate::errors::internal_storage_service::ForwardTransactionError::ApplicationException(ae))
+                                    }
+                                }
+                            }
+                            ::fbthrift::MessageType::Exception => {
+                                let ae: ::fbthrift::ApplicationException = ::fbthrift::Deserialize::read(p)?;
+                                ::std::result::Result::Err(crate::errors::internal_storage_service::ForwardTransactionError::ApplicationException(ae))
+                            }
+                            ::fbthrift::MessageType::Call | ::fbthrift::MessageType::Oneway | ::fbthrift::MessageType::InvalidMessageType => {
+                                let err = ::anyhow::anyhow!("Unexpected message type {:?}", message_type);
+                                ::std::result::Result::Err(crate::errors::internal_storage_service::ForwardTransactionError::ThriftError(err))
+                            }
+                        };
+                        p.read_message_end()?;
+                        result
+                    }(de)
+                }))
+                .boxed()
+        }
+    }
+
+    impl<'a, T> InternalStorageService for T
+    where
+        T: ::std::convert::AsRef<dyn InternalStorageService + 'a>,
+        T: ::std::marker::Send,
+    {
+        fn getValue(
+            &self,
+            arg_req: &crate::types::GetValueRequest,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::GetValueResponse, crate::errors::internal_storage_service::GetValueError>> + ::std::marker::Send + 'static>> {
+            self.as_ref().getValue(
+                arg_req,
+            )
+        }
+        fn forwardTransaction(
+            &self,
+            arg_req: &crate::types::InternalTxnRequest,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ExecResponse, crate::errors::internal_storage_service::ForwardTransactionError>> + ::std::marker::Send + 'static>> {
+            self.as_ref().forwardTransaction(
+                arg_req,
+            )
+        }
+    }
+
+    pub struct make_InternalStorageService;
+
+    /// To be called by user directly setting up a client. Avoids
+    /// needing ClientFactory trait in scope, avoids unidiomatic
+    /// make_Trait name.
+    ///
+    /// ```
+    /// # const _: &str = stringify! {
+    /// use bgs::client::BuckGraphService;
+    ///
+    /// let protocol = BinaryProtocol::new();
+    /// let transport = HttpClient::new();
+    /// let client = BuckGraphService::new(protocol, transport);
+    /// # };
+    /// ```
+    impl dyn InternalStorageService {
+        pub fn new<P, T>(
+            protocol: P,
+            transport: T,
+        ) -> ::std::sync::Arc<impl InternalStorageService + ::std::marker::Send + 'static>
+        where
+            P: ::fbthrift::Protocol<Frame = T>,
+            T: ::fbthrift::Transport,
+        {
+            let _ = protocol;
+            ::std::sync::Arc::new(InternalStorageServiceImpl::<P, T>::new(transport))
+        }
+    }
+
+    /// The same thing, but to be called from generic contexts where we are
+    /// working with a type parameter `C: ClientFactory` to produce clients.
+    impl ::fbthrift::ClientFactory for make_InternalStorageService {
+        type Api = dyn InternalStorageService + ::std::marker::Send + ::std::marker::Sync + 'static;
+
+        fn new<P, T>(protocol: P, transport: T) -> ::std::sync::Arc<Self::Api>
+        where
+            P: ::fbthrift::Protocol<Frame = T>,
+            T: ::fbthrift::Transport + ::std::marker::Sync,
+        {
+            InternalStorageService::new(protocol, transport)
+        }
+    }
 }
 
 pub mod server {
@@ -11133,6 +12149,17 @@ pub mod server {
                 ::fbthrift::ApplicationException::unimplemented_method(
                     "GraphStorageService",
                     "lookupAndTraverse",
+                ),
+            ))
+        }
+        async fn addEdgesAtomic(
+            &self,
+            _req: crate::types::AddEdgesRequest,
+        ) -> ::std::result::Result<crate::types::ExecResponse, crate::services::graph_storage_service::AddEdgesAtomicExn> {
+            ::std::result::Result::Err(crate::services::graph_storage_service::AddEdgesAtomicExn::ApplicationException(
+                ::fbthrift::ApplicationException::unimplemented_method(
+                    "GraphStorageService",
+                    "addEdgesAtomic",
                 ),
             ))
         }
@@ -12074,6 +13101,76 @@ pub mod server {
             ::fbthrift::ContextStack::post_write(&mut ctx_stack, 0)?;
             ::std::result::Result::Ok(res)
         }
+
+        async fn handle_addEdgesAtomic<'a>(
+            &'a self,
+            p: &'a mut P::Deserializer,
+            req_ctxt: &R,
+            seqid: ::std::primitive::u32,
+        ) -> ::anyhow::Result<::fbthrift::ProtocolEncodedFinal<P>> {
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::ProtocolReader as _;
+
+            const_cstr! {
+                SERVICE_NAME = "GraphStorageService";
+                METHOD_NAME = "GraphStorageService.addEdgesAtomic";
+            }
+            let mut ctx_stack = req_ctxt.get_context_stack(
+                &SERVICE_NAME,
+                &METHOD_NAME,
+            )?;
+            ::fbthrift::ContextStack::pre_read(&mut ctx_stack)?;
+
+            static ARGS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("req", ::fbthrift::TType::Struct, 1),
+            ];
+            let mut field_req = ::std::option::Option::None;
+
+            let _ = p.read_struct_begin(|_| ())?;
+            loop {
+                let (_, fty, fid) = p.read_field_begin(|_| (), ARGS)?;
+                match (fty, fid as ::std::primitive::i32) {
+                    (::fbthrift::TType::Stop, _) => break,
+                    (::fbthrift::TType::Struct, 1) => field_req = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (fty, _) => p.skip(fty)?,
+                }
+                p.read_field_end()?;
+            }
+            p.read_struct_end()?;
+            ::fbthrift::ContextStack::post_read(&mut ctx_stack, 0)?;
+            let res = self.service.addEdgesAtomic(
+                field_req.ok_or_else(|| {
+                    ::fbthrift::ApplicationException::missing_arg(
+                        "addEdgesAtomic",
+                        "req",
+                    )
+                })?,
+            ).await;
+            let res = match res {
+                ::std::result::Result::Ok(res) => {
+                    crate::services::graph_storage_service::AddEdgesAtomicExn::Success(res)
+                }
+                ::std::result::Result::Err(crate::services::graph_storage_service::AddEdgesAtomicExn::ApplicationException(aexn)) => {
+                    return ::std::result::Result::Err(aexn.into())
+                }
+                ::std::result::Result::Err(crate::services::graph_storage_service::AddEdgesAtomicExn::Success(_)) => {
+                    panic!(
+                        "{} attempted to return success via error",
+                        "addEdgesAtomic",
+                    )
+                }
+            };
+            ::fbthrift::ContextStack::pre_write(&mut ctx_stack)?;
+            let res = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
+                p,
+                "addEdgesAtomic",
+                ::fbthrift::MessageType::Reply,
+                seqid,
+                |p| ::fbthrift::Serialize::write(&res, p),
+            ));
+            ::fbthrift::ContextStack::post_write(&mut ctx_stack, 0)?;
+            ::std::result::Result::Ok(res)
+        }
     }
 
     #[::async_trait::async_trait]
@@ -12103,6 +13200,7 @@ pub mod server {
                 b"getUUID" => ::std::result::Result::Ok(10usize),
                 b"lookupIndex" => ::std::result::Result::Ok(11usize),
                 b"lookupAndTraverse" => ::std::result::Result::Ok(12usize),
+                b"addEdgesAtomic" => ::std::result::Result::Ok(13usize),
                 _ => ::std::result::Result::Err(::fbthrift::ApplicationException::unknown_method()),
             }
         }
@@ -12128,6 +13226,7 @@ pub mod server {
                 10usize => self.handle_getUUID(_p, _r, _seqid).await,
                 11usize => self.handle_lookupIndex(_p, _r, _seqid).await,
                 12usize => self.handle_lookupAndTraverse(_p, _r, _seqid).await,
+                13usize => self.handle_addEdgesAtomic(_p, _r, _seqid).await,
                 bad => panic!(
                     "{}: unexpected method idx {}",
                     "GraphStorageServiceProcessor",
@@ -12285,7 +13384,7 @@ pub mod server {
         async fn createCheckpoint(
             &self,
             _req: crate::types::CreateCPRequest,
-        ) -> ::std::result::Result<crate::types::AdminExecResp, crate::services::storage_admin_service::CreateCheckpointExn> {
+        ) -> ::std::result::Result<crate::types::CreateCPResp, crate::services::storage_admin_service::CreateCheckpointExn> {
             ::std::result::Result::Err(crate::services::storage_admin_service::CreateCheckpointExn::ApplicationException(
                 ::fbthrift::ApplicationException::unimplemented_method(
                     "StorageAdminService",
@@ -13996,6 +15095,316 @@ pub mod server {
             bad => ::std::result::Result::Err(::fbthrift::ApplicationException::invalid_protocol(bad)),
         }
     }
+    #[::async_trait::async_trait]
+    pub trait InternalStorageService: ::std::marker::Send + ::std::marker::Sync + 'static {
+        async fn getValue(
+            &self,
+            _req: crate::types::GetValueRequest,
+        ) -> ::std::result::Result<crate::types::GetValueResponse, crate::services::internal_storage_service::GetValueExn> {
+            ::std::result::Result::Err(crate::services::internal_storage_service::GetValueExn::ApplicationException(
+                ::fbthrift::ApplicationException::unimplemented_method(
+                    "InternalStorageService",
+                    "getValue",
+                ),
+            ))
+        }
+        async fn forwardTransaction(
+            &self,
+            _req: crate::types::InternalTxnRequest,
+        ) -> ::std::result::Result<crate::types::ExecResponse, crate::services::internal_storage_service::ForwardTransactionExn> {
+            ::std::result::Result::Err(crate::services::internal_storage_service::ForwardTransactionExn::ApplicationException(
+                ::fbthrift::ApplicationException::unimplemented_method(
+                    "InternalStorageService",
+                    "forwardTransaction",
+                ),
+            ))
+        }
+    }
+
+    #[derive(Clone, Debug)]
+    pub struct InternalStorageServiceProcessor<P, H, R> {
+        service: H,
+        supa: ::fbthrift::NullServiceProcessor<P, R>,
+        _phantom: ::std::marker::PhantomData<(P, H, R)>,
+    }
+
+    impl<P, H, R> InternalStorageServiceProcessor<P, H, R>
+    where
+        P: ::fbthrift::Protocol + ::std::marker::Send + ::std::marker::Sync + 'static,
+        P::Deserializer: ::std::marker::Send,
+        H: InternalStorageService,
+        R: ::fbthrift::RequestContext<Name = ::const_cstr::ConstCStr> + ::std::marker::Sync,
+        <R as ::fbthrift::RequestContext>::ContextStack: ::fbthrift::ContextStack + ::std::marker::Send + ::std::marker::Sync,
+    {
+        pub fn new(service: H) -> Self {
+            Self {
+                service,
+                supa: ::fbthrift::NullServiceProcessor::new(),
+                _phantom: ::std::marker::PhantomData,
+            }
+        }
+
+        pub fn into_inner(self) -> H {
+            self.service
+        }
+
+        async fn handle_getValue<'a>(
+            &'a self,
+            p: &'a mut P::Deserializer,
+            req_ctxt: &R,
+            seqid: ::std::primitive::u32,
+        ) -> ::anyhow::Result<::fbthrift::ProtocolEncodedFinal<P>> {
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::ProtocolReader as _;
+
+            const_cstr! {
+                SERVICE_NAME = "InternalStorageService";
+                METHOD_NAME = "InternalStorageService.getValue";
+            }
+            let mut ctx_stack = req_ctxt.get_context_stack(
+                &SERVICE_NAME,
+                &METHOD_NAME,
+            )?;
+            ::fbthrift::ContextStack::pre_read(&mut ctx_stack)?;
+
+            static ARGS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("req", ::fbthrift::TType::Struct, 1),
+            ];
+            let mut field_req = ::std::option::Option::None;
+
+            let _ = p.read_struct_begin(|_| ())?;
+            loop {
+                let (_, fty, fid) = p.read_field_begin(|_| (), ARGS)?;
+                match (fty, fid as ::std::primitive::i32) {
+                    (::fbthrift::TType::Stop, _) => break,
+                    (::fbthrift::TType::Struct, 1) => field_req = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (fty, _) => p.skip(fty)?,
+                }
+                p.read_field_end()?;
+            }
+            p.read_struct_end()?;
+            ::fbthrift::ContextStack::post_read(&mut ctx_stack, 0)?;
+            let res = self.service.getValue(
+                field_req.ok_or_else(|| {
+                    ::fbthrift::ApplicationException::missing_arg(
+                        "getValue",
+                        "req",
+                    )
+                })?,
+            ).await;
+            let res = match res {
+                ::std::result::Result::Ok(res) => {
+                    crate::services::internal_storage_service::GetValueExn::Success(res)
+                }
+                ::std::result::Result::Err(crate::services::internal_storage_service::GetValueExn::ApplicationException(aexn)) => {
+                    return ::std::result::Result::Err(aexn.into())
+                }
+                ::std::result::Result::Err(crate::services::internal_storage_service::GetValueExn::Success(_)) => {
+                    panic!(
+                        "{} attempted to return success via error",
+                        "getValue",
+                    )
+                }
+            };
+            ::fbthrift::ContextStack::pre_write(&mut ctx_stack)?;
+            let res = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
+                p,
+                "getValue",
+                ::fbthrift::MessageType::Reply,
+                seqid,
+                |p| ::fbthrift::Serialize::write(&res, p),
+            ));
+            ::fbthrift::ContextStack::post_write(&mut ctx_stack, 0)?;
+            ::std::result::Result::Ok(res)
+        }
+
+        async fn handle_forwardTransaction<'a>(
+            &'a self,
+            p: &'a mut P::Deserializer,
+            req_ctxt: &R,
+            seqid: ::std::primitive::u32,
+        ) -> ::anyhow::Result<::fbthrift::ProtocolEncodedFinal<P>> {
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::ProtocolReader as _;
+
+            const_cstr! {
+                SERVICE_NAME = "InternalStorageService";
+                METHOD_NAME = "InternalStorageService.forwardTransaction";
+            }
+            let mut ctx_stack = req_ctxt.get_context_stack(
+                &SERVICE_NAME,
+                &METHOD_NAME,
+            )?;
+            ::fbthrift::ContextStack::pre_read(&mut ctx_stack)?;
+
+            static ARGS: &[::fbthrift::Field] = &[
+                ::fbthrift::Field::new("req", ::fbthrift::TType::Struct, 1),
+            ];
+            let mut field_req = ::std::option::Option::None;
+
+            let _ = p.read_struct_begin(|_| ())?;
+            loop {
+                let (_, fty, fid) = p.read_field_begin(|_| (), ARGS)?;
+                match (fty, fid as ::std::primitive::i32) {
+                    (::fbthrift::TType::Stop, _) => break,
+                    (::fbthrift::TType::Struct, 1) => field_req = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (fty, _) => p.skip(fty)?,
+                }
+                p.read_field_end()?;
+            }
+            p.read_struct_end()?;
+            ::fbthrift::ContextStack::post_read(&mut ctx_stack, 0)?;
+            let res = self.service.forwardTransaction(
+                field_req.ok_or_else(|| {
+                    ::fbthrift::ApplicationException::missing_arg(
+                        "forwardTransaction",
+                        "req",
+                    )
+                })?,
+            ).await;
+            let res = match res {
+                ::std::result::Result::Ok(res) => {
+                    crate::services::internal_storage_service::ForwardTransactionExn::Success(res)
+                }
+                ::std::result::Result::Err(crate::services::internal_storage_service::ForwardTransactionExn::ApplicationException(aexn)) => {
+                    return ::std::result::Result::Err(aexn.into())
+                }
+                ::std::result::Result::Err(crate::services::internal_storage_service::ForwardTransactionExn::Success(_)) => {
+                    panic!(
+                        "{} attempted to return success via error",
+                        "forwardTransaction",
+                    )
+                }
+            };
+            ::fbthrift::ContextStack::pre_write(&mut ctx_stack)?;
+            let res = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
+                p,
+                "forwardTransaction",
+                ::fbthrift::MessageType::Reply,
+                seqid,
+                |p| ::fbthrift::Serialize::write(&res, p),
+            ));
+            ::fbthrift::ContextStack::post_write(&mut ctx_stack, 0)?;
+            ::std::result::Result::Ok(res)
+        }
+    }
+
+    #[::async_trait::async_trait]
+    impl<P, H, R> ::fbthrift::ServiceProcessor<P> for InternalStorageServiceProcessor<P, H, R>
+    where
+        P: ::fbthrift::Protocol + ::std::marker::Send + ::std::marker::Sync + 'static,
+        P::Deserializer: ::std::marker::Send,
+        H: InternalStorageService,
+        R: ::fbthrift::RequestContext<Name = ::const_cstr::ConstCStr> + ::std::marker::Send + ::std::marker::Sync + 'static,
+        <R as ::fbthrift::RequestContext>::ContextStack: ::fbthrift::ContextStack + ::std::marker::Send + ::std::marker::Sync + 'static
+    {
+        type RequestContext = R;
+
+        #[inline]
+        fn method_idx(&self, name: &[::std::primitive::u8]) -> ::std::result::Result<::std::primitive::usize, ::fbthrift::ApplicationException> {
+            match name {
+                b"getValue" => ::std::result::Result::Ok(0usize),
+                b"forwardTransaction" => ::std::result::Result::Ok(1usize),
+                _ => ::std::result::Result::Err(::fbthrift::ApplicationException::unknown_method()),
+            }
+        }
+
+        async fn handle_method(
+            &self,
+            idx: ::std::primitive::usize,
+            _p: &mut P::Deserializer,
+            _r: &R,
+            _seqid: ::std::primitive::u32,
+        ) -> ::anyhow::Result<::fbthrift::ProtocolEncodedFinal<P>> {
+            match idx {
+                0usize => self.handle_getValue(_p, _r, _seqid).await,
+                1usize => self.handle_forwardTransaction(_p, _r, _seqid).await,
+                bad => panic!(
+                    "{}: unexpected method idx {}",
+                    "InternalStorageServiceProcessor",
+                    bad
+                ),
+            }
+        }
+    }
+
+    #[::async_trait::async_trait]
+    impl<P, H, R> ::fbthrift::ThriftService<P::Frame> for InternalStorageServiceProcessor<P, H, R>
+    where
+        P: ::fbthrift::Protocol + ::std::marker::Send + ::std::marker::Sync + 'static,
+        P::Deserializer: ::std::marker::Send,
+        P::Frame: ::std::marker::Send + 'static,
+        H: InternalStorageService,
+        R: ::fbthrift::RequestContext<Name = ::const_cstr::ConstCStr> + ::std::marker::Send + ::std::marker::Sync + 'static,
+        <R as ::fbthrift::RequestContext>::ContextStack: ::fbthrift::ContextStack + ::std::marker::Send + ::std::marker::Sync + 'static
+    {
+        type Handler = H;
+        type RequestContext = R;
+
+        async fn call(
+            &self,
+            req: ::fbthrift::ProtocolDecoded<P>,
+            req_ctxt: &R,
+        ) -> ::anyhow::Result<::fbthrift::ProtocolEncodedFinal<P>> {
+            use ::fbthrift::{BufExt as _, ProtocolReader as _, ServiceProcessor as _};
+            let mut p = P::deserializer(req);
+            let (idx, mty, seqid) = p.read_message_begin(|name| self.method_idx(name))?;
+            if mty != ::fbthrift::MessageType::Call {
+                return ::std::result::Result::Err(::std::convert::From::from(::fbthrift::ApplicationException::new(
+                    ::fbthrift::ApplicationExceptionErrorCode::InvalidMessageType,
+                    format!("message type {:?} not handled", mty)
+                )));
+            }
+            let idx = match idx {
+                ::std::result::Result::Ok(idx) => idx,
+                ::std::result::Result::Err(_) => {
+                    let cur = P::into_buffer(p).reset();
+                    return self.supa.call(cur, req_ctxt).await;
+                }
+            };
+            let res = self.handle_method(idx, &mut p, req_ctxt, seqid).await;
+            p.read_message_end()?;
+            match res {
+                ::std::result::Result::Ok(bytes) => ::std::result::Result::Ok(bytes),
+                ::std::result::Result::Err(err) => match err.downcast_ref::<::fbthrift::ProtocolError>() {
+                    ::std::option::Option::Some(::fbthrift::ProtocolError::ApplicationException(ae)) => {
+                        let res = ::fbthrift::serialize!(P, |p| {
+                            ::fbthrift::protocol::write_message(
+                                p,
+                                "InternalStorageServiceProcessor",
+                                ::fbthrift::MessageType::Exception,
+                                seqid,
+                                |p| ::fbthrift::Serialize::write(&ae, p),
+                            )
+                        });
+                        ::std::result::Result::Ok(res)
+                    }
+                    _ => ::std::result::Result::Err(err),
+                },
+            }
+        }
+    }
+
+    pub fn make_InternalStorageService_server<F, H, R>(
+        proto: ::fbthrift::ProtocolID,
+        handler: H,
+    ) -> ::std::result::Result<::std::boxed::Box<dyn ::fbthrift::ThriftService<F, Handler = H, RequestContext = R> + ::std::marker::Send + 'static>, ::fbthrift::ApplicationException>
+    where
+        F: ::fbthrift::Framing + ::std::marker::Send + ::std::marker::Sync + 'static,
+        H: InternalStorageService,
+        R: ::fbthrift::RequestContext<Name = ::const_cstr::ConstCStr> + ::std::marker::Send + ::std::marker::Sync + 'static,
+        <R as ::fbthrift::RequestContext>::ContextStack: ::fbthrift::ContextStack + ::std::marker::Send + ::std::marker::Sync + 'static
+    {
+        match proto {
+            ::fbthrift::ProtocolID::BinaryProtocol => {
+                ::std::result::Result::Ok(::std::boxed::Box::new(InternalStorageServiceProcessor::<::fbthrift::BinaryProtocol<F>, H, R>::new(handler)))
+            }
+            ::fbthrift::ProtocolID::CompactProtocol => {
+                ::std::result::Result::Ok(::std::boxed::Box::new(InternalStorageServiceProcessor::<::fbthrift::CompactProtocol<F>, H, R>::new(handler)))
+            }
+            bad => ::std::result::Result::Err(::fbthrift::ApplicationException::invalid_protocol(bad)),
+        }
+    }
 }
 
 /// Client mocks. For every service, a struct mock::TheService that implements
@@ -14106,6 +15515,7 @@ pub mod mock {
         pub getUUID: r#impl::graph_storage_service::getUUID<'mock>,
         pub lookupIndex: r#impl::graph_storage_service::lookupIndex<'mock>,
         pub lookupAndTraverse: r#impl::graph_storage_service::lookupAndTraverse<'mock>,
+        pub addEdgesAtomic: r#impl::graph_storage_service::addEdgesAtomic<'mock>,
         _marker: ::std::marker::PhantomData<&'mock ()>,
     }
 
@@ -14125,6 +15535,7 @@ pub mod mock {
                 getUUID: r#impl::graph_storage_service::getUUID::unimplemented(),
                 lookupIndex: r#impl::graph_storage_service::lookupIndex::unimplemented(),
                 lookupAndTraverse: r#impl::graph_storage_service::lookupAndTraverse::unimplemented(),
+                addEdgesAtomic: r#impl::graph_storage_service::addEdgesAtomic::unimplemented(),
                 _marker: ::std::marker::PhantomData,
             }
         }
@@ -14236,6 +15647,14 @@ pub mod mock {
             let closure: &mut dyn ::std::ops::FnMut(crate::types::LookupAndTraverseRequest) -> _ = &mut **closure;
             ::std::boxed::Box::pin(::futures::future::ready(closure(arg_req.clone())))
         }
+        fn addEdgesAtomic(
+            &self,
+            arg_req: &crate::types::AddEdgesRequest,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ExecResponse, crate::errors::graph_storage_service::AddEdgesAtomicError>> + ::std::marker::Send + 'static>> {
+            let mut closure = self.addEdgesAtomic.closure.lock().unwrap();
+            let closure: &mut dyn ::std::ops::FnMut(crate::types::AddEdgesRequest) -> _ = &mut **closure;
+            ::std::boxed::Box::pin(::futures::future::ready(closure(arg_req.clone())))
+        }
     }
 
 
@@ -14334,7 +15753,7 @@ pub mod mock {
         fn createCheckpoint(
             &self,
             arg_req: &crate::types::CreateCPRequest,
-        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::CreateCheckpointError>> + ::std::marker::Send + 'static>> {
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::CreateCPResp, crate::errors::storage_admin_service::CreateCheckpointError>> + ::std::marker::Send + 'static>> {
             let mut closure = self.createCheckpoint.closure.lock().unwrap();
             let closure: &mut dyn ::std::ops::FnMut(crate::types::CreateCPRequest) -> _ = &mut **closure;
             ::std::boxed::Box::pin(::futures::future::ready(closure(arg_req.clone())))
@@ -14448,6 +15867,43 @@ pub mod mock {
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ExecResponse, crate::errors::general_storage_service::RemoveError>> + ::std::marker::Send + 'static>> {
             let mut closure = self.remove.closure.lock().unwrap();
             let closure: &mut dyn ::std::ops::FnMut(crate::types::KVRemoveRequest) -> _ = &mut **closure;
+            ::std::boxed::Box::pin(::futures::future::ready(closure(arg_req.clone())))
+        }
+    }
+
+
+    pub struct InternalStorageService<'mock> {
+        pub getValue: r#impl::internal_storage_service::getValue<'mock>,
+        pub forwardTransaction: r#impl::internal_storage_service::forwardTransaction<'mock>,
+        _marker: ::std::marker::PhantomData<&'mock ()>,
+    }
+
+    impl dyn super::client::InternalStorageService {
+        pub fn mock<'mock>() -> InternalStorageService<'mock> {
+            InternalStorageService {
+                getValue: r#impl::internal_storage_service::getValue::unimplemented(),
+                forwardTransaction: r#impl::internal_storage_service::forwardTransaction::unimplemented(),
+                _marker: ::std::marker::PhantomData,
+            }
+        }
+    }
+
+    #[::async_trait::async_trait]
+    impl<'mock> super::client::InternalStorageService for InternalStorageService<'mock> {
+        fn getValue(
+            &self,
+            arg_req: &crate::types::GetValueRequest,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::GetValueResponse, crate::errors::internal_storage_service::GetValueError>> + ::std::marker::Send + 'static>> {
+            let mut closure = self.getValue.closure.lock().unwrap();
+            let closure: &mut dyn ::std::ops::FnMut(crate::types::GetValueRequest) -> _ = &mut **closure;
+            ::std::boxed::Box::pin(::futures::future::ready(closure(arg_req.clone())))
+        }
+        fn forwardTransaction(
+            &self,
+            arg_req: &crate::types::InternalTxnRequest,
+        ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ExecResponse, crate::errors::internal_storage_service::ForwardTransactionError>> + ::std::marker::Send + 'static>> {
+            let mut closure = self.forwardTransaction.closure.lock().unwrap();
+            let closure: &mut dyn ::std::ops::FnMut(crate::types::InternalTxnRequest) -> _ = &mut **closure;
             ::std::boxed::Box::pin(::futures::future::ready(closure(arg_req.clone())))
         }
     }
@@ -15026,6 +16482,50 @@ pub mod mock {
                     *closure = ::std::boxed::Box::new(move |_: crate::types::LookupAndTraverseRequest| ::std::result::Result::Err(exception.clone().into()));
                 }
             }
+
+            pub struct addEdgesAtomic<'mock> {
+                pub(crate) closure: ::std::sync::Mutex<::std::boxed::Box<
+                    dyn ::std::ops::FnMut(crate::types::AddEdgesRequest) -> ::std::result::Result<
+                        crate::types::ExecResponse,
+                        crate::errors::graph_storage_service::AddEdgesAtomicError,
+                    > + ::std::marker::Send + ::std::marker::Sync + 'mock,
+                >>,
+            }
+
+            impl<'mock> addEdgesAtomic<'mock> {
+                pub fn unimplemented() -> Self {
+                    addEdgesAtomic {
+                        closure: ::std::sync::Mutex::new(::std::boxed::Box::new(|_: crate::types::AddEdgesRequest| panic!(
+                            "{}::{} is not mocked",
+                            "GraphStorageService",
+                            "addEdgesAtomic",
+                        ))),
+                    }
+                }
+
+                pub fn ret(&self, value: crate::types::ExecResponse) {
+                    self.mock(move |_: crate::types::AddEdgesRequest| value.clone());
+                }
+
+                pub fn mock(&self, mut mock: impl ::std::ops::FnMut(crate::types::AddEdgesRequest) -> crate::types::ExecResponse + ::std::marker::Send + ::std::marker::Sync + 'mock) {
+                    let mut closure = self.closure.lock().unwrap();
+                    *closure = ::std::boxed::Box::new(move |req| ::std::result::Result::Ok(mock(req)));
+                }
+
+                pub fn mock_result(&self, mut mock: impl ::std::ops::FnMut(crate::types::AddEdgesRequest) -> ::std::result::Result<crate::types::ExecResponse, crate::errors::graph_storage_service::AddEdgesAtomicError> + ::std::marker::Send + ::std::marker::Sync + 'mock) {
+                    let mut closure = self.closure.lock().unwrap();
+                    *closure = ::std::boxed::Box::new(move |req| mock(req));
+                }
+
+                pub fn throw<E>(&self, exception: E)
+                where
+                    E: ::std::convert::Into<crate::errors::graph_storage_service::AddEdgesAtomicError>,
+                    E: ::std::clone::Clone + ::std::marker::Send + ::std::marker::Sync + 'mock,
+                {
+                    let mut closure = self.closure.lock().unwrap();
+                    *closure = ::std::boxed::Box::new(move |_: crate::types::AddEdgesRequest| ::std::result::Result::Err(exception.clone().into()));
+                }
+            }
         }
         pub mod storage_admin_service {
 
@@ -15296,7 +16796,7 @@ pub mod mock {
             pub struct createCheckpoint<'mock> {
                 pub(crate) closure: ::std::sync::Mutex<::std::boxed::Box<
                     dyn ::std::ops::FnMut(crate::types::CreateCPRequest) -> ::std::result::Result<
-                        crate::types::AdminExecResp,
+                        crate::types::CreateCPResp,
                         crate::errors::storage_admin_service::CreateCheckpointError,
                     > + ::std::marker::Send + ::std::marker::Sync + 'mock,
                 >>,
@@ -15313,16 +16813,16 @@ pub mod mock {
                     }
                 }
 
-                pub fn ret(&self, value: crate::types::AdminExecResp) {
+                pub fn ret(&self, value: crate::types::CreateCPResp) {
                     self.mock(move |_: crate::types::CreateCPRequest| value.clone());
                 }
 
-                pub fn mock(&self, mut mock: impl ::std::ops::FnMut(crate::types::CreateCPRequest) -> crate::types::AdminExecResp + ::std::marker::Send + ::std::marker::Sync + 'mock) {
+                pub fn mock(&self, mut mock: impl ::std::ops::FnMut(crate::types::CreateCPRequest) -> crate::types::CreateCPResp + ::std::marker::Send + ::std::marker::Sync + 'mock) {
                     let mut closure = self.closure.lock().unwrap();
                     *closure = ::std::boxed::Box::new(move |req| ::std::result::Result::Ok(mock(req)));
                 }
 
-                pub fn mock_result(&self, mut mock: impl ::std::ops::FnMut(crate::types::CreateCPRequest) -> ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::CreateCheckpointError> + ::std::marker::Send + ::std::marker::Sync + 'mock) {
+                pub fn mock_result(&self, mut mock: impl ::std::ops::FnMut(crate::types::CreateCPRequest) -> ::std::result::Result<crate::types::CreateCPResp, crate::errors::storage_admin_service::CreateCheckpointError> + ::std::marker::Send + ::std::marker::Sync + 'mock) {
                     let mut closure = self.closure.lock().unwrap();
                     *closure = ::std::boxed::Box::new(move |req| mock(req));
                 }
@@ -15823,6 +17323,96 @@ pub mod mock {
                 }
             }
         }
+        pub mod internal_storage_service {
+
+            pub struct getValue<'mock> {
+                pub(crate) closure: ::std::sync::Mutex<::std::boxed::Box<
+                    dyn ::std::ops::FnMut(crate::types::GetValueRequest) -> ::std::result::Result<
+                        crate::types::GetValueResponse,
+                        crate::errors::internal_storage_service::GetValueError,
+                    > + ::std::marker::Send + ::std::marker::Sync + 'mock,
+                >>,
+            }
+
+            impl<'mock> getValue<'mock> {
+                pub fn unimplemented() -> Self {
+                    getValue {
+                        closure: ::std::sync::Mutex::new(::std::boxed::Box::new(|_: crate::types::GetValueRequest| panic!(
+                            "{}::{} is not mocked",
+                            "InternalStorageService",
+                            "getValue",
+                        ))),
+                    }
+                }
+
+                pub fn ret(&self, value: crate::types::GetValueResponse) {
+                    self.mock(move |_: crate::types::GetValueRequest| value.clone());
+                }
+
+                pub fn mock(&self, mut mock: impl ::std::ops::FnMut(crate::types::GetValueRequest) -> crate::types::GetValueResponse + ::std::marker::Send + ::std::marker::Sync + 'mock) {
+                    let mut closure = self.closure.lock().unwrap();
+                    *closure = ::std::boxed::Box::new(move |req| ::std::result::Result::Ok(mock(req)));
+                }
+
+                pub fn mock_result(&self, mut mock: impl ::std::ops::FnMut(crate::types::GetValueRequest) -> ::std::result::Result<crate::types::GetValueResponse, crate::errors::internal_storage_service::GetValueError> + ::std::marker::Send + ::std::marker::Sync + 'mock) {
+                    let mut closure = self.closure.lock().unwrap();
+                    *closure = ::std::boxed::Box::new(move |req| mock(req));
+                }
+
+                pub fn throw<E>(&self, exception: E)
+                where
+                    E: ::std::convert::Into<crate::errors::internal_storage_service::GetValueError>,
+                    E: ::std::clone::Clone + ::std::marker::Send + ::std::marker::Sync + 'mock,
+                {
+                    let mut closure = self.closure.lock().unwrap();
+                    *closure = ::std::boxed::Box::new(move |_: crate::types::GetValueRequest| ::std::result::Result::Err(exception.clone().into()));
+                }
+            }
+
+            pub struct forwardTransaction<'mock> {
+                pub(crate) closure: ::std::sync::Mutex<::std::boxed::Box<
+                    dyn ::std::ops::FnMut(crate::types::InternalTxnRequest) -> ::std::result::Result<
+                        crate::types::ExecResponse,
+                        crate::errors::internal_storage_service::ForwardTransactionError,
+                    > + ::std::marker::Send + ::std::marker::Sync + 'mock,
+                >>,
+            }
+
+            impl<'mock> forwardTransaction<'mock> {
+                pub fn unimplemented() -> Self {
+                    forwardTransaction {
+                        closure: ::std::sync::Mutex::new(::std::boxed::Box::new(|_: crate::types::InternalTxnRequest| panic!(
+                            "{}::{} is not mocked",
+                            "InternalStorageService",
+                            "forwardTransaction",
+                        ))),
+                    }
+                }
+
+                pub fn ret(&self, value: crate::types::ExecResponse) {
+                    self.mock(move |_: crate::types::InternalTxnRequest| value.clone());
+                }
+
+                pub fn mock(&self, mut mock: impl ::std::ops::FnMut(crate::types::InternalTxnRequest) -> crate::types::ExecResponse + ::std::marker::Send + ::std::marker::Sync + 'mock) {
+                    let mut closure = self.closure.lock().unwrap();
+                    *closure = ::std::boxed::Box::new(move |req| ::std::result::Result::Ok(mock(req)));
+                }
+
+                pub fn mock_result(&self, mut mock: impl ::std::ops::FnMut(crate::types::InternalTxnRequest) -> ::std::result::Result<crate::types::ExecResponse, crate::errors::internal_storage_service::ForwardTransactionError> + ::std::marker::Send + ::std::marker::Sync + 'mock) {
+                    let mut closure = self.closure.lock().unwrap();
+                    *closure = ::std::boxed::Box::new(move |req| mock(req));
+                }
+
+                pub fn throw<E>(&self, exception: E)
+                where
+                    E: ::std::convert::Into<crate::errors::internal_storage_service::ForwardTransactionError>,
+                    E: ::std::clone::Clone + ::std::marker::Send + ::std::marker::Sync + 'mock,
+                {
+                    let mut closure = self.closure.lock().unwrap();
+                    *closure = ::std::boxed::Box::new(move |_: crate::types::InternalTxnRequest| ::std::result::Result::Err(exception.clone().into()));
+                }
+            }
+        }
     }
 }
 
@@ -15854,6 +17444,8 @@ pub mod errors {
         pub type LookupIndexError = ::fbthrift::NonthrowingFunctionError;
 
         pub type LookupAndTraverseError = ::fbthrift::NonthrowingFunctionError;
+
+        pub type AddEdgesAtomicError = ::fbthrift::NonthrowingFunctionError;
 
     }
 
@@ -15898,6 +17490,14 @@ pub mod errors {
         pub type PutError = ::fbthrift::NonthrowingFunctionError;
 
         pub type RemoveError = ::fbthrift::NonthrowingFunctionError;
+
+    }
+
+    pub mod internal_storage_service {
+
+        pub type GetValueError = ::fbthrift::NonthrowingFunctionError;
+
+        pub type ForwardTransactionError = ::fbthrift::NonthrowingFunctionError;
 
     }
 

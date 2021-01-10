@@ -1,5 +1,5 @@
 /*
-cargo run -p nebula-demo-async-std --bin v2_graph_client 127.0.0.1 3699 user 'password'
+cargo run -p nebula-demo-async-std --bin v2_graph_client 127.0.0.1 9669 user 'password'
 */
 
 use std::env;
@@ -21,7 +21,7 @@ async fn run() -> io::Result<()> {
         .unwrap_or_else(|| env::var("DOMAIN").unwrap_or("127.0.0.1".to_owned()));
     let port: u16 = env::args()
         .nth(2)
-        .unwrap_or_else(|| env::var("PORT").unwrap_or("3699".to_owned()))
+        .unwrap_or_else(|| env::var("PORT").unwrap_or("9669".to_owned()))
         .parse()
         .unwrap();
     let username = env::args()
