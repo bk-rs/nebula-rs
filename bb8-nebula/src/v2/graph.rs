@@ -104,8 +104,11 @@ where
         self.get_async_connection().await
     }
 
-    async fn is_valid(&self, conn: Self::Connection) -> Result<Self::Connection, Self::Error> {
-        Ok(conn)
+    async fn is_valid(
+        &self,
+        _conn: &mut bb8::PooledConnection<'_, Self>,
+    ) -> Result<(), Self::Error> {
+        Ok(())
     }
 
     fn has_broken(&self, conn: &mut Self::Connection) -> bool {

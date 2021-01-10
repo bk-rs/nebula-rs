@@ -13,7 +13,7 @@ categories = []
 readme = "README.md"
 
 [dependencies]
-fbthrift = { package = "fbthrift-git", version = "=0.0.4", default-features = false, features = [] }
+fbthrift = { package = "fbthrift-git", version = "=0.0.5", default-features = false, features = [] }
 
 anyhow = { version = "1.0", default-features = false, features = [] }
 futures = { version = "0.3", default-features = false, features = ["std"] }

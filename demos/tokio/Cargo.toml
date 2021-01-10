@@ -23,11 +23,11 @@ path = "src/v2_graph_client.rs"
 [dependencies]
 # non-pool
 nebula-client = { path = "../../nebula-client", version = "0.4", features = ["graph"] }
-fbthrift-transport = { version = "=0.4.2", features = ["tokio_io"] }
+fbthrift-transport = { version = "=0.4.3", features = ["tokio_io"] }
 
 # bb8
-bb8 = "0.4"
+bb8 = "~0.5"
 bb8-nebula = { path = "../../bb8-nebula", version = "0.5", features = ["graph"] }
 
 # common
-tokio = { version = "0.2", default-features = false, features = ["io-util", "net", "macros"] }
+tokio = { version = "~0.2", default-features = false, features = ["io-util", "net", "macros"] }

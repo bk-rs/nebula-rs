@@ -19,7 +19,7 @@ meta = ["nebula-fbthrift-meta"]
 storage = ["nebula-fbthrift-storage"]
 
 [dependencies]
-fbthrift = { package = "fbthrift-git", version = "=0.0.4", default-features = false, features = [] }
+fbthrift = { package = "fbthrift-git", version = "=0.0.5", default-features = false, features = [] }
 
 bytes = { version = "0.5", default-features = false, features = [] }
 async-trait = { version = "0.1", default-features = false, features = [] }
