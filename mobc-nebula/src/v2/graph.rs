@@ -9,10 +9,7 @@ use mobc::async_trait;
 use mobc::Manager;
 use nebula_client::v2::{GraphClient, GraphSession};
 
-#[cfg(feature = "async_std")]
 use async_std::net::TcpStream;
-#[cfg(feature = "tokio")]
-use tokio02::net::TcpStream;
 
 #[derive(Debug, Clone)]
 pub struct GraphClientConfiguration {

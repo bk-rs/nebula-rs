@@ -39,7 +39,7 @@ fbthrift-transport = { version = "0.5.0", features = ["futures_io"] }
 
 # mobc
 mobc = "0.6"
-mobc-nebula = { path = "../../mobc-nebula", version = "0.5", features = ["async_std", "graph"] }
+mobc-nebula = { path = "../../mobc-nebula", version = "0.5", features = ["graph"] }
 
 # common
 async-std = { version = "1.8", default-features = false, features = ["default", "attributes"] }
