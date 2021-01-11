@@ -41,15 +41,13 @@ impl ResponseHandler for GraphTransportResponseHandler {
 
                 let res_buf = ser.finish().bytes().to_vec();
 
-                return Ok(Some(res_buf));
+                Ok(Some(res_buf))
             }
             b"execute" => Ok(None),
-            _ => {
-                return Err(io::Error::new(
-                    io::ErrorKind::Other,
-                    format!("Unknown method {:?}", name),
-                ))
-            }
+            _ => Err(io::Error::new(
+                io::ErrorKind::Other,
+                format!("Unknown method {:?}", name),
+            )),
         }
     }
 

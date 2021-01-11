@@ -25,12 +25,10 @@ impl ResponseHandler for MetaTransportResponseHandler {
 
         match &name[..] {
             b"getSpace" | b"listParts" | b"listTags" | b"listEdges" => Ok(None),
-            _ => {
-                return Err(io::Error::new(
-                    io::ErrorKind::Other,
-                    format!("Unknown method {:?}", name),
-                ))
-            }
+            _ => Err(io::Error::new(
+                io::ErrorKind::Other,
+                format!("Unknown method {:?}", name),
+            )),
         }
     }
 

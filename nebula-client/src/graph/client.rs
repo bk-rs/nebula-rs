@@ -184,7 +184,7 @@ where
         let res = self
             .execute(stmt)
             .await
-            .map_err(|err| GraphQueryError::ExecuteError(err))?;
+            .map_err(GraphQueryError::ExecuteError)?;
 
         if res.error_code != ErrorCode::SUCCEEDED {
             return Err(GraphQueryError::ResponseError(

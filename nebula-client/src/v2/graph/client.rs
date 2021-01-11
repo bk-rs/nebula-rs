@@ -61,6 +61,7 @@ where
         }
     }
 
+    #[allow(clippy::ptr_arg)]
     pub async fn authenticate(
         self,
         username: &Vec<u8>,
@@ -126,6 +127,7 @@ where
         self.connection.service.signout(self.session_id).await
     }
 
+    #[allow(clippy::ptr_arg)]
     pub async fn execute(
         &mut self,
         stmt: &Vec<u8>,
@@ -146,6 +148,7 @@ where
         Ok(res)
     }
 
+    #[allow(clippy::ptr_arg)]
     pub async fn execute_json(&self, stmt: &Vec<u8>) -> result::Result<Vec<u8>, ExecuteJsonError> {
         self.connection
             .service

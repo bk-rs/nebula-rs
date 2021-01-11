@@ -19,7 +19,7 @@ pub struct DataDeserializer<'a> {
 }
 
 impl<'a> DataDeserializer<'a> {
-    pub fn new(names: &'a Vec<Vec<u8>>, values: &'a Vec<ColumnValue>) -> Self {
+    pub fn new(names: &'a [Vec<u8>], values: &'a [ColumnValue]) -> Self {
         let names_iter = names.iter();
         let values_iter = values.iter().peekable();
 
@@ -291,7 +291,7 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
                 let mut seq_deserializer = SeqDeserializer::new(v.to_owned().into_iter());
                 let value = visitor.visit_seq(&mut seq_deserializer)?;
                 seq_deserializer.end()?;
-                return Ok(value);
+                Ok(value)
             }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
@@ -307,14 +307,14 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
                     SeqDeserializer::new(vec![v.year, v.month as i16].into_iter());
                 let value = visitor.visit_seq(&mut seq_deserializer)?;
                 seq_deserializer.end()?;
-                return Ok(value);
+                Ok(value)
             }
             ColumnValue::date(v) => {
                 let mut seq_deserializer =
                     SeqDeserializer::new(vec![v.year, v.month as i16, v.day as i16].into_iter());
                 let value = visitor.visit_seq(&mut seq_deserializer)?;
                 seq_deserializer.end()?;
-                return Ok(value);
+                Ok(value)
             }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
@@ -335,14 +335,14 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
                     SeqDeserializer::new(vec![v.year, v.month as i16].into_iter());
                 let value = visitor.visit_seq(&mut seq_deserializer)?;
                 seq_deserializer.end()?;
-                return Ok(value);
+                Ok(value)
             }
             ColumnValue::date(v) => {
                 let mut seq_deserializer =
                     SeqDeserializer::new(vec![v.year, v.month as i16, v.day as i16].into_iter());
                 let value = visitor.visit_seq(&mut seq_deserializer)?;
                 seq_deserializer.end()?;
-                return Ok(value);
+                Ok(value)
             }
             ColumnValue::datetime(v) => {
                 let mut seq_deserializer = SeqDeserializer::new(
@@ -360,7 +360,7 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
                 );
                 let value = visitor.visit_seq(&mut seq_deserializer)?;
                 seq_deserializer.end()?;
-                return Ok(value);
+                Ok(value)
             }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
@@ -528,6 +528,7 @@ mod tests {
     use std::io;
 
     use chrono::{serde::ts_seconds, DateTime, TimeZone, Utc};
+    use float_cmp::approx_eq;
     use nebula_fbthrift_graph::types;
     use serde::{de::DeserializeOwned, Deserialize};
     use serde_repr::Deserialize_repr;
@@ -535,7 +536,7 @@ mod tests {
     use crate::de::datetime::{self, Date, Day, Month, Timestamp, Year, YearMonth};
 
     fn de<D: DeserializeOwned>(names: Vec<&str>, values: Vec<ColumnValue>) -> io::Result<D> {
-        let names = names.into_iter().map(|x| x.as_bytes().to_vec()).collect();
+        let names: Vec<_> = names.into_iter().map(|x| x.as_bytes().to_vec()).collect();
 
         let mut data_deserializer = DataDeserializer::new(&names, &values);
 
@@ -550,13 +551,13 @@ mod tests {
             b: bool,
         }
 
-        let foo: Foo = de(
+        let v: Foo = de(
             vec!["a", "b"],
             vec![ColumnValue::bool_val(true), ColumnValue::bool_val(false)],
         )?;
 
-        assert_eq!(foo.a, true);
-        assert_eq!(foo.b, false);
+        assert_eq!(v.a, true);
+        assert_eq!(v.b, false);
 
         Ok(())
     }
@@ -583,7 +584,7 @@ mod tests {
             state: State,
         }
 
-        let foo: Foo = de(
+        let v: Foo = de(
             vec!["a", "b", "c", "d", "e", "f", "g", "h", "state"],
             vec![
                 ColumnValue::integer(1),
@@ -598,15 +599,15 @@ mod tests {
             ],
         )?;
 
-        assert_eq!(foo.a, 1);
-        assert_eq!(foo.b, 2);
-        assert_eq!(foo.c, 3);
-        assert_eq!(foo.d, 4);
-        assert_eq!(foo.e, 5);
-        assert_eq!(foo.f, 6);
-        assert_eq!(foo.g, 7);
-        assert_eq!(foo.h, 8);
-        assert_eq!(foo.state, State::Done);
+        assert_eq!(v.a, 1);
+        assert_eq!(v.b, 2);
+        assert_eq!(v.c, 3);
+        assert_eq!(v.d, 4);
+        assert_eq!(v.e, 5);
+        assert_eq!(v.f, 6);
+        assert_eq!(v.g, 7);
+        assert_eq!(v.h, 8);
+        assert_eq!(v.state, State::Done);
 
         Ok(())
     }
@@ -619,10 +620,10 @@ mod tests {
             b: u64,
         }
 
-        let foo: Foo = de(vec!["a", "b"], vec![ColumnValue::id(1), ColumnValue::id(2)])?;
+        let v: Foo = de(vec!["a", "b"], vec![ColumnValue::id(1), ColumnValue::id(2)])?;
 
-        assert_eq!(foo.a, 1);
-        assert_eq!(foo.b, 2);
+        assert_eq!(v.a, 1);
+        assert_eq!(v.b, 2);
 
         Ok(())
     }
@@ -634,9 +635,9 @@ mod tests {
             a: f32,
         }
 
-        let foo: Foo = de(vec!["a"], vec![ColumnValue::single_precision(1_f32)])?;
+        let v: Foo = de(vec!["a"], vec![ColumnValue::single_precision(1_f32)])?;
 
-        assert_eq!(foo.a, 1_f32);
+        assert!(approx_eq!(f32, v.a, 1_f32));
 
         Ok(())
     }
@@ -648,9 +649,9 @@ mod tests {
             a: f64,
         }
 
-        let foo: Foo = de(vec!["a"], vec![ColumnValue::double_precision(1_f64)])?;
+        let v: Foo = de(vec!["a"], vec![ColumnValue::double_precision(1_f64)])?;
 
-        assert_eq!(foo.a, 1_f64);
+        assert!(approx_eq!(f64, v.a, 1_f64));
 
         Ok(())
     }
@@ -663,7 +664,7 @@ mod tests {
             b: Vec<u8>,
         }
 
-        let foo: Foo = de(
+        let v: Foo = de(
             vec!["a", "b"],
             vec![
                 ColumnValue::str(b"String".to_vec()),
@@ -671,8 +672,8 @@ mod tests {
             ],
         )?;
 
-        assert_eq!(foo.a, "String");
-        assert_eq!(foo.b, b"Vec<u8>");
+        assert_eq!(v.a, "String");
+        assert_eq!(v.b, b"Vec<u8>");
 
         Ok(())
     }
@@ -688,7 +689,7 @@ mod tests {
             d: u64,
         }
 
-        let foo: Foo = de(
+        let v: Foo = de(
             vec!["a", "b", "c", "d"],
             vec![
                 ColumnValue::timestamp(1577836800),
@@ -698,10 +699,10 @@ mod tests {
             ],
         )?;
 
-        assert_eq!(foo.a, Utc.ymd(2020, 1, 1).and_hms(0, 0, 0));
-        assert_eq!(foo.b, Timestamp(1577836801));
-        assert_eq!(foo.c, 1577836802);
-        assert_eq!(foo.d, 1577836803);
+        assert_eq!(v.a, Utc.ymd(2020, 1, 1).and_hms(0, 0, 0));
+        assert_eq!(v.b, Timestamp(1577836801));
+        assert_eq!(v.c, 1577836802);
+        assert_eq!(v.d, 1577836803);
 
         Ok(())
     }
@@ -714,13 +715,13 @@ mod tests {
             a: Year,
         }
 
-        let foo: Foo = de(
+        let v: Foo = de(
             vec!["a", "b"],
             vec![ColumnValue::year(2020), ColumnValue::year(2021)],
         )?;
 
-        assert_eq!(foo.a, 2020);
-        assert_eq!(foo.b, 2021);
+        assert_eq!(v.a, 2020);
+        assert_eq!(v.b, 2021);
 
         Ok(())
     }
@@ -733,7 +734,7 @@ mod tests {
             b: YearMonth,
         }
 
-        let foo: Foo = de(
+        let v: Foo = de(
             vec!["a", "b"],
             vec![
                 ColumnValue::month(types::YearMonth {
@@ -747,8 +748,8 @@ mod tests {
             ],
         )?;
 
-        assert_eq!(foo.a, (2020, 1));
-        assert_eq!(foo.b, YearMonth(2020, 2));
+        assert_eq!(v.a, (2020, 1));
+        assert_eq!(v.b, YearMonth(2020, 2));
 
         Ok(())
     }
@@ -761,7 +762,7 @@ mod tests {
             b: Date,
         }
 
-        let foo: Foo = de(
+        let v: Foo = de(
             vec!["a", "b"],
             vec![
                 ColumnValue::date(types::Date {
@@ -777,8 +778,8 @@ mod tests {
             ],
         )?;
 
-        assert_eq!(foo.a, (2020, 1, 2));
-        assert_eq!(foo.b, Date(2020, 1, 3));
+        assert_eq!(v.a, (2020, 1, 2));
+        assert_eq!(v.b, Date(2020, 1, 3));
 
         Ok(())
     }
@@ -790,7 +791,7 @@ mod tests {
             a: datetime::DateTime,
         }
 
-        let foo: Foo = de(
+        let v: Foo = de(
             vec!["a"],
             vec![ColumnValue::datetime(types::DateTime {
                 year: 2020,
@@ -804,7 +805,7 @@ mod tests {
             })],
         )?;
 
-        assert_eq!(foo.a, datetime::DateTime(2020, 1, 2, 3, 4, 5, 6, 7));
+        assert_eq!(v.a, datetime::DateTime(2020, 1, 2, 3, 4, 5, 6, 7));
 
         Ok(())
     }
@@ -816,9 +817,9 @@ mod tests {
             a: i32,
         }
 
-        let foo: Foo = de(vec!["a"], vec![ColumnValue::UnknownField(1)])?;
+        let v: Foo = de(vec!["a"], vec![ColumnValue::UnknownField(1)])?;
 
-        assert_eq!(foo.a, 1);
+        assert_eq!(v.a, 1);
 
         Ok(())
     }
@@ -833,7 +834,7 @@ mod tests {
             d: String,
         }
 
-        let foo: Foo = de(
+        let v: Foo = de(
             vec!["a", "b", "c", "d"],
             vec![
                 ColumnValue::bool_val(true),
@@ -843,10 +844,10 @@ mod tests {
             ],
         )?;
 
-        assert_eq!(foo.a, true);
-        assert_eq!(foo.b, 1);
-        assert_eq!(foo.c, 2);
-        assert_eq!(foo.d, "3");
+        assert_eq!(v.a, true);
+        assert_eq!(v.b, 1);
+        assert_eq!(v.c, 2);
+        assert_eq!(v.d, "3");
 
         Ok(())
     }
@@ -865,9 +866,9 @@ mod tests {
             a: Option<bool>,
         }
 
-        let foo: Foo = de(vec!["a"], vec![ColumnValue::bool_val(true)])?;
+        let v: Foo = de(vec!["a"], vec![ColumnValue::bool_val(true)])?;
 
-        assert_eq!(foo.a, Some(true));
+        assert_eq!(v.a, Some(true));
 
         Ok(())
     }

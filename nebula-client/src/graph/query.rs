@@ -49,7 +49,7 @@ where
         let latency = Duration::from_micros(res.latency_in_us as u64);
         let space_name = res.space_name.clone();
         let data_set = deserialize_execution_response::<D>(&res)
-            .map_err(|err| GraphQueryError::DataDeserializeError(err))?;
+            .map_err(GraphQueryError::DataDeserializeError)?;
 
         Ok(Self {
             latency,
@@ -129,21 +129,17 @@ mod tests {
     use std::io;
 
     #[test]
-    fn impl_std_fmt_display() -> io::Result<()> {
+    fn impl_std_fmt_display() {
         let err = GraphQueryError::ResponseError(ErrorCode::E_DISCONNECTED, None);
         println!("{}", err.to_string());
-
-        Ok(())
     }
 
     #[test]
-    fn impl_std_error_error() -> io::Result<()> {
+    fn impl_std_error_error() {
         let err = io::Error::new(
             io::ErrorKind::Other,
             GraphQueryError::ResponseError(ErrorCode::E_DISCONNECTED, None),
         );
         println!("{}", err.to_string());
-
-        Ok(())
     }
 }

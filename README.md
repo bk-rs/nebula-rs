@@ -20,6 +20,8 @@
 ## Dev
 
 ```
+cargo +nightly clippy --all-targets --all-features -- -D clippy::all
+
 cargo fmt -p nebula-client bb8-nebula mobc-nebula serde-nebula-fbthrift-graph -- --check
 ```
 

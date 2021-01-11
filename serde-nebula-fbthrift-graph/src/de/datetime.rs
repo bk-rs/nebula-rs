@@ -70,13 +70,11 @@ mod tests {
     #[cfg(feature = "chrono")]
     use super::*;
 
-    use std::io;
-
     #[cfg(feature = "chrono")]
     use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 
     #[test]
-    fn chrono_for_timestamp() -> io::Result<()> {
+    fn chrono_for_timestamp() {
         #[cfg(feature = "chrono")]
         assert_eq!(
             Timestamp(1577836800).to_naive_date_time(),
@@ -85,34 +83,28 @@ mod tests {
                 NaiveTime::from_hms(0, 0, 0)
             )
         );
-
-        Ok(())
     }
 
     #[test]
-    fn chrono_for_year_month() -> io::Result<()> {
+    fn chrono_for_year_month() {
         #[cfg(feature = "chrono")]
         assert_eq!(
             YearMonth(2020, 1).to_naive_date(),
             NaiveDate::from_ymd(2020, 1, 1)
         );
-
-        Ok(())
     }
 
     #[test]
-    fn chrono_for_date() -> io::Result<()> {
+    fn chrono_for_date() {
         #[cfg(feature = "chrono")]
         assert_eq!(
             Date(2020, 1, 2).to_naive_date(),
             NaiveDate::from_ymd(2020, 1, 2)
         );
-
-        Ok(())
     }
 
     #[test]
-    fn chrono_for_datetime() -> io::Result<()> {
+    fn chrono_for_datetime() {
         #[cfg(feature = "chrono")]
         assert_eq!(
             DateTime(2020, 1, 2, 3, 4, 5, 6, 7).to_naive_date_time(),
@@ -121,7 +113,5 @@ mod tests {
                 NaiveTime::from_hms_milli(3, 4, 5, 6)
             )
         );
-
-        Ok(())
     }
 }

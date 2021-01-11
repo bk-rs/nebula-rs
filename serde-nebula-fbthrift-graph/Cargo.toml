@@ -24,3 +24,4 @@ nebula-fbthrift-graph = { path = "../nebula-fbthrift/nebula-fbthrift-graph", ver
 [dev-dependencies]
 chrono = { version = "0.4", features = ["serde"] }
 serde_repr = "0.1"
+float-cmp = "0.8"

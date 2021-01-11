@@ -23,12 +23,10 @@ impl ResponseHandler for StorageTransportResponseHandler {
 
         match &name[..] {
             b"scanVertex" | b"scanEdge" => Ok(None),
-            _ => {
-                return Err(io::Error::new(
-                    io::ErrorKind::Other,
-                    format!("Unknown method {:?}", name),
-                ))
-            }
+            _ => Err(io::Error::new(
+                io::ErrorKind::Other,
+                format!("Unknown method {:?}", name),
+            )),
         }
     }
 
