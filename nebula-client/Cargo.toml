@@ -36,3 +36,7 @@ nebula-fbthrift-storage = { path = "../nebula-fbthrift/nebula-fbthrift-storage",
 
 serde = { version = "1.0", default-features = false, features = ["derive"], optional = true }
 serde-nebula-fbthrift-graph = { path = "../serde-nebula-fbthrift-graph", version = "0.1", default-features = false, features = ["chrono"], optional = true }
+
+[package.metadata.cargo-all-features]
+skip_feature_sets = []
+skip_optional_dependencies = true

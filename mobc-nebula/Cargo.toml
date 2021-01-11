@@ -16,10 +16,10 @@ readme = "README.md"
 default = ["graph"]
 graph = ["nebula-client/graph"]
 async_std = ["async-std", "mobc/async-std", "fbthrift-transport/futures_io"]
-tokio = ["tokio02", "mobc/tokio", "fbthrift-transport/tokio_io"]
+tokio = ["tokio02", "mobc/tokio", "fbthrift-transport/tokio02_io"]
 
 [dependencies]
-fbthrift-transport = { version = "=0.4.3", default-features = false, features = [] }
+fbthrift-transport = { version = "0.5.0", default-features = false, features = [] }
 
 cfg-if = { version = "1.0", default-features = false, features = [] }
 
@@ -29,3 +29,9 @@ nebula-client = { path = "../nebula-client", version = "0.4", default-features =
 
 tokio02 = { package = "tokio", version = "~0.2", default-features = false, features = ["net"], optional = true }
 async-std = { version = "1.8", default-features = false, features = ["default"], optional = true }
+
+[package.metadata.cargo-all-features]
+skip_feature_sets = [
+    ["async_std", "tokio"],
+]
+skip_optional_dependencies = true
