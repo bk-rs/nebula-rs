@@ -2,7 +2,6 @@ use std::io;
 use std::result;
 
 use async_trait::async_trait;
-use bb8;
 use fbthrift_transport::{
     fbthrift_transport_response_handler::ResponseHandler, AsyncTransport,
     AsyncTransportConfiguration,
