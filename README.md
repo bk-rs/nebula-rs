@@ -20,19 +20,21 @@
 ## Dev
 
 ```
-cargo +nightly clippy -p nebula-client --all-features -- -D clippy::all
+cargo +nightly clippy -p nebula-client --all-features -- -D clippy::all && \
 cargo fmt -p nebula-client -- --check
 
-cargo +nightly clippy -p bb8-nebula --all-features -- -D clippy::all
+cargo +nightly clippy -p bb8-nebula --all-features -- -D clippy::all && \
 cargo fmt -p bb8-nebula -- --check
 
-cargo +nightly clippy -p mobc-nebula --all-targets --all-features -- -D clippy::all
+cargo +nightly clippy -p mobc-nebula --all-targets --all-features -- -D clippy::all && \
 cargo fmt -p mobc-nebula -- --check
 
-cargo +nightly clippy -p serde-nebula-fbthrift-graph --all-targets --all-features -- -D clippy::all
+cargo +nightly clippy -p serde-nebula-fbthrift-graph --all-targets --all-features -- -D clippy::all && \
 cargo fmt -p serde-nebula-fbthrift-graph -- --check
 ```
 
 ```
 cargo build-all-features
+
+cargo test-all-features -- --nocapture
 ```
