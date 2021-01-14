@@ -3,6 +3,7 @@ members = [
     "bb8-nebula",
     "demos/async-std",
     "demos/tokio",
+    "demos/tokio02",
     "mobc-nebula",
     "nebula-fbthrift/nebula-fbthrift-common",
     "nebula-fbthrift/nebula-fbthrift-common-v2",

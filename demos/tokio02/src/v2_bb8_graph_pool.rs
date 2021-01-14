@@ -1,13 +1,12 @@
 /*
-cargo run -p nebula-demo-tokio --bin bb8_graph_pool 127.0.0.1 3699 user 'password'
+cargo run -p nebula-demo-tokio02 --bin v2_bb8_graph_pool 127.0.0.1 9669 user 'password'
 */
 
 use std::env;
 use std::io;
 
-use bb8_nebula::tokio1::{GraphClientConfiguration, GraphConnectionManager};
-use fbthrift_transport::AsyncTransportConfiguration;
-use nebula_client::{GraphQuery as _, GraphTransportResponseHandler};
+use bb8_nebula::tokio02::v2::{GraphClientConfiguration, GraphConnectionManager};
+use fbthrift_transport::DefaultAsyncTransportConfiguration;
 
 #[tokio::main]
 async fn main() -> io::Result<()> {
@@ -20,7 +19,7 @@ async fn run() -> io::Result<()> {
         .unwrap_or_else(|| env::var("DOMAIN").unwrap_or_else(|_| "127.0.0.1".to_owned()));
     let port: u16 = env::args()
         .nth(2)
-        .unwrap_or_else(|| env::var("PORT").unwrap_or_else(|_| "3699".to_owned()))
+        .unwrap_or_else(|| env::var("PORT").unwrap_or_else(|_| "9669".to_owned()))
         .parse()
         .unwrap();
     let username = env::args()
@@ -32,29 +31,35 @@ async fn run() -> io::Result<()> {
     let space = env::args().nth(5).or_else(|| env::var("SPACE").ok());
 
     println!(
-        "bb8_graph_pool {} {} {} {} {:?}",
+        "v2_bb8_graph_pool {} {} {} {} {:?}",
         domain, port, username, password, space
     );
 
     //
     let client_configuration =
         GraphClientConfiguration::new(domain, port, username, password, space);
-    let transport_configuration = AsyncTransportConfiguration::new(GraphTransportResponseHandler);
+    let transport_configuration = DefaultAsyncTransportConfiguration::default();
     let manager = GraphConnectionManager::new(client_configuration, transport_configuration);
     let pool = bb8::Pool::builder().max_size(1).build(manager).await?;
 
     //
     {
         let mut session = pool.get().await.unwrap();
-        let out = session.show_hosts().await.unwrap();
-        println!("{:?}", out);
+        let res = session
+            .execute(&"SHOW HOSTS;".as_bytes().to_vec())
+            .await
+            .unwrap();
+        println!("{:?}", res);
     }
 
     //
     {
         let mut session = pool.get().await.unwrap();
-        let out = session.show_hosts().await.unwrap();
-        println!("{:?}", out);
+        let res = session
+            .execute(&"SHOW HOSTS;".as_bytes().to_vec())
+            .await
+            .unwrap();
+        println!("{:?}", res);
     }
 
     println!("done");
