@@ -20,18 +20,18 @@ async fn main() -> io::Result<()> {
 async fn run() -> io::Result<()> {
     let domain = env::args()
         .nth(1)
-        .unwrap_or_else(|| env::var("DOMAIN").unwrap_or("127.0.0.1".to_owned()));
+        .unwrap_or_else(|| env::var("DOMAIN").unwrap_or_else(|_| "127.0.0.1".to_owned()));
     let port: u16 = env::args()
         .nth(2)
-        .unwrap_or_else(|| env::var("PORT").unwrap_or("9669".to_owned()))
+        .unwrap_or_else(|| env::var("PORT").unwrap_or_else(|_| "9669".to_owned()))
         .parse()
         .unwrap();
     let username = env::args()
         .nth(3)
-        .unwrap_or_else(|| env::var("USERNAME").unwrap_or("user".to_owned()));
+        .unwrap_or_else(|| env::var("USERNAME").unwrap_or_else(|_| "user".to_owned()));
     let password = env::args()
         .nth(4)
-        .unwrap_or_else(|| env::var("PASSWORD").unwrap_or("password".to_owned()));
+        .unwrap_or_else(|| env::var("PASSWORD").unwrap_or_else(|_| "password".to_owned()));
 
     println!(
         "v2_graph_client {} {} {} {}",

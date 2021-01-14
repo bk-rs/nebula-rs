@@ -24,23 +24,23 @@ async fn main() -> io::Result<()> {
 async fn run() -> io::Result<()> {
     let metad_host = env::args()
         .nth(1)
-        .unwrap_or_else(|| env::var("METAD_HOST").unwrap_or("127.0.0.1".to_owned()));
+        .unwrap_or_else(|| env::var("METAD_HOST").unwrap_or_else(|_| "127.0.0.1".to_owned()));
     let metad_port: u16 = env::args()
         .nth(2)
-        .unwrap_or_else(|| env::var("METAD_PORT").unwrap_or("45500".to_owned()))
+        .unwrap_or_else(|| env::var("METAD_PORT").unwrap_or_else(|_| "45500".to_owned()))
         .parse()
         .unwrap();
     let space_name = env::args()
         .nth(3)
-        .unwrap_or_else(|| env::var("SPACE_NAME").unwrap_or("nba".to_owned()));
+        .unwrap_or_else(|| env::var("SPACE_NAME").unwrap_or_else(|_| "nba".to_owned()));
     let partition: u16 = env::args()
         .nth(4)
-        .unwrap_or_else(|| env::var("PARTITION").unwrap_or("1".to_owned()))
+        .unwrap_or_else(|| env::var("PARTITION").unwrap_or_else(|_| "1".to_owned()))
         .parse()
         .unwrap();
     let tag_name = env::args()
         .nth(5)
-        .unwrap_or_else(|| env::var("TAG_NAME").unwrap_or("player".to_owned()));
+        .unwrap_or_else(|| env::var("TAG_NAME").unwrap_or_else(|_| "player".to_owned()));
 
     println!(
         "count_vertex {} {} {} {} {}",
@@ -89,12 +89,7 @@ async fn run() -> io::Result<()> {
         .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
     println!("{:?}", res);
     assert_eq!(res.code, MErrorCode::SUCCEEDED);
-    let tag = res
-        .tags
-        .iter()
-        .filter(|x| x.tag_name == tag_name)
-        .next()
-        .unwrap();
+    let tag = res.tags.iter().find(|x| x.tag_name == tag_name).unwrap();
     let tag_id = tag.tag_id;
     println!("tag_id {}", tag_id);
 
