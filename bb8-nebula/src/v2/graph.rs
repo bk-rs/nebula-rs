@@ -3,11 +3,11 @@ use std::result;
 
 use async_trait::async_trait;
 use fbthrift_transport::{
-    fbthrift_transport_response_handler::ResponseHandler, tokio02_io::transport::AsyncTransport,
-    AsyncTransportConfiguration,
+    fbthrift_transport_response_handler::ResponseHandler, AsyncTransportConfiguration,
 };
 use nebula_client::v2::{GraphClient, GraphSession};
-use tokio::net::TcpStream;
+
+use super::{bb8, AsyncTransport, TcpStream};
 
 #[derive(Debug, Clone)]
 pub struct GraphClientConfiguration {
@@ -92,7 +92,7 @@ where
 }
 
 #[async_trait]
-impl<H> bb8::ManageConnection for GraphConnectionManager<H>
+impl<H> self::bb8::ManageConnection for GraphConnectionManager<H>
 where
     H: ResponseHandler + Send + Sync + 'static + Unpin,
 {
@@ -105,7 +105,7 @@ where
 
     async fn is_valid(
         &self,
-        _conn: &mut bb8::PooledConnection<'_, Self>,
+        _conn: &mut self::bb8::PooledConnection<'_, Self>,
     ) -> Result<(), Self::Error> {
         Ok(())
     }

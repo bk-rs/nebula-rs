@@ -5,7 +5,7 @@ cargo run -p nebula-demo-tokio --bin bb8_graph_pool 127.0.0.1 3699 user 'passwor
 use std::env;
 use std::io;
 
-use bb8_nebula::{GraphClientConfiguration, GraphConnectionManager};
+use bb8_nebula::tokio02::{GraphClientConfiguration, GraphConnectionManager};
 use fbthrift_transport::AsyncTransportConfiguration;
 use nebula_client::{GraphQuery as _, GraphTransportResponseHandler};
 

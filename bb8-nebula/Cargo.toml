@@ -13,18 +13,27 @@ categories = []
 readme = "README.md"
 
 [features]
-default = ["graph"]
+default = ["graph", "tokio1"]
 graph = ["nebula-client/graph"]
 
-[dependencies]
-fbthrift-transport = { version = "0.6", default-features = false, features = ["tokio02_io"] }
+tokio02 = ["fbthrift-transport/tokio02_io", "bb805", "tokio02_"]
+tokio1 = ["fbthrift-transport/tokio_io", "bb8", "tokio"]
 
-bb8 = { version = "~0.5", default-features = false, features = [] }
+[dependencies]
+fbthrift-transport = { version = "0.6", default-features = false, features = [] }
+
+bb805 = { version = "~0.5", default-features = false, features = [], package = "bb8", optional = true }
+bb8 = { version = "0.7", default-features = false, features = [], optional = true }
+
 async-trait = { version = "0.1", default-features = false, features = [] }
-tokio = { version = "~0.2", default-features = false, features = ["net"] }
+
+tokio02_ = { version = "~0.2", default-features = false, features = ["net"], optional = true, package = "tokio" }
+tokio = { version = "1.0", default-features = false, features = ["net"], optional = true }
 
 nebula-client = { path = "../nebula-client", version = "0.4", default-features = false, features = [], optional = true }
 
 [package.metadata.cargo-all-features]
-skip_feature_sets = []
+skip_feature_sets = [
+    ["tokio02", "tokio1"]
+]
 skip_optional_dependencies = true
