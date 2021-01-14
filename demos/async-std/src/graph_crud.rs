@@ -10,7 +10,7 @@ use async_std::net::TcpStream;
 use async_std::task;
 
 use chrono::{serde::ts_seconds, DateTime, Utc};
-use fbthrift_transport::{AsyncTransport, AsyncTransportConfiguration};
+use fbthrift_transport::{futures_io::transport::AsyncTransport, AsyncTransportConfiguration};
 use nebula_client::{GraphClient, GraphQuery as _, GraphTransportResponseHandler};
 use serde::Deserialize;
 

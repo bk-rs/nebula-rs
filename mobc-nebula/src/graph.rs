@@ -2,7 +2,7 @@ use std::io;
 use std::result;
 
 use fbthrift_transport::{
-    fbthrift_transport_response_handler::ResponseHandler, AsyncTransport,
+    fbthrift_transport_response_handler::ResponseHandler, futures_io::transport::AsyncTransport,
     AsyncTransportConfiguration,
 };
 use mobc::async_trait;

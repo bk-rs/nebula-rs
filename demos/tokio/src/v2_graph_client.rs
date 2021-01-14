@@ -7,7 +7,9 @@ use std::io;
 
 use tokio::net::TcpStream;
 
-use fbthrift_transport::{AsyncTransport, DefaultAsyncTransportConfiguration};
+use fbthrift_transport::{
+    tokio02_io::transport::AsyncTransport, DefaultAsyncTransportConfiguration,
+};
 use nebula_client::v2::GraphClient;
 
 #[tokio::main]

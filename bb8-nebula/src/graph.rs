@@ -3,7 +3,7 @@ use std::result;
 
 use async_trait::async_trait;
 use fbthrift_transport::{
-    fbthrift_transport_response_handler::ResponseHandler, AsyncTransport,
+    fbthrift_transport_response_handler::ResponseHandler, tokio02_io::transport::AsyncTransport,
     AsyncTransportConfiguration,
 };
 use nebula_client::{GraphClient, GraphSession};

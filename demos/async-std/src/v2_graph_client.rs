@@ -7,7 +7,9 @@ use std::io;
 
 use async_std::net::TcpStream;
 
-use fbthrift_transport::{AsyncTransport, DefaultAsyncTransportConfiguration};
+use fbthrift_transport::{
+    futures_io::transport::AsyncTransport, DefaultAsyncTransportConfiguration,
+};
 use nebula_client::v2::GraphClient;
 
 #[async_std::main]

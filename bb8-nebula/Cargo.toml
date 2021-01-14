@@ -17,7 +17,7 @@ default = ["graph"]
 graph = ["nebula-client/graph"]
 
 [dependencies]
-fbthrift-transport = { version = "0.5.1", default-features = false, features = ["tokio02_io"] }
+fbthrift-transport = { version = "0.6", default-features = false, features = ["tokio02_io"] }
 
 bb8 = { version = "~0.5", default-features = false, features = [] }
 async-trait = { version = "0.1", default-features = false, features = [] }
