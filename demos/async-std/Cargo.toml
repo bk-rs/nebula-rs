@@ -38,11 +38,11 @@ nebula-client = { path = "../../nebula-client", version = "0.4", features = ["gr
 fbthrift-transport = { version = "0.6", features = ["futures_io"] }
 
 # mobc
-mobc = "0.6"
+mobc = "0.7"
 mobc-nebula = { path = "../../mobc-nebula", version = "0.6", features = ["graph"] }
 
 # common
-async-std = { version = "1.8", default-features = false, features = ["default", "attributes"] }
+async-std = { version = "1.9", default-features = false, features = ["default", "attributes"] }
 serde = { version = "1.0", features = ["derive"] }
 chrono = { version = "0.4", features = ["serde"] }
 
