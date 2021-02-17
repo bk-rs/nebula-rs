@@ -6,7 +6,8 @@ use std::env;
 use std::io;
 
 use bb8_nebula::tokio1::v2::{GraphClientConfiguration, GraphConnectionManager};
-use fbthrift_transport::DefaultAsyncTransportConfiguration;
+use fbthrift_transport::AsyncTransportConfiguration;
+use nebula_client::v2::GraphTransportResponseHandler;
 
 #[tokio::main]
 async fn main() -> io::Result<()> {
@@ -38,7 +39,7 @@ async fn run() -> io::Result<()> {
     //
     let client_configuration =
         GraphClientConfiguration::new(domain, port, username, password, space);
-    let transport_configuration = DefaultAsyncTransportConfiguration::default();
+    let transport_configuration = AsyncTransportConfiguration::new(GraphTransportResponseHandler);
     let manager = GraphConnectionManager::new(client_configuration, transport_configuration);
     let pool = bb8::Pool::builder().max_size(1).build(manager).await?;
 

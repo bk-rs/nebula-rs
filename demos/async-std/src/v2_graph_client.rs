@@ -7,10 +7,8 @@ use std::io;
 
 use async_std::net::TcpStream;
 
-use fbthrift_transport::{
-    futures_io::transport::AsyncTransport, DefaultAsyncTransportConfiguration,
-};
-use nebula_client::v2::GraphClient;
+use fbthrift_transport::{futures_io::transport::AsyncTransport, AsyncTransportConfiguration};
+use nebula_client::v2::{GraphClient, GraphTransportResponseHandler};
 
 #[async_std::main]
 async fn main() -> io::Result<()> {
@@ -43,7 +41,10 @@ async fn run() -> io::Result<()> {
     let stream = TcpStream::connect(addr).await?;
 
     //
-    let transport = AsyncTransport::new(stream, DefaultAsyncTransportConfiguration::default());
+    let transport = AsyncTransport::new(
+        stream,
+        AsyncTransportConfiguration::new(GraphTransportResponseHandler),
+    );
     let client = GraphClient::new(transport);
 
     let mut session = client
