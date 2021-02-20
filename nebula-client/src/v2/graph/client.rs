@@ -1,3 +1,4 @@
+use std::io;
 use std::result;
 
 use bytes::Bytes;
@@ -132,11 +133,20 @@ where
         &mut self,
         stmt: &Vec<u8>,
     ) -> result::Result<ExecutionResponse, ExecuteError> {
-        let res = self
-            .connection
-            .service
-            .execute(self.session_id, stmt)
-            .await?;
+        let res = match self.connection.service.execute(self.session_id, stmt).await {
+            Ok(res) => res,
+            Err(ExecuteError::ThriftError(err)) => {
+                if let Some(io_err) = err.downcast_ref::<io::Error>() {
+                    // "ExecuteError Broken pipe (os error 32)"
+                    if io_err.kind() == io::ErrorKind::BrokenPipe {
+                        self.close_required = true;
+                    }
+                }
+
+                return Err(ExecuteError::ThriftError(err));
+            }
+            Err(err) => return Err(err),
+        };
 
         match res.error_code {
             ErrorCode::E_SESSION_INVALID | ErrorCode::E_SESSION_TIMEOUT => {
@@ -149,11 +159,31 @@ where
     }
 
     #[allow(clippy::ptr_arg)]
-    pub async fn execute_json(&self, stmt: &Vec<u8>) -> result::Result<Vec<u8>, ExecuteJsonError> {
-        self.connection
+    pub async fn execute_json(
+        &mut self,
+        stmt: &Vec<u8>,
+    ) -> result::Result<Vec<u8>, ExecuteJsonError> {
+        let res = match self
+            .connection
             .service
             .executeJson(self.session_id, stmt)
             .await
+        {
+            Ok(res) => res,
+            Err(ExecuteJsonError::ThriftError(err)) => {
+                if let Some(io_err) = err.downcast_ref::<io::Error>() {
+                    // "ExecuteJsonError Broken pipe (os error 32)"
+                    if io_err.kind() == io::ErrorKind::BrokenPipe {
+                        self.close_required = true;
+                    }
+                }
+
+                return Err(ExecuteJsonError::ThriftError(err));
+            }
+            Err(err) => return Err(err),
+        };
+
+        Ok(res)
     }
 
     pub fn is_close_required(&self) -> bool {

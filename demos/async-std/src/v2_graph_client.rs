@@ -55,6 +55,8 @@ async fn run() -> io::Result<()> {
     let res = session.execute(&b"SHOW HOSTS;".to_vec()).await.unwrap();
     println!("{:?}", res);
 
+    session.signout().await.unwrap();
+
     println!("done");
 
     Ok(())
