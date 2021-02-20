@@ -3,18 +3,18 @@ cargo run -p nebula-demo-tokio --bin bb8_graph_pool 127.0.0.1 3699 user 'passwor
 */
 
 use std::env;
-use std::io;
+use std::error;
 
 use bb8_nebula::tokio1::{GraphClientConfiguration, GraphConnectionManager};
 use fbthrift_transport::AsyncTransportConfiguration;
 use nebula_client::{GraphQuery as _, GraphTransportResponseHandler};
 
 #[tokio::main]
-async fn main() -> io::Result<()> {
+async fn main() -> Result<(), Box<dyn error::Error>> {
     run().await
 }
 
-async fn run() -> io::Result<()> {
+async fn run() -> Result<(), Box<dyn error::Error>> {
     let domain = env::args()
         .nth(1)
         .unwrap_or_else(|| env::var("DOMAIN").unwrap_or_else(|_| "127.0.0.1".to_owned()));
@@ -45,15 +45,15 @@ async fn run() -> io::Result<()> {
 
     //
     {
-        let mut session = pool.get().await.unwrap();
-        let out = session.show_hosts().await.unwrap();
+        let mut session = pool.get().await?;
+        let out = session.show_hosts().await?;
         println!("{:?}", out);
     }
 
     //
     {
-        let mut session = pool.get().await.unwrap();
-        let out = session.show_hosts().await.unwrap();
+        let mut session = pool.get().await?;
+        let out = session.show_hosts().await?;
         println!("{:?}", out);
     }
 

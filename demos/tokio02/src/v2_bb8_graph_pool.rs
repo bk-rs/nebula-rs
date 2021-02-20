@@ -3,18 +3,18 @@ cargo run -p nebula-demo-tokio02 --bin v2_bb8_graph_pool 127.0.0.1 9669 user 'pa
 */
 
 use std::env;
-use std::io;
+use std::error;
 
 use bb8_nebula::tokio02::v2::{GraphClientConfiguration, GraphConnectionManager};
 use fbthrift_transport::AsyncTransportConfiguration;
 use nebula_client::v2::GraphTransportResponseHandler;
 
 #[tokio::main]
-async fn main() -> io::Result<()> {
+async fn main() -> Result<(), Box<dyn error::Error>> {
     run().await
 }
 
-async fn run() -> io::Result<()> {
+async fn run() -> Result<(), Box<dyn error::Error>> {
     let domain = env::args()
         .nth(1)
         .unwrap_or_else(|| env::var("DOMAIN").unwrap_or_else(|_| "127.0.0.1".to_owned()));
@@ -45,21 +45,15 @@ async fn run() -> io::Result<()> {
 
     //
     {
-        let mut session = pool.get().await.unwrap();
-        let res = session
-            .execute(&"SHOW HOSTS;".as_bytes().to_vec())
-            .await
-            .unwrap();
+        let mut session = pool.get().await?;
+        let res = session.execute(&"SHOW HOSTS;".as_bytes().to_vec()).await?;
         println!("{:?}", res);
     }
 
     //
     {
-        let mut session = pool.get().await.unwrap();
-        let res = session
-            .execute(&"SHOW HOSTS;".as_bytes().to_vec())
-            .await
-            .unwrap();
+        let mut session = pool.get().await?;
+        let res = session.execute(&"SHOW HOSTS;".as_bytes().to_vec()).await?;
         println!("{:?}", res);
     }
 

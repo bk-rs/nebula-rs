@@ -3,7 +3,7 @@ cargo run -p nebula-demo-tokio --bin graph_client 127.0.0.1 3699 user 'password'
 */
 
 use std::env;
-use std::io;
+use std::error;
 
 use tokio::net::TcpStream;
 
@@ -11,11 +11,11 @@ use fbthrift_transport::{tokio_io::transport::AsyncTransport, AsyncTransportConf
 use nebula_client::{GraphClient, GraphQuery as _, GraphTransportResponseHandler};
 
 #[tokio::main]
-async fn main() -> io::Result<()> {
+async fn main() -> Result<(), Box<dyn error::Error>> {
     run().await
 }
 
-async fn run() -> io::Result<()> {
+async fn run() -> Result<(), Box<dyn error::Error>> {
     let domain = env::args()
         .nth(1)
         .unwrap_or_else(|| env::var("DOMAIN").unwrap_or_else(|_| "127.0.0.1".to_owned()));
@@ -47,10 +47,9 @@ async fn run() -> io::Result<()> {
 
     let mut session = client
         .authenticate(username.as_str(), password.as_str())
-        .await
-        .unwrap();
+        .await?;
 
-    let out = session.show_hosts().await.unwrap();
+    let out = session.show_hosts().await?;
     println!("{:?}", out);
 
     println!("done");

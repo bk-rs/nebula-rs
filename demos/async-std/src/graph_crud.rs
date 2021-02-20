@@ -3,7 +3,7 @@ cargo run -p nebula-demo-async-std --bin graph_crud 127.0.0.1 3699 user 'passwor
 */
 
 use std::env;
-use std::io;
+use std::error;
 use std::time::Duration;
 
 use async_std::net::TcpStream;
@@ -15,11 +15,11 @@ use nebula_client::{GraphClient, GraphQuery as _, GraphTransportResponseHandler}
 use serde::Deserialize;
 
 #[async_std::main]
-async fn main() -> io::Result<()> {
+async fn main() -> Result<(), Box<dyn error::Error>> {
     run().await
 }
 
-async fn run() -> io::Result<()> {
+async fn run() -> Result<(), Box<dyn error::Error>> {
     let domain = env::args()
         .nth(1)
         .unwrap_or_else(|| env::var("DOMAIN").unwrap_or_else(|_| "127.0.0.1".to_owned()));
@@ -56,10 +56,9 @@ async fn run() -> io::Result<()> {
 
     let mut session = client
         .authenticate(username.as_str(), password.as_str())
-        .await
-        .unwrap();
+        .await?;
 
-    session.query(&format!("USE {}", space)).await.unwrap();
+    session.query(&format!("USE {}", space)).await?;
 
     //
     let tag_name = "FOO";
@@ -67,23 +66,20 @@ async fn run() -> io::Result<()> {
 
     session
         .query(&format!("CREATE TAG IF NOT EXISTS {tag_name} (field_string string, field_int int, field_double double, field_bool bool, field_timestamp timestamp)", tag_name = tag_name))
-        .await
-        .unwrap();
+        .await?;
 
     session
         .query(&format!(
             "CREATE TAG INDEX IF NOT EXISTS {tag_name}_index0 ON {tag_name}(field_string )",
             tag_name = tag_name
         ))
-        .await
-        .unwrap();
+        .await?;
 
     task::sleep(Duration::from_secs(3)).await;
 
     session
         .query(&format!(r#"INSERT VERTEX {tag_name} (field_string, field_int, field_double, field_bool, field_timestamp) VALUE {vid}:("1", 2, 3.3, true, now())"#, tag_name = tag_name, vid = vid))
-        .await
-        .unwrap();
+        .await?;
 
     task::sleep(Duration::from_secs(2)).await;
 
@@ -104,30 +100,26 @@ async fn run() -> io::Result<()> {
     }
     let query_output = session
         .query_as::<Foo>(&format!(r#"LOOKUP ON {tag_name} WHERE {tag_name}.field_string == "1" YIELD {tag_name}.field_string, {tag_name}.field_int, {tag_name}.field_double, {tag_name}.field_bool, {tag_name}.field_timestamp"#, tag_name = tag_name))
-        .await
-        .unwrap();
+        .await?;
     println!("{:?}", query_output);
 
     session
         .query(&format!("DELETE VERTEX {vid}", vid = vid))
-        .await
-        .unwrap();
+        .await?;
 
     session
         .query(&format!(
             "DROP TAG INDEX IF EXISTS {tag_name}_index0",
             tag_name = tag_name
         ))
-        .await
-        .unwrap();
+        .await?;
 
     session
         .query(&format!(
             "DROP TAG IF EXISTS {tag_name}",
             tag_name = tag_name
         ))
-        .await
-        .unwrap();
+        .await?;
 
     println!("done");
 

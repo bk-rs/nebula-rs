@@ -4,7 +4,7 @@ cargo run -p nebula-demo-async-std --bin count_vertex 127.0.0.1 45500 nba 1 play
 
 use std::collections::BTreeMap;
 use std::env;
-use std::io;
+use std::error;
 use std::net::Ipv4Addr;
 
 use async_std::net::TcpStream;
@@ -17,11 +17,11 @@ use nebula_fbthrift_meta::types::ErrorCode as MErrorCode;
 use nebula_fbthrift_storage::types::ScanVertexRequest;
 
 #[async_std::main]
-async fn main() -> io::Result<()> {
+async fn main() -> Result<(), Box<dyn error::Error>> {
     run().await
 }
 
-async fn run() -> io::Result<()> {
+async fn run() -> Result<(), Box<dyn error::Error>> {
     let metad_host = env::args()
         .nth(1)
         .unwrap_or_else(|| env::var("METAD_HOST").unwrap_or_else(|_| "127.0.0.1".to_owned()));
@@ -57,10 +57,7 @@ async fn run() -> io::Result<()> {
     );
     let meta_client = MetaClient::new(meta_transport);
 
-    let res = meta_client
-        .get_space(&space_name)
-        .await
-        .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
+    let res = meta_client.get_space(&space_name).await?;
     println!("{:?}", res);
     assert_eq!(res.code, MErrorCode::SUCCEEDED);
     let space_id = res.item.space_id;
@@ -68,8 +65,7 @@ async fn run() -> io::Result<()> {
 
     let res = meta_client
         .list_parts(space_id, vec![partition as i32])
-        .await
-        .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
+        .await?;
     println!("{:?}", res);
     assert_eq!(res.code, MErrorCode::SUCCEEDED);
     let part = res.parts.first().unwrap();
@@ -83,10 +79,7 @@ async fn run() -> io::Result<()> {
     );
     println!("part_storage_addr {}", part_storage_addr);
 
-    let res = meta_client
-        .list_tags(space_id)
-        .await
-        .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
+    let res = meta_client.list_tags(space_id).await?;
     println!("{:?}", res);
     assert_eq!(res.code, MErrorCode::SUCCEEDED);
     let tag = res.tags.iter().find(|x| x.tag_name == tag_name).unwrap();
@@ -123,10 +116,7 @@ async fn run() -> io::Result<()> {
             end_time: 1604188800,
         };
 
-        let res = storage_client
-            .scan_vertex(&req)
-            .await
-            .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
+        let res = storage_client.scan_vertex(&req).await?;
 
         assert_eq!(res.result.failed_codes.len(), 0);
 

@@ -3,7 +3,7 @@ cargo run -p nebula-demo-async-std --bin v2_graph_client 127.0.0.1 9669 user 'pa
 */
 
 use std::env;
-use std::io;
+use std::error;
 
 use async_std::net::TcpStream;
 
@@ -11,11 +11,11 @@ use fbthrift_transport::{futures_io::transport::AsyncTransport, AsyncTransportCo
 use nebula_client::v2::{GraphClient, GraphTransportResponseHandler};
 
 #[async_std::main]
-async fn main() -> io::Result<()> {
+async fn main() -> Result<(), Box<dyn error::Error>> {
     run().await
 }
 
-async fn run() -> io::Result<()> {
+async fn run() -> Result<(), Box<dyn error::Error>> {
     let domain = env::args()
         .nth(1)
         .unwrap_or_else(|| env::var("DOMAIN").unwrap_or_else(|_| "127.0.0.1".to_owned()));
@@ -49,13 +49,12 @@ async fn run() -> io::Result<()> {
 
     let mut session = client
         .authenticate(&username.as_bytes().to_vec(), &password.as_bytes().to_vec())
-        .await
-        .unwrap();
+        .await?;
 
-    let res = session.execute(&b"SHOW HOSTS;".to_vec()).await.unwrap();
+    let res = session.execute(&b"SHOW HOSTS;".to_vec()).await?;
     println!("{:?}", res);
 
-    session.signout().await.unwrap();
+    session.signout().await?;
 
     println!("done");
 
