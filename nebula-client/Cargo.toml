@@ -12,6 +12,9 @@ keywords = []
 categories = []
 readme = "README.md"
 
+[package.metadata.docs.rs]
+features = [ "graph", "meta", "storage" ]
+
 [features]
 default = ["graph"]
 graph = ["nebula-fbthrift-graph", "nebula-fbthrift-graph-v2", "serde", "serde-nebula-fbthrift-graph"]
