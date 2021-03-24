@@ -1292,8 +1292,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::AskForVoteRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::AskForVoteResponse, crate::errors::raftex_service::AskForVoteError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "RaftexService";
+                METHOD_NAME = "RaftexService.askForVote";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "askForVote",
@@ -1312,11 +1317,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::AskForVoteResponse, crate::errors::raftex_service::AskForVoteError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -1348,8 +1354,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::AppendLogRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::AppendLogResponse, crate::errors::raftex_service::AppendLogError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "RaftexService";
+                METHOD_NAME = "RaftexService.appendLog";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "appendLog",
@@ -1368,11 +1379,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::AppendLogResponse, crate::errors::raftex_service::AppendLogError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -1404,8 +1416,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::SendSnapshotRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::SendSnapshotResponse, crate::errors::raftex_service::SendSnapshotError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "RaftexService";
+                METHOD_NAME = "RaftexService.sendSnapshot";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "sendSnapshot",
@@ -1424,11 +1441,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::SendSnapshotResponse, crate::errors::raftex_service::SendSnapshotError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {

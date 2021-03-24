@@ -1559,8 +1559,13 @@ pub mod client {
             arg_username: &::std::primitive::str,
             arg_password: &::std::primitive::str,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::AuthResponse, crate::errors::graph_service::AuthenticateError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GraphService";
+                METHOD_NAME = "GraphService.authenticate";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "authenticate",
@@ -1582,11 +1587,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::AuthResponse, crate::errors::graph_service::AuthenticateError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -1618,8 +1624,13 @@ pub mod client {
             &self,
             arg_sessionId: ::std::primitive::i64,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<(), crate::errors::graph_service::SignoutError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GraphService";
+                METHOD_NAME = "GraphService.signout";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "signout",
@@ -1638,11 +1649,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<(), crate::errors::graph_service::SignoutError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -1675,8 +1687,13 @@ pub mod client {
             arg_sessionId: ::std::primitive::i64,
             arg_stmt: &::std::primitive::str,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ExecutionResponse, crate::errors::graph_service::ExecuteError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GraphService";
+                METHOD_NAME = "GraphService.execute";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "execute",
@@ -1698,11 +1715,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::ExecutionResponse, crate::errors::graph_service::ExecuteError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {

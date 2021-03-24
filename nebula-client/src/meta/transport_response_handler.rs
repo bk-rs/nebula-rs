@@ -1,6 +1,5 @@
-use std::io;
+use std::io::{self, Cursor};
 
-use bytes::Bytes;
 use fbthrift::{
     binary_protocol::BinaryProtocolDeserializer, ApplicationException, Deserialize, MessageType,
     ProtocolReader,
@@ -16,9 +15,11 @@ pub struct MetaTransportResponseHandler;
 impl ResponseHandler for MetaTransportResponseHandler {
     fn try_make_static_response_bytes(
         &mut self,
+        _service_name: &'static str,
+        _fn_name: &'static str,
         request_bytes: &[u8],
     ) -> io::Result<Option<Vec<u8>>> {
-        let mut des = BinaryProtocolDeserializer::<Bytes>::new(Bytes::from(request_bytes.to_vec()));
+        let mut des = BinaryProtocolDeserializer::new(Cursor::new(request_bytes));
         let (name, _, _) = des
             .read_message_begin(|v| v.to_vec())
             .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
@@ -35,8 +36,7 @@ impl ResponseHandler for MetaTransportResponseHandler {
     fn parse_response_bytes(&mut self, response_bytes: &[u8]) -> io::Result<Option<usize>> {
         let n = response_bytes.len();
 
-        let mut des =
-            BinaryProtocolDeserializer::<Bytes>::new(Bytes::from(response_bytes.to_vec()));
+        let mut des = BinaryProtocolDeserializer::new(Cursor::new(response_bytes));
         let (name, message_type, _) = match des.read_message_begin(|v| v.to_vec()) {
             Ok(v) => v,
             Err(_) => return Ok(None),
@@ -91,6 +91,6 @@ impl ResponseHandler for MetaTransportResponseHandler {
             Err(_) => return Ok(None),
         };
 
-        Ok(Some(n - des.into_inner().len()))
+        Ok(Some(n - des.into_inner().position() as usize))
     }
 }

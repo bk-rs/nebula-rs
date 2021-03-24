@@ -47,6 +47,7 @@ pub mod types {
         pub plan_node_descs: ::std::vec::Vec<crate::types::PlanNodeDescription>,
         pub node_index_map: ::std::collections::BTreeMap<::std::primitive::i64, ::std::primitive::i64>,
         pub format: ::std::vec::Vec<::std::primitive::u8>,
+        pub optimize_time_in_us: ::std::primitive::i32,
     }
 
     #[derive(Clone, Debug, PartialEq)]
@@ -85,6 +86,7 @@ pub mod types {
         pub const E_BAD_PERMISSION: Self = ErrorCode(-11i32);
         pub const E_SEMANTIC_ERROR: Self = ErrorCode(-12i32);
         pub const E_TOO_MANY_CONNECTIONS: Self = ErrorCode(-13i32);
+        pub const E_PARTIAL_SUCCEEDED: Self = ErrorCode(-14i32);
     }
 
     impl ::fbthrift::ThriftEnum for ErrorCode {
@@ -104,6 +106,7 @@ pub mod types {
                 (ErrorCode::E_BAD_PERMISSION, "E_BAD_PERMISSION"),
                 (ErrorCode::E_SEMANTIC_ERROR, "E_SEMANTIC_ERROR"),
                 (ErrorCode::E_TOO_MANY_CONNECTIONS, "E_TOO_MANY_CONNECTIONS"),
+                (ErrorCode::E_PARTIAL_SUCCEEDED, "E_PARTIAL_SUCCEEDED"),
             ]
         }
 
@@ -123,6 +126,7 @@ pub mod types {
                 "E_BAD_PERMISSION",
                 "E_SEMANTIC_ERROR",
                 "E_TOO_MANY_CONNECTIONS",
+                "E_PARTIAL_SUCCEEDED",
             ]
         }
 
@@ -142,6 +146,7 @@ pub mod types {
                 ErrorCode::E_BAD_PERMISSION,
                 ErrorCode::E_SEMANTIC_ERROR,
                 ErrorCode::E_TOO_MANY_CONNECTIONS,
+                ErrorCode::E_PARTIAL_SUCCEEDED,
             ]
         }
     }
@@ -176,6 +181,7 @@ pub mod types {
     impl ::std::fmt::Display for ErrorCode {
         fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
             static VARIANTS_BY_NUMBER: &[(&::std::primitive::str, ::std::primitive::i32)] = &[
+                ("E_PARTIAL_SUCCEEDED", -14),
                 ("E_TOO_MANY_CONNECTIONS", -13),
                 ("E_SEMANTIC_ERROR", -12),
                 ("E_BAD_PERMISSION", -11),
@@ -211,6 +217,7 @@ pub mod types {
                 ("E_DISCONNECTED", -1),
                 ("E_EXECUTION_ERROR", -8),
                 ("E_FAIL_TO_CONNECT", -2),
+                ("E_PARTIAL_SUCCEEDED", -14),
                 ("E_RPC_FAILURE", -3),
                 ("E_SEMANTIC_ERROR", -12),
                 ("E_SESSION_INVALID", -5),
@@ -577,6 +584,7 @@ pub mod types {
                 plan_node_descs: ::std::default::Default::default(),
                 node_index_map: ::std::default::Default::default(),
                 format: ::std::default::Default::default(),
+                optimize_time_in_us: ::std::default::Default::default(),
             }
         }
     }
@@ -603,6 +611,9 @@ pub mod types {
             p.write_field_begin("format", ::fbthrift::TType::String, 3);
             ::fbthrift::Serialize::write(&self.format, p);
             p.write_field_end();
+            p.write_field_begin("optimize_time_in_us", ::fbthrift::TType::I32, 4);
+            ::fbthrift::Serialize::write(&self.optimize_time_in_us, p);
+            p.write_field_end();
             p.write_field_stop();
             p.write_struct_end();
         }
@@ -616,11 +627,13 @@ pub mod types {
             static FIELDS: &[::fbthrift::Field] = &[
                 ::fbthrift::Field::new("format", ::fbthrift::TType::String, 3),
                 ::fbthrift::Field::new("node_index_map", ::fbthrift::TType::Map, 2),
+                ::fbthrift::Field::new("optimize_time_in_us", ::fbthrift::TType::I32, 4),
                 ::fbthrift::Field::new("plan_node_descs", ::fbthrift::TType::List, 1),
             ];
             let mut field_plan_node_descs = ::std::option::Option::None;
             let mut field_node_index_map = ::std::option::Option::None;
             let mut field_format = ::std::option::Option::None;
+            let mut field_optimize_time_in_us = ::std::option::Option::None;
             let _ = p.read_struct_begin(|_| ())?;
             loop {
                 let (_, fty, fid) = p.read_field_begin(|_| (), FIELDS)?;
@@ -629,6 +642,7 @@ pub mod types {
                     (::fbthrift::TType::List, 1) => field_plan_node_descs = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::Map, 2) => field_node_index_map = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::String, 3) => field_format = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I32, 4) => field_optimize_time_in_us = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (fty, _) => p.skip(fty)?,
                 }
                 p.read_field_end()?;
@@ -638,6 +652,7 @@ pub mod types {
                 plan_node_descs: field_plan_node_descs.unwrap_or_default(),
                 node_index_map: field_node_index_map.unwrap_or_default(),
                 format: field_format.unwrap_or_default(),
+                optimize_time_in_us: field_optimize_time_in_us.unwrap_or_default(),
             })
         }
     }
@@ -1256,8 +1271,13 @@ pub mod client {
             arg_username: &::std::vec::Vec<::std::primitive::u8>,
             arg_password: &::std::vec::Vec<::std::primitive::u8>,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::AuthResponse, crate::errors::graph_service::AuthenticateError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GraphService";
+                METHOD_NAME = "GraphService.authenticate";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "authenticate",
@@ -1279,11 +1299,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::AuthResponse, crate::errors::graph_service::AuthenticateError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -1315,8 +1336,13 @@ pub mod client {
             &self,
             arg_sessionId: ::std::primitive::i64,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<(), crate::errors::graph_service::SignoutError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GraphService";
+                METHOD_NAME = "GraphService.signout";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "signout",
@@ -1335,11 +1361,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<(), crate::errors::graph_service::SignoutError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -1372,8 +1399,13 @@ pub mod client {
             arg_sessionId: ::std::primitive::i64,
             arg_stmt: &::std::vec::Vec<::std::primitive::u8>,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ExecutionResponse, crate::errors::graph_service::ExecuteError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GraphService";
+                METHOD_NAME = "GraphService.execute";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "execute",
@@ -1395,11 +1427,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::ExecutionResponse, crate::errors::graph_service::ExecuteError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -1432,8 +1465,13 @@ pub mod client {
             arg_sessionId: ::std::primitive::i64,
             arg_stmt: &::std::vec::Vec<::std::primitive::u8>,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<::std::vec::Vec<::std::primitive::u8>, crate::errors::graph_service::ExecuteJsonError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GraphService";
+                METHOD_NAME = "GraphService.executeJson";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "executeJson",
@@ -1455,11 +1493,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<::std::vec::Vec<::std::primitive::u8>, crate::errors::graph_service::ExecuteJsonError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {

@@ -38,6 +38,8 @@ mv /tmp/lib.rs /tmp/nebula-fbthrift-storage/src/lib.rs
 ```
 cd ~
 git clone https://github.com/vesoft-inc/nebula-common.git && cd nebula-common
+git checkout v2.0.0
+
 sed -i 's/^} (cpp.enum_strict cpp.type = "nebula::NullType")$/} (cpp.type = "nebula::NullType")/' src/common/interface/common.thrift
 
 thrift1 --out /tmp --gen mstch_rust src/common/interface/common.thrift

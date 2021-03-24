@@ -260,7 +260,7 @@ pub mod types {
         pub part_id: common::types::PartitionID,
         pub cursor: ::std::option::Option<::std::vec::Vec<::std::primitive::u8>>,
         pub return_columns: crate::types::VertexProp,
-        pub limit: ::std::primitive::i32,
+        pub limit: ::std::primitive::i64,
         pub start_time: ::std::option::Option<::std::primitive::i64>,
         pub end_time: ::std::option::Option<::std::primitive::i64>,
         pub filter: ::std::option::Option<::std::vec::Vec<::std::primitive::u8>>,
@@ -282,7 +282,7 @@ pub mod types {
         pub part_id: common::types::PartitionID,
         pub cursor: ::std::option::Option<::std::vec::Vec<::std::primitive::u8>>,
         pub return_columns: crate::types::EdgeProp,
-        pub limit: ::std::primitive::i32,
+        pub limit: ::std::primitive::i64,
         pub start_time: ::std::option::Option<::std::primitive::i64>,
         pub end_time: ::std::option::Option<::std::primitive::i64>,
         pub filter: ::std::option::Option<::std::vec::Vec<::std::primitive::u8>>,
@@ -499,6 +499,7 @@ pub mod types {
         pub const E_FIELD_UNSET: Self = ErrorCode(-22i32);
         pub const E_OUT_OF_RANGE: Self = ErrorCode(-23i32);
         pub const E_ATOMIC_OP_FAILED: Self = ErrorCode(-24i32);
+        pub const E_DATA_CONFLICT_ERROR: Self = ErrorCode(-25i32);
         pub const E_EDGE_PROP_NOT_FOUND: Self = ErrorCode(-31i32);
         pub const E_TAG_PROP_NOT_FOUND: Self = ErrorCode(-32i32);
         pub const E_IMPROPER_DATA_TYPE: Self = ErrorCode(-33i32);
@@ -550,6 +551,7 @@ pub mod types {
                 (ErrorCode::E_FIELD_UNSET, "E_FIELD_UNSET"),
                 (ErrorCode::E_OUT_OF_RANGE, "E_OUT_OF_RANGE"),
                 (ErrorCode::E_ATOMIC_OP_FAILED, "E_ATOMIC_OP_FAILED"),
+                (ErrorCode::E_DATA_CONFLICT_ERROR, "E_DATA_CONFLICT_ERROR"),
                 (ErrorCode::E_EDGE_PROP_NOT_FOUND, "E_EDGE_PROP_NOT_FOUND"),
                 (ErrorCode::E_TAG_PROP_NOT_FOUND, "E_TAG_PROP_NOT_FOUND"),
                 (ErrorCode::E_IMPROPER_DATA_TYPE, "E_IMPROPER_DATA_TYPE"),
@@ -601,6 +603,7 @@ pub mod types {
                 "E_FIELD_UNSET",
                 "E_OUT_OF_RANGE",
                 "E_ATOMIC_OP_FAILED",
+                "E_DATA_CONFLICT_ERROR",
                 "E_EDGE_PROP_NOT_FOUND",
                 "E_TAG_PROP_NOT_FOUND",
                 "E_IMPROPER_DATA_TYPE",
@@ -652,6 +655,7 @@ pub mod types {
                 ErrorCode::E_FIELD_UNSET,
                 ErrorCode::E_OUT_OF_RANGE,
                 ErrorCode::E_ATOMIC_OP_FAILED,
+                ErrorCode::E_DATA_CONFLICT_ERROR,
                 ErrorCode::E_EDGE_PROP_NOT_FOUND,
                 ErrorCode::E_TAG_PROP_NOT_FOUND,
                 ErrorCode::E_IMPROPER_DATA_TYPE,
@@ -742,6 +746,7 @@ pub mod types {
                 ("E_IMPROPER_DATA_TYPE", -33),
                 ("E_TAG_PROP_NOT_FOUND", -32),
                 ("E_EDGE_PROP_NOT_FOUND", -31),
+                ("E_DATA_CONFLICT_ERROR", -25),
                 ("E_ATOMIC_OP_FAILED", -24),
                 ("E_OUT_OF_RANGE", -23),
                 ("E_FIELD_UNSET", -22),
@@ -780,6 +785,7 @@ pub mod types {
                 ("E_BACKUP_FAILED", -65),
                 ("E_CHECKPOINT_BLOCKED", -61),
                 ("E_CONSENSUS_ERROR", -16),
+                ("E_DATA_CONFLICT_ERROR", -25),
                 ("E_DATA_TYPE_MISMATCH", -17),
                 ("E_DISCONNECTED", -1),
                 ("E_EDGE_NOT_FOUND", -34),
@@ -3993,7 +3999,7 @@ pub mod types {
             p.write_field_begin("return_columns", ::fbthrift::TType::Struct, 4);
             ::fbthrift::Serialize::write(&self.return_columns, p);
             p.write_field_end();
-            p.write_field_begin("limit", ::fbthrift::TType::I32, 5);
+            p.write_field_begin("limit", ::fbthrift::TType::I64, 5);
             ::fbthrift::Serialize::write(&self.limit, p);
             p.write_field_end();
             if let ::std::option::Option::Some(some) = &self.start_time {
@@ -4032,7 +4038,7 @@ pub mod types {
                 ::fbthrift::Field::new("enable_read_from_follower", ::fbthrift::TType::Bool, 10),
                 ::fbthrift::Field::new("end_time", ::fbthrift::TType::I64, 7),
                 ::fbthrift::Field::new("filter", ::fbthrift::TType::String, 8),
-                ::fbthrift::Field::new("limit", ::fbthrift::TType::I32, 5),
+                ::fbthrift::Field::new("limit", ::fbthrift::TType::I64, 5),
                 ::fbthrift::Field::new("only_latest_version", ::fbthrift::TType::Bool, 9),
                 ::fbthrift::Field::new("part_id", ::fbthrift::TType::I32, 2),
                 ::fbthrift::Field::new("return_columns", ::fbthrift::TType::Struct, 4),
@@ -4058,7 +4064,7 @@ pub mod types {
                     (::fbthrift::TType::I32, 2) => field_part_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::String, 3) => field_cursor = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::Struct, 4) => field_return_columns = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::I32, 5) => field_limit = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I64, 5) => field_limit = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::I64, 6) => field_start_time = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::I64, 7) => field_end_time = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::String, 8) => field_filter = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
@@ -4211,7 +4217,7 @@ pub mod types {
             p.write_field_begin("return_columns", ::fbthrift::TType::Struct, 4);
             ::fbthrift::Serialize::write(&self.return_columns, p);
             p.write_field_end();
-            p.write_field_begin("limit", ::fbthrift::TType::I32, 5);
+            p.write_field_begin("limit", ::fbthrift::TType::I64, 5);
             ::fbthrift::Serialize::write(&self.limit, p);
             p.write_field_end();
             if let ::std::option::Option::Some(some) = &self.start_time {
@@ -4250,7 +4256,7 @@ pub mod types {
                 ::fbthrift::Field::new("enable_read_from_follower", ::fbthrift::TType::Bool, 10),
                 ::fbthrift::Field::new("end_time", ::fbthrift::TType::I64, 7),
                 ::fbthrift::Field::new("filter", ::fbthrift::TType::String, 8),
-                ::fbthrift::Field::new("limit", ::fbthrift::TType::I32, 5),
+                ::fbthrift::Field::new("limit", ::fbthrift::TType::I64, 5),
                 ::fbthrift::Field::new("only_latest_version", ::fbthrift::TType::Bool, 9),
                 ::fbthrift::Field::new("part_id", ::fbthrift::TType::I32, 2),
                 ::fbthrift::Field::new("return_columns", ::fbthrift::TType::Struct, 4),
@@ -4276,7 +4282,7 @@ pub mod types {
                     (::fbthrift::TType::I32, 2) => field_part_id = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::String, 3) => field_cursor = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::Struct, 4) => field_return_columns = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
-                    (::fbthrift::TType::I32, 5) => field_limit = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
+                    (::fbthrift::TType::I64, 5) => field_limit = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::I64, 6) => field_start_time = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::I64, 7) => field_end_time = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
                     (::fbthrift::TType::String, 8) => field_filter = ::std::option::Option::Some(::fbthrift::Deserialize::read(p)?),
@@ -9462,8 +9468,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::GetNeighborsRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::GetNeighborsResponse, crate::errors::graph_storage_service::GetNeighborsError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GraphStorageService";
+                METHOD_NAME = "GraphStorageService.getNeighbors";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "getNeighbors",
@@ -9482,11 +9493,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::GetNeighborsResponse, crate::errors::graph_storage_service::GetNeighborsError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -9518,8 +9530,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::GetPropRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::GetPropResponse, crate::errors::graph_storage_service::GetPropsError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GraphStorageService";
+                METHOD_NAME = "GraphStorageService.getProps";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "getProps",
@@ -9538,11 +9555,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::GetPropResponse, crate::errors::graph_storage_service::GetPropsError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -9574,8 +9592,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::AddVerticesRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ExecResponse, crate::errors::graph_storage_service::AddVerticesError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GraphStorageService";
+                METHOD_NAME = "GraphStorageService.addVertices";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "addVertices",
@@ -9594,11 +9617,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::ExecResponse, crate::errors::graph_storage_service::AddVerticesError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -9630,8 +9654,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::AddEdgesRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ExecResponse, crate::errors::graph_storage_service::AddEdgesError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GraphStorageService";
+                METHOD_NAME = "GraphStorageService.addEdges";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "addEdges",
@@ -9650,11 +9679,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::ExecResponse, crate::errors::graph_storage_service::AddEdgesError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -9686,8 +9716,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::DeleteEdgesRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ExecResponse, crate::errors::graph_storage_service::DeleteEdgesError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GraphStorageService";
+                METHOD_NAME = "GraphStorageService.deleteEdges";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "deleteEdges",
@@ -9706,11 +9741,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::ExecResponse, crate::errors::graph_storage_service::DeleteEdgesError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -9742,8 +9778,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::DeleteVerticesRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ExecResponse, crate::errors::graph_storage_service::DeleteVerticesError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GraphStorageService";
+                METHOD_NAME = "GraphStorageService.deleteVertices";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "deleteVertices",
@@ -9762,11 +9803,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::ExecResponse, crate::errors::graph_storage_service::DeleteVerticesError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -9798,8 +9840,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::UpdateVertexRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::UpdateResponse, crate::errors::graph_storage_service::UpdateVertexError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GraphStorageService";
+                METHOD_NAME = "GraphStorageService.updateVertex";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "updateVertex",
@@ -9818,11 +9865,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::UpdateResponse, crate::errors::graph_storage_service::UpdateVertexError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -9854,8 +9902,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::UpdateEdgeRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::UpdateResponse, crate::errors::graph_storage_service::UpdateEdgeError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GraphStorageService";
+                METHOD_NAME = "GraphStorageService.updateEdge";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "updateEdge",
@@ -9874,11 +9927,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::UpdateResponse, crate::errors::graph_storage_service::UpdateEdgeError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -9910,8 +9964,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::ScanVertexRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ScanVertexResponse, crate::errors::graph_storage_service::ScanVertexError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GraphStorageService";
+                METHOD_NAME = "GraphStorageService.scanVertex";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "scanVertex",
@@ -9930,11 +9989,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::ScanVertexResponse, crate::errors::graph_storage_service::ScanVertexError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -9966,8 +10026,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::ScanEdgeRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ScanEdgeResponse, crate::errors::graph_storage_service::ScanEdgeError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GraphStorageService";
+                METHOD_NAME = "GraphStorageService.scanEdge";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "scanEdge",
@@ -9986,11 +10051,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::ScanEdgeResponse, crate::errors::graph_storage_service::ScanEdgeError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -10022,8 +10088,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::GetUUIDReq,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::GetUUIDResp, crate::errors::graph_storage_service::GetUUIDError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GraphStorageService";
+                METHOD_NAME = "GraphStorageService.getUUID";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "getUUID",
@@ -10042,11 +10113,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::GetUUIDResp, crate::errors::graph_storage_service::GetUUIDError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -10078,8 +10150,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::LookupIndexRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::LookupIndexResp, crate::errors::graph_storage_service::LookupIndexError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GraphStorageService";
+                METHOD_NAME = "GraphStorageService.lookupIndex";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "lookupIndex",
@@ -10098,11 +10175,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::LookupIndexResp, crate::errors::graph_storage_service::LookupIndexError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -10134,8 +10212,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::LookupAndTraverseRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::GetNeighborsResponse, crate::errors::graph_storage_service::LookupAndTraverseError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GraphStorageService";
+                METHOD_NAME = "GraphStorageService.lookupAndTraverse";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "lookupAndTraverse",
@@ -10154,11 +10237,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::GetNeighborsResponse, crate::errors::graph_storage_service::LookupAndTraverseError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -10190,8 +10274,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::AddEdgesRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ExecResponse, crate::errors::graph_storage_service::AddEdgesAtomicError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GraphStorageService";
+                METHOD_NAME = "GraphStorageService.addEdgesAtomic";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "addEdgesAtomic",
@@ -10210,11 +10299,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::ExecResponse, crate::errors::graph_storage_service::AddEdgesAtomicError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -10498,8 +10588,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::TransLeaderReq,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::TransLeaderError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "StorageAdminService";
+                METHOD_NAME = "StorageAdminService.transLeader";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "transLeader",
@@ -10518,11 +10613,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::TransLeaderError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -10554,8 +10650,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::AddPartReq,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::AddPartError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "StorageAdminService";
+                METHOD_NAME = "StorageAdminService.addPart";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "addPart",
@@ -10574,11 +10675,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::AddPartError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -10610,8 +10712,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::AddLearnerReq,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::AddLearnerError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "StorageAdminService";
+                METHOD_NAME = "StorageAdminService.addLearner";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "addLearner",
@@ -10630,11 +10737,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::AddLearnerError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -10666,8 +10774,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::RemovePartReq,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::RemovePartError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "StorageAdminService";
+                METHOD_NAME = "StorageAdminService.removePart";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "removePart",
@@ -10686,11 +10799,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::RemovePartError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -10722,8 +10836,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::MemberChangeReq,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::MemberChangeError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "StorageAdminService";
+                METHOD_NAME = "StorageAdminService.memberChange";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "memberChange",
@@ -10742,11 +10861,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::MemberChangeError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -10778,8 +10898,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::CatchUpDataReq,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::WaitingForCatchUpDataError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "StorageAdminService";
+                METHOD_NAME = "StorageAdminService.waitingForCatchUpData";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "waitingForCatchUpData",
@@ -10798,11 +10923,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::WaitingForCatchUpDataError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -10834,8 +10960,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::CreateCPRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::CreateCPResp, crate::errors::storage_admin_service::CreateCheckpointError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "StorageAdminService";
+                METHOD_NAME = "StorageAdminService.createCheckpoint";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "createCheckpoint",
@@ -10854,11 +10985,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::CreateCPResp, crate::errors::storage_admin_service::CreateCheckpointError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -10890,8 +11022,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::DropCPRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::DropCheckpointError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "StorageAdminService";
+                METHOD_NAME = "StorageAdminService.dropCheckpoint";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "dropCheckpoint",
@@ -10910,11 +11047,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::DropCheckpointError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -10946,8 +11084,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::BlockingSignRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::BlockingWritesError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "StorageAdminService";
+                METHOD_NAME = "StorageAdminService.blockingWrites";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "blockingWrites",
@@ -10966,11 +11109,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::BlockingWritesError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -11002,8 +11146,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::RebuildIndexRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::RebuildTagIndexError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "StorageAdminService";
+                METHOD_NAME = "StorageAdminService.rebuildTagIndex";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "rebuildTagIndex",
@@ -11022,11 +11171,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::RebuildTagIndexError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -11058,8 +11208,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::RebuildIndexRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::RebuildEdgeIndexError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "StorageAdminService";
+                METHOD_NAME = "StorageAdminService.rebuildEdgeIndex";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "rebuildEdgeIndex",
@@ -11078,11 +11233,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::RebuildEdgeIndexError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -11114,8 +11270,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::GetLeaderReq,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::GetLeaderPartsResp, crate::errors::storage_admin_service::GetLeaderPartsError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "StorageAdminService";
+                METHOD_NAME = "StorageAdminService.getLeaderParts";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "getLeaderParts",
@@ -11134,11 +11295,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::GetLeaderPartsResp, crate::errors::storage_admin_service::GetLeaderPartsError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -11170,8 +11332,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::CheckPeersReq,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::CheckPeersError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "StorageAdminService";
+                METHOD_NAME = "StorageAdminService.checkPeers";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "checkPeers",
@@ -11190,11 +11357,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::CheckPeersError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -11226,8 +11394,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::AddAdminTaskRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::AddAdminTaskError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "StorageAdminService";
+                METHOD_NAME = "StorageAdminService.addAdminTask";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "addAdminTask",
@@ -11246,11 +11419,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::AddAdminTaskError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -11282,8 +11456,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::StopAdminTaskRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::StopAdminTaskError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "StorageAdminService";
+                METHOD_NAME = "StorageAdminService.stopAdminTask";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "stopAdminTask",
@@ -11302,11 +11481,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::AdminExecResp, crate::errors::storage_admin_service::StopAdminTaskError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -11550,8 +11730,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::KVGetRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::KVGetResponse, crate::errors::general_storage_service::GetError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GeneralStorageService";
+                METHOD_NAME = "GeneralStorageService.get";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "get",
@@ -11570,11 +11755,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::KVGetResponse, crate::errors::general_storage_service::GetError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -11606,8 +11792,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::KVPutRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ExecResponse, crate::errors::general_storage_service::PutError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GeneralStorageService";
+                METHOD_NAME = "GeneralStorageService.put";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "put",
@@ -11626,11 +11817,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::ExecResponse, crate::errors::general_storage_service::PutError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -11662,8 +11854,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::KVRemoveRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ExecResponse, crate::errors::general_storage_service::RemoveError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "GeneralStorageService";
+                METHOD_NAME = "GeneralStorageService.remove";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "remove",
@@ -11682,11 +11879,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::ExecResponse, crate::errors::general_storage_service::RemoveError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -11830,8 +12028,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::GetValueRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::GetValueResponse, crate::errors::internal_storage_service::GetValueError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "InternalStorageService";
+                METHOD_NAME = "InternalStorageService.getValue";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "getValue",
@@ -11850,11 +12053,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::GetValueResponse, crate::errors::internal_storage_service::GetValueError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {
@@ -11886,8 +12090,13 @@ pub mod client {
             &self,
             arg_req: &crate::types::InternalTxnRequest,
         ) -> ::std::pin::Pin<::std::boxed::Box<dyn ::std::future::Future<Output = ::std::result::Result<crate::types::ExecResponse, crate::errors::internal_storage_service::ForwardTransactionError>> + ::std::marker::Send + 'static>> {
-            use ::fbthrift::{ProtocolReader as _, ProtocolWriter as _};
+            use ::const_cstr::const_cstr;
+            use ::fbthrift::{ProtocolWriter as _};
             use ::futures::future::{FutureExt as _, TryFutureExt as _};
+            const_cstr! {
+                SERVICE_NAME = "InternalStorageService";
+                METHOD_NAME = "InternalStorageService.forwardTransaction";
+            }
             let request = ::fbthrift::serialize!(P, |p| ::fbthrift::protocol::write_message(
                 p,
                 "forwardTransaction",
@@ -11906,11 +12115,12 @@ pub mod client {
                 },
             ));
             self.transport()
-                .call(request)
+                .call(&SERVICE_NAME, &METHOD_NAME, request)
                 .map_err(::std::convert::From::from)
                 .and_then(|reply| ::futures::future::ready({
                     let de = P::deserializer(reply);
                     move |mut p: P::Deserializer| -> ::std::result::Result<crate::types::ExecResponse, crate::errors::internal_storage_service::ForwardTransactionError> {
+                        use ::fbthrift::{ProtocolReader as _};
                         let p = &mut p;
                         let (_, message_type, _) = p.read_message_begin(|_| ())?;
                         let result = match message_type {

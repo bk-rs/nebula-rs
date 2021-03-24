@@ -19,13 +19,13 @@ meta = ["nebula-fbthrift-meta"]
 storage = ["nebula-fbthrift-storage"]
 
 [dependencies]
-fbthrift = { package = "fbthrift-git", version = "=0.0.5", default-features = false, features = [] }
+fbthrift = { package = "fbthrift-git", version = "=0.0.6", default-features = false, features = [] }
 
 bytes = { version = "0.5", default-features = false, features = [] }
 async-trait = { version = "0.1", default-features = false, features = [] }
 cfg-if = { version = "1.0", default-features = false, features = [] }
 
-fbthrift-transport-response-handler = { version = "0.4" }
+fbthrift-transport-response-handler = { version = "0.5" }
 
 nebula-fbthrift-graph = { path = "../nebula-fbthrift/nebula-fbthrift-graph", version = "0.1", default-features = false, features = [], optional = true }
 nebula-fbthrift-graph-v2 = { path = "../nebula-fbthrift/nebula-fbthrift-graph-v2", version = "0.1", default-features = false, features = [], optional = true }
