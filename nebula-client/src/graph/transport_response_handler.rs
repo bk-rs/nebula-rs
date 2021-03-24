@@ -15,17 +15,24 @@ impl ResponseHandler for GraphTransportResponseHandler {
     fn try_make_static_response_bytes(
         &mut self,
         _service_name: &'static str,
-        _fn_name: &'static str,
+        fn_name: &'static str,
         request_bytes: &[u8],
     ) -> io::Result<Option<Vec<u8>>> {
-        let mut des = BinaryProtocolDeserializer::new(Cursor::new(request_bytes));
-        let (name, message_type, seqid) = des
-            .read_message_begin(|v| v.to_vec())
-            .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
+        match fn_name {
+            "GraphService.authenticate" => Ok(None),
+            "GraphService.signout" => {
+                let mut des = BinaryProtocolDeserializer::new(Cursor::new(request_bytes));
+                let (name, message_type, seqid) = des
+                    .read_message_begin(|v| v.to_vec())
+                    .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
 
-        match &name[..] {
-            b"authenticate" => Ok(None),
-            b"signout" => {
+                if name != b"signout" {
+                    return Err(io::Error::new(
+                        io::ErrorKind::Other,
+                        format!("Unexpected name {:?}", name),
+                    ));
+                }
+
                 if message_type != MessageType::Call {
                     return Err(io::Error::new(
                         io::ErrorKind::Other,
@@ -45,10 +52,10 @@ impl ResponseHandler for GraphTransportResponseHandler {
 
                 Ok(Some(res_buf))
             }
-            b"execute" => Ok(None),
+            "GraphService.execute" => Ok(None),
             _ => Err(io::Error::new(
                 io::ErrorKind::Other,
-                format!("Unknown method {:?}", name),
+                format!("Unknown method {}", fn_name),
             )),
         }
     }
@@ -102,5 +109,83 @@ impl ResponseHandler for GraphTransportResponseHandler {
         };
 
         Ok(Some(n - des.into_inner().position() as usize))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use std::error;
+
+    #[test]
+    fn test_try_make_static_response_bytes() -> Result<(), Box<dyn error::Error>> {
+        let mut handler = GraphTransportResponseHandler;
+
+        assert_eq!(
+            handler.try_make_static_response_bytes(
+                "GraphService",
+                "GraphService.authenticate",
+                b"FOO"
+            )?,
+            None
+        );
+        assert_eq!(
+            handler.try_make_static_response_bytes(
+                "GraphService",
+                "GraphService.execute",
+                b"FOO"
+            )?,
+            None
+        );
+        match handler.try_make_static_response_bytes("GraphService", "GraphService.foo", b"FOO") {
+            Ok(_) => assert!(false),
+            Err(err) => {
+                assert_eq!(err.kind(), io::ErrorKind::Other);
+
+                assert_eq!(err.to_string(), "Unknown method GraphService.foo");
+            }
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_try_make_static_response_bytes_with_signout() -> Result<(), Box<dyn error::Error>> {
+        let mut handler = GraphTransportResponseHandler;
+
+        //
+        // Ref https://github.com/bk-rs/nebula-rs/blob/e500e6f93b0ffcd009038c2a51b41a6aa3488b18/nebula-fbthrift/nebula-fbthrift-graph/src/lib.rs#L1634
+        //
+        let request = ::fbthrift::serialize!(::fbthrift::BinaryProtocol, |p| {
+            ::fbthrift::protocol::write_message(
+                p,
+                "signout",
+                ::fbthrift::MessageType::Call,
+                // Note: we send a 0 message sequence ID from clients because
+                // this field should not be used by the server (except for some
+                // language implementations).
+                0,
+                |p| {
+                    p.write_struct_begin("args");
+                    p.write_field_begin("arg_sessionId", ::fbthrift::TType::I64, 1i16);
+                    ::fbthrift::Serialize::write(&1, p);
+                    p.write_field_end();
+                    p.write_field_stop();
+                    p.write_struct_end();
+                },
+            )
+        });
+
+        match handler.try_make_static_response_bytes(
+            "GraphService",
+            "GraphService.signout",
+            request.bytes(),
+        ) {
+            Ok(Some(_)) => {}
+            _ => assert!(false),
+        }
+
+        Ok(())
     }
 }
