@@ -16,19 +16,17 @@ impl ResponseHandler for MetaTransportResponseHandler {
     fn try_make_static_response_bytes(
         &mut self,
         _service_name: &'static str,
-        _fn_name: &'static str,
-        request_bytes: &[u8],
+        fn_name: &'static str,
+        _request_bytes: &[u8],
     ) -> io::Result<Option<Vec<u8>>> {
-        let mut des = BinaryProtocolDeserializer::new(Cursor::new(request_bytes));
-        let (name, _, _) = des
-            .read_message_begin(|v| v.to_vec())
-            .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
-
-        match &name[..] {
-            b"getSpace" | b"listParts" | b"listTags" | b"listEdges" => Ok(None),
+        match fn_name {
+            "MetaService.getSpace"
+            | "MetaService.listParts"
+            | "MetaService.listTags"
+            | "MetaService.listEdges" => Ok(None),
             _ => Err(io::Error::new(
                 io::ErrorKind::Other,
-                format!("Unknown method {:?}", name),
+                format!("Unknown method {}", fn_name),
             )),
         }
     }
@@ -92,5 +90,60 @@ impl ResponseHandler for MetaTransportResponseHandler {
         };
 
         Ok(Some(n - des.into_inner().position() as usize))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use std::error;
+
+    #[test]
+    fn test_try_make_static_response_bytes() -> Result<(), Box<dyn error::Error>> {
+        let mut handler = MetaTransportResponseHandler;
+
+        assert_eq!(
+            handler.try_make_static_response_bytes(
+                "MetaService",
+                "MetaService.getSpace",
+                b"FOO"
+            )?,
+            None
+        );
+        assert_eq!(
+            handler.try_make_static_response_bytes(
+                "MetaService",
+                "MetaService.listParts",
+                b"FOO"
+            )?,
+            None
+        );
+        assert_eq!(
+            handler.try_make_static_response_bytes(
+                "MetaService",
+                "MetaService.listTags",
+                b"FOO"
+            )?,
+            None
+        );
+        assert_eq!(
+            handler.try_make_static_response_bytes(
+                "MetaService",
+                "MetaService.listEdges",
+                b"FOO"
+            )?,
+            None
+        );
+        match handler.try_make_static_response_bytes("MetaService", "MetaService.foo", b"FOO") {
+            Ok(_) => assert!(false),
+            Err(err) => {
+                assert_eq!(err.kind(), io::ErrorKind::Other);
+
+                assert_eq!(err.to_string(), "Unknown method MetaService.foo");
+            }
+        }
+
+        Ok(())
     }
 }
