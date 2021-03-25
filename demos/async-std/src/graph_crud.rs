@@ -81,7 +81,7 @@ async fn run() -> Result<(), Box<dyn error::Error>> {
         .query(&format!(r#"INSERT VERTEX {tag_name} (field_string, field_int, field_double, field_bool, field_timestamp) VALUE {vid}:("1", 2, 3.3, true, now())"#, tag_name = tag_name, vid = vid))
         .await?;
 
-    task::sleep(Duration::from_secs(2)).await;
+    task::sleep(Duration::from_secs(3)).await;
 
     #[derive(Deserialize, Debug)]
     struct Foo {

@@ -64,8 +64,6 @@ impl ResponseHandler for GraphTransportResponseHandler {
     }
 
     fn parse_response_bytes(&mut self, response_bytes: &[u8]) -> io::Result<Option<usize>> {
-        let n = response_bytes.len();
-
         let mut des = BinaryProtocolDeserializer::new(Cursor::new(response_bytes));
         let (name, message_type, _) = match des.read_message_begin(|v| v.to_vec()) {
             Ok(v) => v,
@@ -118,7 +116,7 @@ impl ResponseHandler for GraphTransportResponseHandler {
             Err(_) => return Ok(None),
         };
 
-        Ok(Some(n - des.into_inner().position() as usize))
+        Ok(Some(des.into_inner().position() as usize))
     }
 }
 
