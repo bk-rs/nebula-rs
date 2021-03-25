@@ -31,3 +31,7 @@ cargo build-all-features
 
 cargo test-all-features -- --nocapture
 ```
+
+```
+cargo +nightly udeps --all-targets
+```
