@@ -94,3 +94,17 @@ sed -i '5i\#![allow(clippy::all)]' nebula-fbthrift-meta-v2/src/lib.rs
 sed -i '5i\#![allow(clippy::all)]' nebula-fbthrift-raftex-v2/src/lib.rs
 sed -i '5i\#![allow(clippy::all)]' nebula-fbthrift-storage-v2/src/lib.rs
 ```
+
+```
+sed -i '5i\#![allow(bare_trait_objects)]' nebula-fbthrift-common/src/lib.rs
+sed -i '5i\#![allow(bare_trait_objects)]' nebula-fbthrift-graph/src/lib.rs
+sed -i '5i\#![allow(bare_trait_objects)]' nebula-fbthrift-meta/src/lib.rs
+sed -i '5i\#![allow(bare_trait_objects)]' nebula-fbthrift-raftex/src/lib.rs
+sed -i '5i\#![allow(bare_trait_objects)]' nebula-fbthrift-storage/src/lib.rs 
+
+sed -i '5i\#![allow(bare_trait_objects)]' nebula-fbthrift-common-v2/src/lib.rs
+sed -i '5i\#![allow(bare_trait_objects)]' nebula-fbthrift-graph-v2/src/lib.rs 
+sed -i '5i\#![allow(bare_trait_objects)]' nebula-fbthrift-meta-v2/src/lib.rs
+sed -i '5i\#![allow(bare_trait_objects)]' nebula-fbthrift-raftex-v2/src/lib.rs
+sed -i '5i\#![allow(bare_trait_objects)]' nebula-fbthrift-storage-v2/src/lib.rs
+```
