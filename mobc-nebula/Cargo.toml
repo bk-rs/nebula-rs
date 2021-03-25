@@ -22,7 +22,7 @@ fbthrift-transport = { version = "=0.7.0", default-features = false, features = 
 mobc = { version = "0.7", default-features = false, features = ["async-std", "unstable"] }
 async-std = { version = "1.9", default-features = false, features = ["default"] }
 
-nebula-client = { path = "../nebula-client", version = "0.4", default-features = false, features = [] }
+nebula-client = { path = "../nebula-client", version = "=0.5.0", default-features = false, features = [] }
 
 [package.metadata.cargo-all-features]
 skip_feature_sets = []

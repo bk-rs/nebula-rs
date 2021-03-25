@@ -30,7 +30,7 @@ async-trait = { version = "0.1", default-features = false, features = [] }
 tokio02_ = { version = "~0.2", default-features = false, features = ["net"], optional = true, package = "tokio" }
 tokio = { version = "1.0", default-features = false, features = ["net"], optional = true }
 
-nebula-client = { path = "../nebula-client", version = "0.4", default-features = false, features = [], optional = true }
+nebula-client = { path = "../nebula-client", version = "=0.5.0", default-features = false, features = [], optional = true }
 
 [package.metadata.cargo-all-features]
 skip_feature_sets = [
