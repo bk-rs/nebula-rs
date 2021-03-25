@@ -1,6 +1,6 @@
 [package]
 name = "nebula-fbthrift-graph-v2"
-version = "0.1.5"
+version = "0.2.0"
 authors = ["vkill <vkill.net@gmail.com>"]
 edition = "2018"
 description = "Nebula Graph v2 graph interface"
@@ -20,4 +20,4 @@ futures = { version = "0.3", default-features = false, features = ["std"] }
 async-trait = { version = "0.1", default-features = false, features = [] }
 const-cstr = "0.3"
 
-common = { path = "../nebula-fbthrift-common-v2", package = "nebula-fbthrift-common-v2", version = "0.1", default-features = false, features = [] }
+common = { path = "../nebula-fbthrift-common-v2", package = "nebula-fbthrift-common-v2", version = "=0.2.0", default-features = false, features = [] }

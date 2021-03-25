@@ -1,6 +1,6 @@
 [package]
 name = "nebula-fbthrift-raftex"
-version = "0.1.4"
+version = "0.2.0"
 authors = ["vkill <vkill.net@gmail.com>"]
 edition = "2018"
 description = "Nebula Graph raftex interface"
@@ -20,4 +20,4 @@ futures = { version = "0.3", default-features = false, features = ["std"] }
 async-trait = { version = "0.1", default-features = false, features = [] }
 const-cstr = "0.3"
 
-common = { path = "../nebula-fbthrift-common", package = "nebula-fbthrift-common", version = "0.1", default-features = false, features = [] }
+common = { path = "../nebula-fbthrift-common", package = "nebula-fbthrift-common", version = "=0.2.0", default-features = false, features = [] }
