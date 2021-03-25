@@ -38,7 +38,7 @@ nebula-fbthrift-meta = { path = "../nebula-fbthrift/nebula-fbthrift-meta", versi
 nebula-fbthrift-storage = { path = "../nebula-fbthrift/nebula-fbthrift-storage", version = "=0.2.0", default-features = false, features = [], optional = true }
 
 serde = { version = "1.0", default-features = false, features = ["derive"], optional = true }
-serde-nebula-fbthrift-graph = { path = "../serde-nebula-fbthrift-graph", version = "0.1", default-features = false, features = ["chrono"], optional = true }
+serde-nebula-fbthrift-graph = { path = "../serde-nebula-fbthrift-graph", version = "=0.2.0", default-features = false, features = ["chrono"], optional = true }
 
 [package.metadata.cargo-all-features]
 skip_feature_sets = []
