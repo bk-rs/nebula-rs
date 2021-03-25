@@ -27,7 +27,7 @@ fbthrift-transport = { version = "=0.7.0", features = ["tokio_io"] }
 
 # bb8
 bb8 = "0.7"
-bb8-nebula = { path = "../../bb8-nebula", version = "0.6", features = ["graph"] }
+bb8-nebula = { path = "../../bb8-nebula", version = "=0.7.0", features = ["graph"] }
 
 # common
 tokio = { version = "1.0", default-features = false, features = ["io-util", "net", "macros", "rt-multi-thread"] }
