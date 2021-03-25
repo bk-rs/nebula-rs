@@ -4,10 +4,10 @@ use bytes::Bytes;
 use fbthrift::{BinaryProtocol, Transport};
 use nebula_fbthrift_meta::{
     client::{MetaService, MetaServiceImpl},
-    errors::meta_service::{GetSpaceError, ListPartsError, ListTagsError},
+    errors::meta_service::{GetSpaceError, ListPartsError, ListSpacesError, ListTagsError},
     types::{
         GetSpaceReq, GetSpaceResp, ListEdgesReq, ListEdgesResp, ListPartsReq, ListPartsResp,
-        ListTagsReq, ListTagsResp,
+        ListSpacesReq, ListSpacesResp, ListTagsReq, ListTagsResp,
     },
 };
 
@@ -64,13 +64,17 @@ where
         }
     }
 
-    pub async fn get_space(&self, space_name: &str) -> result::Result<GetSpaceResp, GetSpaceError> {
-        let req = GetSpaceReq {
-            space_name: space_name.to_owned(),
-        };
-        let res = self.connection.service.getSpace(&req).await?;
+    pub async fn list_spaces(&self) -> result::Result<ListSpacesResp, ListSpacesError> {
+        self.connection.service.listSpaces(&ListSpacesReq {}).await
+    }
 
-        Ok(res)
+    pub async fn get_space(&self, space_name: &str) -> result::Result<GetSpaceResp, GetSpaceError> {
+        self.connection
+            .service
+            .getSpace(&GetSpaceReq {
+                space_name: space_name.to_owned(),
+            })
+            .await
     }
 
     // part_id from 1
@@ -79,23 +83,23 @@ where
         space_id: i32,
         part_ids: Vec<i32>,
     ) -> result::Result<ListPartsResp, ListPartsError> {
-        let req = ListPartsReq { space_id, part_ids };
-        let res = self.connection.service.listParts(&req).await?;
-
-        Ok(res)
+        self.connection
+            .service
+            .listParts(&ListPartsReq { space_id, part_ids })
+            .await
     }
 
     pub async fn list_tags(&self, space_id: i32) -> result::Result<ListTagsResp, ListTagsError> {
-        let req = ListTagsReq { space_id };
-        let res = self.connection.service.listTags(&req).await?;
-
-        Ok(res)
+        self.connection
+            .service
+            .listTags(&ListTagsReq { space_id })
+            .await
     }
 
     pub async fn list_edges(&self, space_id: i32) -> result::Result<ListEdgesResp, ListTagsError> {
-        let req = ListEdgesReq { space_id };
-        let res = self.connection.service.listEdges(&req).await?;
-
-        Ok(res)
+        self.connection
+            .service
+            .listEdges(&ListEdgesReq { space_id })
+            .await
     }
 }

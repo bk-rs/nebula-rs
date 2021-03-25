@@ -57,6 +57,9 @@ async fn run() -> Result<(), Box<dyn error::Error>> {
     );
     let meta_client = MetaClient::new(meta_transport);
 
+    let res = meta_client.list_spaces().await?;
+    println!("{:?}", res);
+
     let res = meta_client.get_space(&space_name).await?;
     println!("{:?}", res);
     assert_eq!(res.code, MErrorCode::SUCCEEDED);

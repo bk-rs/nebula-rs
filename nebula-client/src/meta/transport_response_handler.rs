@@ -6,7 +6,7 @@ use fbthrift::{
 };
 use fbthrift_transport_response_handler::ResponseHandler;
 use nebula_fbthrift_meta::services::meta_service::{
-    GetSpaceExn, ListEdgesExn, ListPartsExn, ListTagsExn,
+    GetSpaceExn, ListEdgesExn, ListPartsExn, ListSpacesExn, ListTagsExn,
 };
 
 #[derive(Clone)]
@@ -20,7 +20,8 @@ impl ResponseHandler for MetaTransportResponseHandler {
         _request_bytes: &[u8],
     ) -> io::Result<Option<Vec<u8>>> {
         match fn_name {
-            "MetaService.getSpace"
+            "MetaService.listSpaces"
+            | "MetaService.getSpace"
             | "MetaService.listParts"
             | "MetaService.listTags"
             | "MetaService.listEdges" => Ok(None),
@@ -39,13 +40,19 @@ impl ResponseHandler for MetaTransportResponseHandler {
         };
 
         match &name[..] {
-            b"getSpace" | b"listParts" | b"listTags" | b"listEdges" => {}
+            b"listSpaces" | b"getSpace" | b"listParts" | b"listTags" | b"listEdges" => {}
             _ => return Ok(None),
         };
 
         match message_type {
             MessageType::Reply => {
                 match &name[..] {
+                    b"listSpaces" => {
+                        let _: ListSpacesExn = match Deserialize::read(&mut des) {
+                            Ok(v) => v,
+                            Err(_) => return Ok(None),
+                        };
+                    }
                     b"getSpace" => {
                         let _: GetSpaceExn = match Deserialize::read(&mut des) {
                             Ok(v) => v,
@@ -101,6 +108,14 @@ mod tests {
     fn test_try_make_static_response_bytes() -> Result<(), Box<dyn error::Error>> {
         let mut handler = MetaTransportResponseHandler;
 
+        assert_eq!(
+            handler.try_make_static_response_bytes(
+                "MetaService",
+                "MetaService.listSpaces",
+                b"FOO"
+            )?,
+            None
+        );
         assert_eq!(
             handler.try_make_static_response_bytes(
                 "MetaService",
