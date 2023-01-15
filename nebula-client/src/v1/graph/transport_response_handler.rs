@@ -1,4 +1,4 @@
-use std::io::{self, Cursor};
+use std::io::{Cursor, Error as IoError, ErrorKind as IoErrorKind};
 
 use bytes::{Buf, BytesMut};
 use fbthrift::{
@@ -17,25 +17,25 @@ impl ResponseHandler for GraphTransportResponseHandler {
         _service_name: &'static str,
         fn_name: &'static str,
         request_bytes: &[u8],
-    ) -> io::Result<Option<Vec<u8>>> {
+    ) -> Result<Option<Vec<u8>>, IoError> {
         match fn_name {
             "GraphService.authenticate" => Ok(None),
             "GraphService.signout" => {
                 let mut des = BinaryProtocolDeserializer::new(Cursor::new(request_bytes));
                 let (name, message_type, seqid) = des
                     .read_message_begin(|v| v.to_vec())
-                    .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
+                    .map_err(|err| IoError::new(IoErrorKind::Other, err))?;
 
                 if name != b"signout" {
-                    return Err(io::Error::new(
-                        io::ErrorKind::Other,
+                    return Err(IoError::new(
+                        IoErrorKind::Other,
                         format!("Unexpected name {name:?}"),
                     ));
                 }
 
                 if message_type != MessageType::Call {
-                    return Err(io::Error::new(
-                        io::ErrorKind::Other,
+                    return Err(IoError::new(
+                        IoErrorKind::Other,
                         format!("Unexpected message type {message_type:?}"),
                     ));
                 }
@@ -53,14 +53,14 @@ impl ResponseHandler for GraphTransportResponseHandler {
                 Ok(Some(res_buf))
             }
             "GraphService.execute" => Ok(None),
-            _ => Err(io::Error::new(
-                io::ErrorKind::Other,
+            _ => Err(IoError::new(
+                IoErrorKind::Other,
                 format!("Unknown method {fn_name}"),
             )),
         }
     }
 
-    fn parse_response_bytes(&mut self, response_bytes: &[u8]) -> io::Result<Option<usize>> {
+    fn parse_response_bytes(&mut self, response_bytes: &[u8]) -> Result<Option<usize>, IoError> {
         let mut des = BinaryProtocolDeserializer::new(Cursor::new(response_bytes));
         let (name, message_type, _) = match des.read_message_begin(|v| v.to_vec()) {
             Ok(v) => v,
@@ -113,10 +113,8 @@ impl ResponseHandler for GraphTransportResponseHandler {
 mod tests {
     use super::*;
 
-    use std::error;
-
     #[test]
-    fn test_try_make_static_response_bytes() -> Result<(), Box<dyn error::Error>> {
+    fn test_try_make_static_response_bytes() -> Result<(), Box<dyn std::error::Error>> {
         let mut handler = GraphTransportResponseHandler;
 
         assert_eq!(
@@ -138,7 +136,7 @@ mod tests {
         match handler.try_make_static_response_bytes("GraphService", "GraphService.foo", b"FOO") {
             Ok(_) => panic!(),
             Err(err) => {
-                assert_eq!(err.kind(), io::ErrorKind::Other);
+                assert_eq!(err.kind(), IoErrorKind::Other);
 
                 assert_eq!(err.to_string(), "Unknown method GraphService.foo");
             }
@@ -148,7 +146,8 @@ mod tests {
     }
 
     #[test]
-    fn test_try_make_static_response_bytes_with_signout() -> Result<(), Box<dyn error::Error>> {
+    fn test_try_make_static_response_bytes_with_signout() -> Result<(), Box<dyn std::error::Error>>
+    {
         let mut handler = GraphTransportResponseHandler;
 
         //

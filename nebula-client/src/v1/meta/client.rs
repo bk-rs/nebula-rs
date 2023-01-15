@@ -1,5 +1,3 @@
-use std::result;
-
 use bytes::Bytes;
 use fbthrift::{BinaryProtocol, Transport};
 use nebula_fbthrift_meta::{
@@ -64,11 +62,11 @@ where
         }
     }
 
-    pub async fn list_spaces(&self) -> result::Result<ListSpacesResp, ListSpacesError> {
+    pub async fn list_spaces(&self) -> Result<ListSpacesResp, ListSpacesError> {
         self.connection.service.listSpaces(&ListSpacesReq {}).await
     }
 
-    pub async fn get_space(&self, space_name: &str) -> result::Result<GetSpaceResp, GetSpaceError> {
+    pub async fn get_space(&self, space_name: &str) -> Result<GetSpaceResp, GetSpaceError> {
         self.connection
             .service
             .getSpace(&GetSpaceReq {
@@ -82,21 +80,21 @@ where
         &self,
         space_id: i32,
         part_ids: Vec<i32>,
-    ) -> result::Result<ListPartsResp, ListPartsError> {
+    ) -> Result<ListPartsResp, ListPartsError> {
         self.connection
             .service
             .listParts(&ListPartsReq { space_id, part_ids })
             .await
     }
 
-    pub async fn list_tags(&self, space_id: i32) -> result::Result<ListTagsResp, ListTagsError> {
+    pub async fn list_tags(&self, space_id: i32) -> Result<ListTagsResp, ListTagsError> {
         self.connection
             .service
             .listTags(&ListTagsReq { space_id })
             .await
     }
 
-    pub async fn list_edges(&self, space_id: i32) -> result::Result<ListEdgesResp, ListTagsError> {
+    pub async fn list_edges(&self, space_id: i32) -> Result<ListEdgesResp, ListTagsError> {
         self.connection
             .service
             .listEdges(&ListEdgesReq { space_id })

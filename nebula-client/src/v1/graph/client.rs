@@ -1,5 +1,4 @@
-use std::io;
-use std::result;
+use std::io::{Error as IoError, ErrorKind as IoErrorKind};
 
 use async_trait::async_trait;
 use bytes::Bytes;
@@ -69,7 +68,7 @@ where
         self,
         username: &str,
         password: &str,
-    ) -> result::Result<GraphSession<T>, AuthenticateError> {
+    ) -> Result<GraphSession<T>, AuthenticateError> {
         let res = self
             .connection
             .service
@@ -125,17 +124,17 @@ where
         }
     }
 
-    pub async fn signout(self) -> result::Result<(), SignoutError> {
+    pub async fn signout(self) -> Result<(), SignoutError> {
         self.connection.service.signout(self.session_id).await
     }
 
-    pub async fn execute(&mut self, stmt: &str) -> result::Result<ExecutionResponse, ExecuteError> {
+    pub async fn execute(&mut self, stmt: &str) -> Result<ExecutionResponse, ExecuteError> {
         let res = match self.connection.service.execute(self.session_id, stmt).await {
             Ok(res) => res,
             Err(ExecuteError::ThriftError(err)) => {
-                if let Some(io_err) = err.downcast_ref::<io::Error>() {
+                if let Some(io_err) = err.downcast_ref::<IoError>() {
                     // "ExecuteError Broken pipe (os error 32)"
-                    if io_err.kind() == io::ErrorKind::BrokenPipe {
+                    if io_err.kind() == IoErrorKind::BrokenPipe {
                         self.close_required = true;
                     }
                 }
@@ -180,7 +179,7 @@ where
     async fn query_as<D: DeserializeOwned>(
         &mut self,
         stmt: &str,
-    ) -> result::Result<GraphQueryOutput<D>, GraphQueryError> {
+    ) -> Result<GraphQueryOutput<D>, GraphQueryError> {
         let res = self
             .execute(stmt)
             .await

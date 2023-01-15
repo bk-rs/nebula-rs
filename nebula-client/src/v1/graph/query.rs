@@ -1,7 +1,4 @@
-use std::error;
-use std::fmt;
-use std::result;
-use std::time::Duration;
+use core::time::Duration;
 
 use async_trait::async_trait;
 use nebula_fbthrift_graph::{
@@ -17,16 +14,16 @@ pub trait GraphQuery {
     async fn query_as<D: DeserializeOwned>(
         &mut self,
         stmt: &str,
-    ) -> result::Result<GraphQueryOutput<D>, GraphQueryError>;
+    ) -> Result<GraphQueryOutput<D>, GraphQueryError>;
 
-    async fn query(&mut self, stmt: &str) -> result::Result<GraphQueryOutput<()>, GraphQueryError> {
+    async fn query(&mut self, stmt: &str) -> Result<GraphQueryOutput<()>, GraphQueryError> {
         self.query_as(stmt).await
     }
 
-    async fn show_hosts(&mut self) -> result::Result<GraphQueryOutput<Host>, GraphQueryError> {
+    async fn show_hosts(&mut self) -> Result<GraphQueryOutput<Host>, GraphQueryError> {
         self.query_as(STMT_SHOW_HOSTS).await
     }
-    async fn show_spaces(&mut self) -> result::Result<GraphQueryOutput<Space>, GraphQueryError> {
+    async fn show_spaces(&mut self) -> Result<GraphQueryOutput<Space>, GraphQueryError> {
         self.query_as(STMT_SHOW_SPACES).await
     }
 }
@@ -45,7 +42,7 @@ impl<D> GraphQueryOutput<D>
 where
     D: DeserializeOwned,
 {
-    pub fn new(res: ExecutionResponse) -> result::Result<Self, GraphQueryError> {
+    pub fn new(res: ExecutionResponse) -> Result<Self, GraphQueryError> {
         let latency = Duration::from_micros(res.latency_in_us as u64);
         let space_name = res.space_name.clone();
         let data_set = deserialize_execution_response::<D>(&res)
@@ -69,8 +66,8 @@ pub enum GraphQueryError {
     DataDeserializeError(DataDeserializeError),
 }
 
-impl fmt::Display for GraphQueryError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl core::fmt::Display for GraphQueryError {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         match self {
             Self::ExecuteError(err) => write!(f, "ExecuteError {err}"),
             Self::ResponseError(err_code, err_msg) => {
@@ -81,7 +78,7 @@ impl fmt::Display for GraphQueryError {
     }
 }
 
-impl error::Error for GraphQueryError {
+impl std::error::Error for GraphQueryError {
     fn description(&self) -> &str {
         match self {
             Self::ExecuteError(_) => "ExecuteError",
@@ -124,7 +121,7 @@ pub struct Space {
 mod tests {
     use super::*;
 
-    use std::io;
+    use std::io::{Error as IoError, ErrorKind as IoErrorKind};
 
     #[test]
     fn impl_std_fmt_display() {
@@ -134,8 +131,8 @@ mod tests {
 
     #[test]
     fn impl_std_error_error() {
-        let err = io::Error::new(
-            io::ErrorKind::Other,
+        let err = IoError::new(
+            IoErrorKind::Other,
             GraphQueryError::ResponseError(ErrorCode::E_DISCONNECTED, None),
         );
         println!("{err}");

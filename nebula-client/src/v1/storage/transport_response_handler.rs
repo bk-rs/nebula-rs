@@ -1,4 +1,4 @@
-use std::io::{self, Cursor};
+use std::io::{Cursor, Error as IoError, ErrorKind as IoErrorKind};
 
 use fbthrift::{
     binary_protocol::BinaryProtocolDeserializer, ApplicationException, Deserialize, MessageType,
@@ -16,17 +16,17 @@ impl ResponseHandler for StorageTransportResponseHandler {
         _service_name: &'static str,
         fn_name: &'static str,
         _request_bytes: &[u8],
-    ) -> io::Result<Option<Vec<u8>>> {
+    ) -> Result<Option<Vec<u8>>, IoError> {
         match fn_name {
             "StorageService.scanVertex" | "StorageService.scanEdge" => Ok(None),
-            _ => Err(io::Error::new(
-                io::ErrorKind::Other,
+            _ => Err(IoError::new(
+                IoErrorKind::Other,
                 format!("Unknown method {fn_name}"),
             )),
         }
     }
 
-    fn parse_response_bytes(&mut self, response_bytes: &[u8]) -> io::Result<Option<usize>> {
+    fn parse_response_bytes(&mut self, response_bytes: &[u8]) -> Result<Option<usize>, IoError> {
         let mut des = BinaryProtocolDeserializer::new(Cursor::new(response_bytes));
         let (name, message_type, _) = match des.read_message_begin(|v| v.to_vec()) {
             Ok(v) => v,
@@ -78,10 +78,8 @@ impl ResponseHandler for StorageTransportResponseHandler {
 mod tests {
     use super::*;
 
-    use std::error;
-
     #[test]
-    fn test_try_make_static_response_bytes() -> Result<(), Box<dyn error::Error>> {
+    fn test_try_make_static_response_bytes() -> Result<(), Box<dyn std::error::Error>> {
         let mut handler = StorageTransportResponseHandler;
 
         assert_eq!(
@@ -104,7 +102,7 @@ mod tests {
         {
             Ok(_) => panic!(),
             Err(err) => {
-                assert_eq!(err.kind(), io::ErrorKind::Other);
+                assert_eq!(err.kind(), IoErrorKind::Other);
 
                 assert_eq!(err.to_string(), "Unknown method StorageService.foo");
             }

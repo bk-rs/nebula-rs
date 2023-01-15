@@ -1,8 +1,5 @@
-use std::error;
-use std::fmt;
-use std::io;
-use std::iter;
-use std::slice::Iter;
+use core::{iter::Peekable, slice::Iter};
+use std::io::{Error as IoError, ErrorKind as IoErrorKind};
 
 use nebula_fbthrift_graph::types::ColumnValue;
 use serde::de::{
@@ -13,7 +10,7 @@ use serde::de::{
 
 pub struct DataDeserializer<'a> {
     names_iter: Iter<'a, Vec<u8>>,
-    values_iter: iter::Peekable<Iter<'a, ColumnValue>>,
+    values_iter: Peekable<Iter<'a, ColumnValue>>,
     field: usize,
 }
 
@@ -476,14 +473,14 @@ impl DataDeserializeErrorKind {
     }
 }
 
-impl error::Error for DataDeserializeError {
+impl std::error::Error for DataDeserializeError {
     fn description(&self) -> &str {
         self.kind.description()
     }
 }
 
 impl de::Error for DataDeserializeError {
-    fn custom<T: fmt::Display>(msg: T) -> DataDeserializeError {
+    fn custom<T: core::fmt::Display>(msg: T) -> DataDeserializeError {
         DataDeserializeError {
             field: None,
             kind: DataDeserializeErrorKind::Custom(msg.to_string()),
@@ -491,8 +488,8 @@ impl de::Error for DataDeserializeError {
     }
 }
 
-impl fmt::Display for DataDeserializeError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl core::fmt::Display for DataDeserializeError {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         if let Some(field) = self.field {
             write!(f, "field {field}: {}", self.kind)
         } else {
@@ -501,8 +498,8 @@ impl fmt::Display for DataDeserializeError {
     }
 }
 
-impl fmt::Display for DataDeserializeErrorKind {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl core::fmt::Display for DataDeserializeErrorKind {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         use self::DataDeserializeErrorKind::*;
 
         match *self {
@@ -514,17 +511,15 @@ impl fmt::Display for DataDeserializeErrorKind {
     }
 }
 
-impl From<DataDeserializeError> for io::Error {
-    fn from(err: DataDeserializeError) -> io::Error {
-        io::Error::new(io::ErrorKind::InvalidInput, err)
+impl From<DataDeserializeError> for IoError {
+    fn from(err: DataDeserializeError) -> IoError {
+        IoError::new(IoErrorKind::InvalidInput, err)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    use std::io;
 
     use chrono::{serde::ts_seconds, DateTime, TimeZone, Utc};
     use float_cmp::approx_eq;
@@ -534,16 +529,19 @@ mod tests {
 
     use crate::de::datetime::{self, Date, Day, Month, Timestamp, Year, YearMonth};
 
-    fn de<D: DeserializeOwned>(names: Vec<&str>, values: Vec<ColumnValue>) -> io::Result<D> {
+    fn de<D: DeserializeOwned>(
+        names: Vec<&str>,
+        values: Vec<ColumnValue>,
+    ) -> Result<D, Box<dyn std::error::Error>> {
         let names: Vec<_> = names.into_iter().map(|x| x.as_bytes().to_vec()).collect();
 
         let mut data_deserializer = DataDeserializer::new(&names, &values);
 
-        D::deserialize(&mut data_deserializer).map_err(|err| err.into())
+        D::deserialize(&mut data_deserializer).map_err(Into::into)
     }
 
     #[test]
-    fn with_bool() -> io::Result<()> {
+    fn with_bool() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Deserialize)]
         struct Foo {
             a: bool,
@@ -562,7 +560,7 @@ mod tests {
     }
 
     #[test]
-    fn with_integer() -> io::Result<()> {
+    fn with_integer() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Deserialize_repr, PartialEq, Debug)]
         #[repr(u8)]
         enum State {
@@ -612,7 +610,7 @@ mod tests {
     }
 
     #[test]
-    fn with_id() -> io::Result<()> {
+    fn with_id() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Deserialize)]
         struct Foo {
             a: i64,
@@ -628,7 +626,7 @@ mod tests {
     }
 
     #[test]
-    fn with_single_precision() -> io::Result<()> {
+    fn with_single_precision() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Deserialize)]
         struct Foo {
             a: f32,
@@ -642,7 +640,7 @@ mod tests {
     }
 
     #[test]
-    fn with_double_precision() -> io::Result<()> {
+    fn with_double_precision() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Deserialize)]
         struct Foo {
             a: f64,
@@ -656,7 +654,7 @@ mod tests {
     }
 
     #[test]
-    fn with_str() -> io::Result<()> {
+    fn with_str() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Deserialize)]
         struct Foo {
             a: String,
@@ -678,7 +676,7 @@ mod tests {
     }
 
     #[test]
-    fn with_timestamp() -> io::Result<()> {
+    fn with_timestamp() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Deserialize)]
         struct Foo {
             #[serde(with = "ts_seconds")]
@@ -707,7 +705,7 @@ mod tests {
     }
 
     #[test]
-    fn with_year() -> io::Result<()> {
+    fn with_year() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Deserialize)]
         struct Foo {
             b: i16,
@@ -726,7 +724,7 @@ mod tests {
     }
 
     #[test]
-    fn with_month() -> io::Result<()> {
+    fn with_month() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Deserialize)]
         struct Foo {
             a: (Year, Month),
@@ -754,7 +752,7 @@ mod tests {
     }
 
     #[test]
-    fn with_date() -> io::Result<()> {
+    fn with_date() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Deserialize)]
         struct Foo {
             a: (Year, Month, Day),
@@ -784,7 +782,7 @@ mod tests {
     }
 
     #[test]
-    fn with_datetime() -> io::Result<()> {
+    fn with_datetime() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Deserialize)]
         struct Foo {
             a: datetime::DateTime,
@@ -810,7 +808,7 @@ mod tests {
     }
 
     #[test]
-    fn with_unknown_field() -> io::Result<()> {
+    fn with_unknown_field() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Deserialize)]
         struct Foo {
             a: i32,
@@ -824,7 +822,7 @@ mod tests {
     }
 
     #[test]
-    fn with_multiple() -> io::Result<()> {
+    fn with_multiple() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Deserialize)]
         struct Foo {
             a: bool,
@@ -852,14 +850,14 @@ mod tests {
     }
 
     #[test]
-    fn with_unit() -> io::Result<()> {
+    fn with_unit() -> Result<(), Box<dyn std::error::Error>> {
         de::<()>(vec!["a"], vec![ColumnValue::bool_val(true)])?;
 
         Ok(())
     }
 
     #[test]
-    fn with_option() -> io::Result<()> {
+    fn with_option() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Deserialize)]
         struct Foo {
             a: Option<bool>,

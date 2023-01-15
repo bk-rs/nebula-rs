@@ -1,5 +1,3 @@
-use std::io;
-
 use nebula_fbthrift_graph::{
     types::{ColumnValue, ErrorCode, RowValue},
     ExecutionResponse,
@@ -15,7 +13,7 @@ struct Foo {
 }
 
 #[test]
-fn with_none_column_names() -> io::Result<()> {
+fn with_none_column_names() -> Result<(), Box<dyn std::error::Error>> {
     let execution_response = ExecutionResponse {
         error_code: ErrorCode::SUCCEEDED,
         latency_in_us: 1,
@@ -33,7 +31,7 @@ fn with_none_column_names() -> io::Result<()> {
 }
 
 #[test]
-fn with_empty_column_names() -> io::Result<()> {
+fn with_empty_column_names() -> Result<(), Box<dyn std::error::Error>> {
     let execution_response = ExecutionResponse {
         error_code: ErrorCode::SUCCEEDED,
         latency_in_us: 1,
@@ -51,7 +49,7 @@ fn with_empty_column_names() -> io::Result<()> {
 }
 
 #[test]
-fn with_none_rows() -> io::Result<()> {
+fn with_none_rows() -> Result<(), Box<dyn std::error::Error>> {
     let execution_response = ExecutionResponse {
         error_code: ErrorCode::SUCCEEDED,
         latency_in_us: 1,
@@ -69,7 +67,7 @@ fn with_none_rows() -> io::Result<()> {
 }
 
 #[test]
-fn simple() -> io::Result<()> {
+fn simple() -> Result<(), Box<dyn std::error::Error>> {
     let execution_response = ExecutionResponse {
         error_code: ErrorCode::SUCCEEDED,
         latency_in_us: 1,
@@ -100,7 +98,7 @@ fn simple() -> io::Result<()> {
 }
 
 #[test]
-fn with_unit() -> io::Result<()> {
+fn with_unit() -> Result<(), Box<dyn std::error::Error>> {
     let execution_response = ExecutionResponse {
         error_code: ErrorCode::SUCCEEDED,
         latency_in_us: 1,

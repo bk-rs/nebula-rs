@@ -1,5 +1,3 @@
-use std::result;
-
 use bytes::Bytes;
 use fbthrift::{BinaryProtocol, Transport};
 use nebula_fbthrift_storage::{
@@ -64,7 +62,7 @@ where
     pub async fn scan_vertex(
         &self,
         req: &ScanVertexRequest,
-    ) -> result::Result<ScanVertexResponse, ScanVertexError> {
+    ) -> Result<ScanVertexResponse, ScanVertexError> {
         let res = self.connection.service.scanVertex(req).await?;
 
         Ok(res)
@@ -73,7 +71,7 @@ where
     pub async fn scan_edge(
         &self,
         req: &ScanEdgeRequest,
-    ) -> result::Result<ScanEdgeResponse, ScanEdgeError> {
+    ) -> Result<ScanEdgeResponse, ScanEdgeError> {
         let res = self.connection.service.scanEdge(req).await?;
 
         Ok(res)

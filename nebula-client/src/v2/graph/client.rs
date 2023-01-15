@@ -1,5 +1,4 @@
-use std::io;
-use std::result;
+use std::io::{Error as IoError, ErrorKind as IoErrorKind};
 
 use bytes::Bytes;
 use fbthrift::{ApplicationException, ApplicationExceptionErrorCode, BinaryProtocol, Transport};
@@ -67,7 +66,7 @@ where
         self,
         username: &Vec<u8>,
         password: &Vec<u8>,
-    ) -> result::Result<GraphSession<T>, AuthenticateError> {
+    ) -> Result<GraphSession<T>, AuthenticateError> {
         let res = self
             .connection
             .service
@@ -124,21 +123,18 @@ where
         }
     }
 
-    pub async fn signout(self) -> result::Result<(), SignoutError> {
+    pub async fn signout(self) -> Result<(), SignoutError> {
         self.connection.service.signout(self.session_id).await
     }
 
     #[allow(clippy::ptr_arg)]
-    pub async fn execute(
-        &mut self,
-        stmt: &Vec<u8>,
-    ) -> result::Result<ExecutionResponse, ExecuteError> {
+    pub async fn execute(&mut self, stmt: &Vec<u8>) -> Result<ExecutionResponse, ExecuteError> {
         let res = match self.connection.service.execute(self.session_id, stmt).await {
             Ok(res) => res,
             Err(ExecuteError::ThriftError(err)) => {
-                if let Some(io_err) = err.downcast_ref::<io::Error>() {
+                if let Some(io_err) = err.downcast_ref::<IoError>() {
                     // "ExecuteError Broken pipe (os error 32)"
-                    if io_err.kind() == io::ErrorKind::BrokenPipe {
+                    if io_err.kind() == IoErrorKind::BrokenPipe {
                         self.close_required = true;
                     }
                 }
@@ -159,10 +155,7 @@ where
     }
 
     #[allow(clippy::ptr_arg)]
-    pub async fn execute_json(
-        &mut self,
-        stmt: &Vec<u8>,
-    ) -> result::Result<Vec<u8>, ExecuteJsonError> {
+    pub async fn execute_json(&mut self, stmt: &Vec<u8>) -> Result<Vec<u8>, ExecuteJsonError> {
         let res = match self
             .connection
             .service
@@ -171,9 +164,9 @@ where
         {
             Ok(res) => res,
             Err(ExecuteJsonError::ThriftError(err)) => {
-                if let Some(io_err) = err.downcast_ref::<io::Error>() {
+                if let Some(io_err) = err.downcast_ref::<IoError>() {
                     // "ExecuteJsonError Broken pipe (os error 32)"
-                    if io_err.kind() == io::ErrorKind::BrokenPipe {
+                    if io_err.kind() == IoErrorKind::BrokenPipe {
                         self.close_required = true;
                     }
                 }

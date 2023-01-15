@@ -1,7 +1,7 @@
 //
 // ref https://stackoverflow.com/questions/39638363/how-can-i-use-a-hashmap-with-f64-as-key-in-rust
 //
-use std::cmp::Ordering;
+use core::cmp::Ordering;
 
 #[derive(Clone, Debug)]
 pub struct Double(pub f64);
