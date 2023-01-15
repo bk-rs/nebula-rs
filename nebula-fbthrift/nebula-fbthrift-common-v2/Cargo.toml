@@ -15,7 +15,7 @@ readme = "README.md"
 [dependencies]
 fbthrift = { package = "fbthrift-git", version = "=0.0.6", default-features = false }
 
-anyhow = { version = "1.0", default-features = false }
+anyhow = { version = "1", default-features = false }
 
 [dev-dependencies]
-float-cmp = "0.8"
+float-cmp = { version = "0.9" }
