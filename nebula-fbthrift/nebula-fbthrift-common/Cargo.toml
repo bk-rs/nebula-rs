@@ -13,7 +13,5 @@ categories = []
 readme = "README.md"
 
 [dependencies]
-fbthrift = { package = "fbthrift-git", version = "=0.0.6", default-features = false }
-
-anyhow = { version = "1", default-features = false }
-lazy_static = { version = "1", default-features = false }
+nebula-fbthrift-common-v2 = { version = "=0.2.0", default-features = false, path = "../nebula-fbthrift-common-v2" }
+nebula-fbthrift-common-v1 = { version = "=0.2.0", default-features = false, path = "../nebula-fbthrift-common-v1" }

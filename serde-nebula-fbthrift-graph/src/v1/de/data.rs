@@ -1,7 +1,7 @@
 use core::{iter::Peekable, slice::Iter};
 use std::io::{Error as IoError, ErrorKind as IoErrorKind};
 
-use nebula_fbthrift_graph::types::ColumnValue;
+use nebula_fbthrift_graph_v1::types::ColumnValue;
 use serde::de::{
     self,
     value::{BorrowedBytesDeserializer, SeqDeserializer},
@@ -523,11 +523,11 @@ mod tests {
 
     use chrono::{serde::ts_seconds, DateTime, TimeZone, Utc};
     use float_cmp::approx_eq;
-    use nebula_fbthrift_graph::types;
+    use nebula_fbthrift_graph_v1::types;
     use serde::{de::DeserializeOwned, Deserialize};
     use serde_repr::Deserialize_repr;
 
-    use crate::de::datetime::{self, Date, Day, Month, Timestamp, Year, YearMonth};
+    use crate::v1::de::datetime::{self, Date, Day, Month, Timestamp, Year, YearMonth};
 
     fn de<D: DeserializeOwned>(
         names: Vec<&str>,

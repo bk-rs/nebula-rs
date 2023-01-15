@@ -1,13 +1,15 @@
 use core::time::Duration;
 
 use async_trait::async_trait;
-use nebula_fbthrift_graph::{
+use nebula_fbthrift_graph_v1::{
     errors::graph_service::ExecuteError,
     types::{ErrorCode, ExecutionResponse},
 };
 
 use serde::de::DeserializeOwned;
-use serde_nebula_fbthrift_graph::de::{data::DataDeserializeError, deserialize_execution_response};
+use serde_nebula_fbthrift_graph::v1::de::{
+    data::DataDeserializeError, deserialize_execution_response,
+};
 
 #[async_trait]
 pub trait GraphQuery {

@@ -6,7 +6,7 @@ use fbthrift::{
     ApplicationException, Deserialize, MessageType, ProtocolReader, ProtocolWriter, Serialize,
 };
 use fbthrift_transport_response_handler::ResponseHandler;
-use nebula_fbthrift_graph::services::graph_service::{AuthenticateExn, ExecuteExn, SignoutExn};
+use nebula_fbthrift_graph_v1::services::graph_service::{AuthenticateExn, ExecuteExn, SignoutExn};
 
 #[derive(Clone)]
 pub struct GraphTransportResponseHandler;

@@ -19,7 +19,7 @@ default = ["chrono"]
 serde = { version = "1", default-features = false, features = ["derive"] }
 chrono = { version = "0.4", default-features = false, optional = true }
 
-nebula-fbthrift-graph = { version = "=0.2.0", default-features = false, path = "../nebula-fbthrift/nebula-fbthrift-graph" }
+nebula-fbthrift-graph-v1 = { version = "=0.2.0", default-features = false, path = "../nebula-fbthrift/nebula-fbthrift-graph-v1" }
 
 [dev-dependencies]
 chrono = { version = "0.4", features = ["serde"] }

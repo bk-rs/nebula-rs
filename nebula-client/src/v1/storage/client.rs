@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use fbthrift::{BinaryProtocol, Transport};
-use nebula_fbthrift_storage::{
+use nebula_fbthrift_storage_v1::{
     client::{StorageService, StorageServiceImpl},
     errors::storage_service::{ScanEdgeError, ScanVertexError},
     types::{ScanEdgeRequest, ScanEdgeResponse, ScanVertexRequest, ScanVertexResponse},

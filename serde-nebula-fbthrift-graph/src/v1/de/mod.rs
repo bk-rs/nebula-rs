@@ -1,10 +1,10 @@
 pub mod data;
 pub mod datetime;
 
-use nebula_fbthrift_graph::ExecutionResponse;
+use nebula_fbthrift_graph_v1::ExecutionResponse;
 use serde::Deserialize;
 
-use crate::de::data::{DataDeserializeError, DataDeserializer};
+use crate::v1::de::data::{DataDeserializeError, DataDeserializer};
 
 pub fn deserialize_execution_response<'de, D: Deserialize<'de>>(
     execution_response: &'de ExecutionResponse,

@@ -1,10 +1,10 @@
-use nebula_fbthrift_graph::{
+use nebula_fbthrift_graph_v1::{
     types::{ColumnValue, ErrorCode, RowValue},
     ExecutionResponse,
 };
 use serde::Deserialize;
 
-use serde_nebula_fbthrift_graph::de::deserialize_execution_response;
+use serde_nebula_fbthrift_graph::v1::de::deserialize_execution_response;
 
 #[derive(Deserialize, PartialEq, Debug)]
 struct Foo {

@@ -5,7 +5,7 @@ use fbthrift::{
     ProtocolReader,
 };
 use fbthrift_transport_response_handler::ResponseHandler;
-use nebula_fbthrift_storage::services::storage_service::{ScanEdgeExn, ScanVertexExn};
+use nebula_fbthrift_storage_v1::services::storage_service::{ScanEdgeExn, ScanVertexExn};
 
 #[derive(Clone)]
 pub struct StorageTransportResponseHandler;
