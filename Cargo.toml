@@ -16,6 +16,3 @@ members = [
     "nebula-client",
     "serde-nebula-fbthrift-graph",
 ]
-[patch.crates-io]
-fbthrift-transport = { git = "https://github.com/bk-rs/fbthrift-transport" }
-fbthrift-transport-response-handler = { git = "https://github.com/bk-rs/fbthrift-transport" }
