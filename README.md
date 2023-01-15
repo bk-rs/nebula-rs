@@ -23,7 +23,7 @@
 cargo clippy --all --all-features -- -D clippy::all
 cargo +nightly clippy --all --all-features -- -D clippy::all
 
-cargo fmt -p bb8-nebula -p mobc-nebula -p nebula-client -p serde-nebula-fbthrift-graph -p nebula-demo-async-std -p nebula-demo-tokio -p nebula-demo-tokio02 -- --check
+cargo fmt -p bb8-nebula -p mobc-nebula -p nebula-client -p serde-nebula-fbthrift-graph -p nebula-demo-tokio -- --check
 ```
 
 ```

@@ -2,7 +2,7 @@
 name = "mobc-nebula"
 version = "0.7.0"
 authors = ["vkill <vkill.net@gmail.com>"]
-edition = "2018"
+edition = "2021"
 description = "mobc Nebula Graph/Meta/Storage pool"
 license = "Apache-2.0 OR MIT"
 repository = "https://github.com/bk-rs/nebula-rs"
@@ -12,18 +12,19 @@ keywords = []
 categories = []
 readme = "README.md"
 
+[package.metadata.docs.rs]
+all-features = true
+
 [features]
-default = ["graph"]
+default = ["impl_tokio", "graph"]
+
+impl_tokio = ["fbthrift-transport/impl_tokio"]
+
 graph = ["nebula-client/graph"]
 
 [dependencies]
-fbthrift-transport = { version = "=0.7.0", default-features = false, features = ["futures_io"] }
+fbthrift-transport = { version = "=0.7.0", default-features = false }
 
-mobc = { version = "0.7", default-features = false, features = ["async-std", "unstable"] }
-async-std = { version = "1.9", default-features = false, features = ["default"] }
+nebula-client = { version = "=0.5.0", default-features = false, path = "../nebula-client" }
 
-nebula-client = { path = "../nebula-client", version = "=0.5.0", default-features = false, features = [] }
-
-[package.metadata.cargo-all-features]
-skip_feature_sets = []
-skip_optional_dependencies = true
+mobc = { version = "0.7", default-features = false, features = ["tokio"] }

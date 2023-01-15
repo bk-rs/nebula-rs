@@ -2,7 +2,7 @@
 name = "bb8-nebula"
 version = "0.7.0"
 authors = ["vkill <vkill.net@gmail.com>"]
-edition = "2018"
+edition = "2021"
 description = "bb8 Nebula Graph/Meta/Storage pool"
 license = "Apache-2.0 OR MIT"
 repository = "https://github.com/bk-rs/nebula-rs"
@@ -12,28 +12,20 @@ keywords = []
 categories = []
 readme = "README.md"
 
+[package.metadata.docs.rs]
+all-features = true
+
 [features]
-default = ["graph", "tokio1"]
+default = ["impl_tokio", "graph"]
+
+impl_tokio = ["fbthrift-transport/impl_tokio"]
+
 graph = ["nebula-client/graph"]
 
-tokio02 = ["fbthrift-transport/tokio02_io", "bb805", "tokio02_"]
-tokio1 = ["fbthrift-transport/tokio_io", "bb8", "tokio"]
-
 [dependencies]
-fbthrift-transport = { version = "=0.7.0", default-features = false, features = [] }
+fbthrift-transport = { version = "=0.7.0", default-features = false }
 
-bb805 = { version = "~0.5", default-features = false, features = [], package = "bb8", optional = true }
-bb8 = { version = "0.7", default-features = false, features = [], optional = true }
+nebula-client = { version = "=0.5.0", default-features = false, path = "../nebula-client" }
 
-async-trait = { version = "0.1", default-features = false, features = [] }
-
-tokio02_ = { version = "~0.2", default-features = false, features = ["net"], optional = true, package = "tokio" }
-tokio = { version = "1.0", default-features = false, features = ["net"], optional = true }
-
-nebula-client = { path = "../nebula-client", version = "=0.5.0", default-features = false, features = [], optional = true }
-
-[package.metadata.cargo-all-features]
-skip_feature_sets = [
-    ["tokio02", "tokio1"]
-]
-skip_optional_dependencies = true
+bb8 = { version = "0.8", default-features = false }
+async-trait = { version = "0.1", default-features = false }

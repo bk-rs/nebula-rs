@@ -1,20 +1,21 @@
 /*
-cargo run -p nebula-demo-tokio --bin bb8_graph_pool 127.0.0.1 3699 user 'password'
+cargo run -p nebula-demo-tokio --bin nebula_demo_tokio_v1_bb8_graph_pool 127.0.0.1 3699 user 'password'
 */
 
 use std::env;
-use std::error;
 
-use bb8_nebula::tokio1::{GraphClientConfiguration, GraphConnectionManager};
+use bb8_nebula::{
+    graph::GraphClientConfiguration, impl_tokio::v1::graph::new_graph_connection_manager,
+};
 use fbthrift_transport::AsyncTransportConfiguration;
-use nebula_client::{GraphQuery as _, GraphTransportResponseHandler};
+use nebula_client::v1::{GraphQuery as _, GraphTransportResponseHandler};
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn error::Error>> {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     run().await
 }
 
-async fn run() -> Result<(), Box<dyn error::Error>> {
+async fn run() -> Result<(), Box<dyn std::error::Error>> {
     let domain = env::args()
         .nth(1)
         .unwrap_or_else(|| env::var("DOMAIN").unwrap_or_else(|_| "127.0.0.1".to_owned()));
@@ -32,7 +33,7 @@ async fn run() -> Result<(), Box<dyn error::Error>> {
     let space = env::args().nth(5).or_else(|| env::var("SPACE").ok());
 
     println!(
-        "bb8_graph_pool {} {} {} {} {:?}",
+        "v1_bb8_graph_pool {} {} {} {} {:?}",
         domain, port, username, password, space
     );
 
@@ -40,7 +41,7 @@ async fn run() -> Result<(), Box<dyn error::Error>> {
     let client_configuration =
         GraphClientConfiguration::new(domain, port, username, password, space);
     let transport_configuration = AsyncTransportConfiguration::new(GraphTransportResponseHandler);
-    let manager = GraphConnectionManager::new(client_configuration, transport_configuration);
+    let manager = new_graph_connection_manager(client_configuration, transport_configuration);
     let pool = bb8::Pool::builder().max_size(1).build(manager).await?;
 
     //

@@ -1,21 +1,18 @@
 /*
-cargo run -p nebula-demo-async-std --bin graph_client 127.0.0.1 3699 user 'password'
+cargo run -p nebula-demo-tokio --bin nebula_demo_tokio_v1_graph_client 127.0.0.1 3699 user 'password'
 */
 
 use std::env;
-use std::error;
 
-use async_std::net::TcpStream;
+use fbthrift_transport::{AsyncTransport, AsyncTransportConfiguration};
+use nebula_client::v1::{GraphClient, GraphQuery as _, GraphTransportResponseHandler};
 
-use fbthrift_transport::{futures_io::transport::AsyncTransport, AsyncTransportConfiguration};
-use nebula_client::{GraphClient, GraphQuery as _, GraphTransportResponseHandler};
-
-#[async_std::main]
-async fn main() -> Result<(), Box<dyn error::Error>> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     run().await
 }
 
-async fn run() -> Result<(), Box<dyn error::Error>> {
+async fn run() -> Result<(), Box<dyn std::error::Error>> {
     let domain = env::args()
         .nth(1)
         .unwrap_or_else(|| env::var("DOMAIN").unwrap_or_else(|_| "127.0.0.1".to_owned()));
@@ -31,17 +28,21 @@ async fn run() -> Result<(), Box<dyn error::Error>> {
         .nth(4)
         .unwrap_or_else(|| env::var("PASSWORD").unwrap_or_else(|_| "password".to_owned()));
 
-    println!("graph_client {} {} {} {}", domain, port, username, password);
+    println!(
+        "v1_graph_client {} {} {} {}",
+        domain, port, username, password
+    );
 
     //
     let addr = format!("{}:{}", domain, port);
-    let stream = TcpStream::connect(addr).await?;
 
     //
-    let transport = AsyncTransport::new(
-        stream,
+    //
+    let transport = AsyncTransport::with_tokio_tcp_connect(
+        addr,
         AsyncTransportConfiguration::new(GraphTransportResponseHandler),
-    );
+    )
+    .await?;
     let client = GraphClient::new(transport);
 
     let mut session = client
@@ -50,8 +51,6 @@ async fn run() -> Result<(), Box<dyn error::Error>> {
 
     let out = session.show_hosts().await?;
     println!("{:?}", out);
-
-    session.signout().await?;
 
     println!("done");
 

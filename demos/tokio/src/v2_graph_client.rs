@@ -1,21 +1,18 @@
 /*
-cargo run -p nebula-demo-tokio --bin v2_graph_client 127.0.0.1 9669 user 'password'
+cargo run -p nebula-demo-tokio --bin nebula_demo_tokio_v2_graph_client 127.0.0.1 9669 user 'password'
 */
 
 use std::env;
-use std::error;
 
-use tokio::net::TcpStream;
-
-use fbthrift_transport::{tokio_io::transport::AsyncTransport, AsyncTransportConfiguration};
+use fbthrift_transport::{AsyncTransport, AsyncTransportConfiguration};
 use nebula_client::v2::{GraphClient, GraphTransportResponseHandler};
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn error::Error>> {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     run().await
 }
 
-async fn run() -> Result<(), Box<dyn error::Error>> {
+async fn run() -> Result<(), Box<dyn std::error::Error>> {
     let domain = env::args()
         .nth(1)
         .unwrap_or_else(|| env::var("DOMAIN").unwrap_or_else(|_| "127.0.0.1".to_owned()));
@@ -38,13 +35,13 @@ async fn run() -> Result<(), Box<dyn error::Error>> {
 
     //
     let addr = format!("{}:{}", domain, port);
-    let stream = TcpStream::connect(addr).await?;
 
     //
-    let transport = AsyncTransport::new(
-        stream,
+    let transport = AsyncTransport::with_tokio_tcp_connect(
+        addr,
         AsyncTransportConfiguration::new(GraphTransportResponseHandler),
-    );
+    )
+    .await?;
     let client = GraphClient::new(transport);
 
     let mut session = client

@@ -2,32 +2,32 @@
 name = "nebula-demo-tokio"
 version = "0.1.0"
 authors = ["vkill <vkill.net@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 [[bin]]
-name = "bb8_graph_pool"
-path = "src/bb8_graph_pool.rs"
+name = "nebula_demo_tokio_v1_bb8_graph_pool"
+path = "src/v1_bb8_graph_pool.rs"
 
 [[bin]]
-name = "graph_client"
-path = "src/graph_client.rs"
+name = "nebula_demo_tokio_v1_graph_client"
+path = "src/v1_graph_client.rs"
 
 [[bin]]
-name = "v2_bb8_graph_pool"
+name = "nebula_demo_tokio_v2_bb8_graph_pool"
 path = "src/v2_bb8_graph_pool.rs"
 
 [[bin]]
-name = "v2_graph_client"
+name = "nebula_demo_tokio_v2_graph_client"
 path = "src/v2_graph_client.rs"
 
 [dependencies]
 # non-pool
-nebula-client = { path = "../../nebula-client", version = "=0.5.0", features = ["graph"] }
-fbthrift-transport = { version = "=0.7.0", features = ["tokio_io"] }
+fbthrift-transport = { version = "=0.7.0", features = ["impl_tokio"] }
+nebula-client = { version = "=0.5.0", features = ["graph"], path = "../../nebula-client" }
 
 # bb8
-bb8 = "0.7"
-bb8-nebula = { path = "../../bb8-nebula", version = "=0.7.0", features = ["graph"] }
+bb8 = { version = "0.8" }
+bb8-nebula = { version = "=0.7.0", features = ["graph"], path = "../../bb8-nebula" }
 
 # common
-tokio = { version = "1.0", default-features = false, features = ["io-util", "net", "macros", "rt-multi-thread"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread" ] }
