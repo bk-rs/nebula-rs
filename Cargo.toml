@@ -1,18 +1,15 @@
 [workspace]
 members = [
+    # 
     "bb8-nebula",
+    # 
     "demos/tokio",
+    # 
     "mobc-nebula",
-    "nebula-fbthrift/nebula-fbthrift-common",
-    "nebula-fbthrift/nebula-fbthrift-common-v2",
-    "nebula-fbthrift/nebula-fbthrift-graph",
-    "nebula-fbthrift/nebula-fbthrift-graph-v2",
-    "nebula-fbthrift/nebula-fbthrift-meta",
-    "nebula-fbthrift/nebula-fbthrift-meta-v2",
-    "nebula-fbthrift/nebula-fbthrift-raftex",
-    "nebula-fbthrift/nebula-fbthrift-raftex-v2",
-    "nebula-fbthrift/nebula-fbthrift-storage",
-    "nebula-fbthrift/nebula-fbthrift-storage-v2",
+    # 
     "nebula-client",
+    # 
+    "nebula-fbthrift/*",
+    # 
     "serde-nebula-fbthrift-graph",
 ]
