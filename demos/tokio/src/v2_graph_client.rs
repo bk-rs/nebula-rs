@@ -1,5 +1,5 @@
 /*
-cargo run -p nebula-demo-tokio --bin nebula_demo_tokio_v2_graph_client 127.0.0.1 9669 user 'password'
+cargo run -p nebula-demo-tokio --bin nebula_demo_tokio_v2_graph_client 127.0.0.1 9669 root 'password'
 */
 
 use std::env;
@@ -23,7 +23,7 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
         .unwrap();
     let username = env::args()
         .nth(3)
-        .unwrap_or_else(|| env::var("USERNAME").unwrap_or_else(|_| "user".to_owned()));
+        .unwrap_or_else(|| env::var("USERNAME").unwrap_or_else(|_| "root".to_owned()));
     let password = env::args()
         .nth(4)
         .unwrap_or_else(|| env::var("PASSWORD").unwrap_or_else(|_| "password".to_owned()));
