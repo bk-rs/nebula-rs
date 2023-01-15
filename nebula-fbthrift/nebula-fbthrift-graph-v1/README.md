@@ -1,3 +1,3 @@
-# nebula-fbthrift-graph
+# nebula-fbthrift-graph-v1
 
-* [Cargo package](https://crates.io/crates/nebula-fbthrift-graph)
+* [Cargo package](https://crates.io/crates/nebula-fbthrift-graph-v1)
