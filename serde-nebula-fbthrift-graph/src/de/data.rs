@@ -698,7 +698,7 @@ mod tests {
             ],
         )?;
 
-        assert_eq!(v.a, Utc.ymd(2020, 1, 1).and_hms(0, 0, 0));
+        assert_eq!(v.a, Utc.with_ymd_and_hms(2020, 1, 1, 0, 0, 0).unwrap());
         assert_eq!(v.b, Timestamp(1577836801));
         assert_eq!(v.c, 1577836802);
         assert_eq!(v.d, 1577836803);
