@@ -31,14 +31,14 @@ impl ResponseHandler for GraphTransportResponseHandler {
                 if name != b"signout" {
                     return Err(io::Error::new(
                         io::ErrorKind::Other,
-                        format!("Unexpected name {:?}", name),
+                        format!("Unexpected name {name:?}"),
                     ));
                 }
 
                 if message_type != MessageType::Call {
                     return Err(io::Error::new(
                         io::ErrorKind::Other,
-                        format!("Unexpected message type {:?}", message_type),
+                        format!("Unexpected message type {message_type:?}"),
                     ));
                 }
 
@@ -58,7 +58,7 @@ impl ResponseHandler for GraphTransportResponseHandler {
             "GraphService.executeJson" => Ok(None),
             _ => Err(io::Error::new(
                 io::ErrorKind::Other,
-                format!("Unknown method {}", fn_name),
+                format!("Unknown method {fn_name}"),
             )),
         }
     }
@@ -155,7 +155,7 @@ mod tests {
             None
         );
         match handler.try_make_static_response_bytes("GraphService", "GraphService.foo", b"FOO") {
-            Ok(_) => assert!(false),
+            Ok(_) => panic!(),
             Err(err) => {
                 assert_eq!(err.kind(), io::ErrorKind::Other);
 
@@ -199,7 +199,7 @@ mod tests {
             request.bytes(),
         ) {
             Ok(Some(_)) => {}
-            _ => assert!(false),
+            _ => panic!(),
         }
 
         Ok(())

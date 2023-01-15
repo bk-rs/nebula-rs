@@ -27,7 +27,7 @@ impl ResponseHandler for MetaTransportResponseHandler {
             | "MetaService.listEdges" => Ok(None),
             _ => Err(io::Error::new(
                 io::ErrorKind::Other,
-                format!("Unknown method {}", fn_name),
+                format!("Unknown method {fn_name}"),
             )),
         }
     }
@@ -149,7 +149,7 @@ mod tests {
             None
         );
         match handler.try_make_static_response_bytes("MetaService", "MetaService.foo", b"FOO") {
-            Ok(_) => assert!(false),
+            Ok(_) => panic!(),
             Err(err) => {
                 assert_eq!(err.kind(), io::ErrorKind::Other);
 

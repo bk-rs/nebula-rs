@@ -49,7 +49,7 @@ where
 
         if let Some(ref space) = self.client_configuration.space {
             session
-                .execute(&format!("USE {}", space).as_bytes().to_vec())
+                .execute(&format!("USE {space}").as_bytes().to_vec())
                 .await
                 .map_err(|err| IoError::new(IoErrorKind::Other, err))?;
         }

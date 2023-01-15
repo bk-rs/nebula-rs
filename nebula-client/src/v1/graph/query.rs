@@ -72,13 +72,11 @@ pub enum GraphQueryError {
 impl fmt::Display for GraphQueryError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::ExecuteError(err) => write!(f, "ExecuteError {}", err),
-            Self::ResponseError(err_code, err_msg) => write!(
-                f,
-                "ResponseError err_code:{} err_msg:{:?}",
-                err_code, err_msg
-            ),
-            Self::DataDeserializeError(err) => write!(f, "DataDeserializeError {}", err),
+            Self::ExecuteError(err) => write!(f, "ExecuteError {err}"),
+            Self::ResponseError(err_code, err_msg) => {
+                write!(f, "ResponseError err_code:{err_code} err_msg:{err_msg:?}",)
+            }
+            Self::DataDeserializeError(err) => write!(f, "DataDeserializeError {err}"),
         }
     }
 }
@@ -131,7 +129,7 @@ mod tests {
     #[test]
     fn impl_std_fmt_display() {
         let err = GraphQueryError::ResponseError(ErrorCode::E_DISCONNECTED, None);
-        println!("{}", err.to_string());
+        println!("{err}");
     }
 
     #[test]
@@ -140,6 +138,6 @@ mod tests {
             io::ErrorKind::Other,
             GraphQueryError::ResponseError(ErrorCode::E_DISCONNECTED, None),
         );
-        println!("{}", err.to_string());
+        println!("{err}");
     }
 }

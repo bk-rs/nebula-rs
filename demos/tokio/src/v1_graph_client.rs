@@ -28,13 +28,10 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
         .nth(4)
         .unwrap_or_else(|| env::var("PASSWORD").unwrap_or_else(|_| "password".to_owned()));
 
-    println!(
-        "v1_graph_client {} {} {} {}",
-        domain, port, username, password
-    );
+    println!("v1_graph_client {domain} {port} {username} {password}");
 
     //
-    let addr = format!("{}:{}", domain, port);
+    let addr = format!("{domain}:{port}");
 
     //
     //
@@ -50,7 +47,7 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
 
     let out = session.show_hosts().await?;
-    println!("{:?}", out);
+    println!("{out:?}");
 
     println!("done");
 

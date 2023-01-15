@@ -12,8 +12,7 @@
 ```
 cargo clippy --all-features --tests -- -D clippy::all
 cargo +nightly clippy --all-features --tests -- -D clippy::all
-
-cargo fmt -- --check
+cargo fmt -p bb8-nebula -p nebula-demo-tokio -p mobc-nebula -p nebula-client -p serde-nebula-fbthrift-graph --check --
 
 cargo build-all-features
 cargo test-all-features -- --nocapture

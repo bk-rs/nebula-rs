@@ -32,10 +32,7 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
         .unwrap_or_else(|| env::var("PASSWORD").unwrap_or_else(|_| "password".to_owned()));
     let space = env::args().nth(5).or_else(|| env::var("SPACE").ok());
 
-    println!(
-        "v2_bb8_graph_pool {} {} {} {} {:?}",
-        domain, port, username, password, space
-    );
+    println!("v2_bb8_graph_pool {domain} {port} {username} {password} {space:?}",);
 
     //
     let client_configuration =
@@ -48,14 +45,14 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
     {
         let mut session = pool.get().await?;
         let res = session.execute(&"SHOW HOSTS;".as_bytes().to_vec()).await?;
-        println!("{:?}", res);
+        println!("{res:?}");
     }
 
     //
     {
         let mut session = pool.get().await?;
         let res = session.execute(&"SHOW HOSTS;".as_bytes().to_vec()).await?;
-        println!("{:?}", res);
+        println!("{res:?}");
     }
 
     println!("done");

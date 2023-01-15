@@ -28,13 +28,10 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
         .nth(4)
         .unwrap_or_else(|| env::var("PASSWORD").unwrap_or_else(|_| "password".to_owned()));
 
-    println!(
-        "v2_graph_client {} {} {} {}",
-        domain, port, username, password
-    );
+    println!("v2_graph_client {domain} {port} {username} {password}",);
 
     //
-    let addr = format!("{}:{}", domain, port);
+    let addr = format!("{domain}:{port}");
 
     //
     let transport = AsyncTransport::with_tokio_tcp_connect(
@@ -49,7 +46,7 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
 
     let res = session.execute(&b"SHOW HOSTS;".to_vec()).await?;
-    println!("{:?}", res);
+    println!("{res:?}");
 
     println!("done");
 

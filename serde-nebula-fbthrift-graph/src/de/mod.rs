@@ -22,7 +22,7 @@ pub fn deserialize_execution_response<'de, D: Deserialize<'de>>(
     };
 
     for row in rows.iter() {
-        let mut data_deserializer = DataDeserializer::new(&names, &row.columns);
+        let mut data_deserializer = DataDeserializer::new(names, &row.columns);
 
         let data = D::deserialize(&mut data_deserializer)?;
 

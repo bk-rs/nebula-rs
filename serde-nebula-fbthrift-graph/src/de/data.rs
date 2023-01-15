@@ -287,7 +287,7 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
     {
         match self.next_value()? {
             ColumnValue::str(v) => {
-                let mut seq_deserializer = SeqDeserializer::new(v.to_owned().into_iter());
+                let mut seq_deserializer = SeqDeserializer::new(v.iter().copied());
                 let value = visitor.visit_seq(&mut seq_deserializer)?;
                 seq_deserializer.end()?;
                 Ok(value)
@@ -494,7 +494,7 @@ impl de::Error for DataDeserializeError {
 impl fmt::Display for DataDeserializeError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(field) = self.field {
-            write!(f, "field {}: {}", field, self.kind)
+            write!(f, "field {field}: {}", self.kind)
         } else {
             write!(f, "{}", self.kind)
         }
@@ -509,7 +509,7 @@ impl fmt::Display for DataDeserializeErrorKind {
             UnexpectedEndOf => write!(f, "{}", self.description()),
             TypeMismatch => write!(f, "{}", self.description()),
             Unimplemented => write!(f, "{}", self.description()),
-            Custom(ref msg) => write!(f, "{}", msg),
+            Custom(ref msg) => write!(f, "{msg}"),
         }
     }
 }
@@ -555,8 +555,8 @@ mod tests {
             vec![ColumnValue::bool_val(true), ColumnValue::bool_val(false)],
         )?;
 
-        assert_eq!(v.a, true);
-        assert_eq!(v.b, false);
+        assert!(v.a);
+        assert!(!v.b);
 
         Ok(())
     }
@@ -843,7 +843,7 @@ mod tests {
             ],
         )?;
 
-        assert_eq!(v.a, true);
+        assert!(v.a);
         assert_eq!(v.b, 1);
         assert_eq!(v.c, 2);
         assert_eq!(v.d, "3");
@@ -853,7 +853,7 @@ mod tests {
 
     #[test]
     fn with_unit() -> io::Result<()> {
-        let _: () = de(vec!["a"], vec![ColumnValue::bool_val(true)])?;
+        de::<()>(vec!["a"], vec![ColumnValue::bool_val(true)])?;
 
         Ok(())
     }
