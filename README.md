@@ -19,3 +19,15 @@ cargo fmt -p bb8-nebula -p nebula-demo-tokio -p mobc-nebula -p nebula-client -p 
 cargo build-all-features
 cargo test-all-features -- --nocapture
 ```
+
+## Publish order
+
+nebula-fbthrift/nebula-fbthrift-double
+
+nebula-fbthrift/*
+
+serde-nebula-fbthrift-graph
+
+nebula-client
+
+bb8-nebula mobc-nebula
