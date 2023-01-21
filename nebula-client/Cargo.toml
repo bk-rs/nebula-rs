@@ -17,7 +17,12 @@ features = [ "graph", "meta", "storage" ]
 
 [features]
 default = ["graph"]
-graph = ["nebula-fbthrift-graph-v1", "nebula-fbthrift-graph-v2", "serde", "serde-nebula-fbthrift-graph"]
+graph = [
+    "nebula-fbthrift-graph-v1",
+    "nebula-fbthrift-graph-v2",
+    "nebula-fbthrift-graph-v3",
+    "serde", "serde-nebula-fbthrift-graph"
+]
 meta = ["nebula-fbthrift-meta-v1"]
 storage = ["nebula-fbthrift-storage-v1"]
 
@@ -29,6 +34,7 @@ async-trait = { version = "0.1", default-features = false }
 
 fbthrift-transport-response-handler = { version = "0.7" }
 
+nebula-fbthrift-graph-v3 = { version = "^0.3", default-features = false, optional = true, path = "../nebula-fbthrift/nebula-fbthrift-graph-v3" }
 nebula-fbthrift-graph-v2 = { version = "^0.3", default-features = false, optional = true, path = "../nebula-fbthrift/nebula-fbthrift-graph-v2" }
 nebula-fbthrift-graph-v1 = { version = "^0.3", default-features = false, optional = true, path = "../nebula-fbthrift/nebula-fbthrift-graph-v1" }
 
