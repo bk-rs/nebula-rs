@@ -27,7 +27,7 @@ fbthrift = { package = "fbthrift-git", version = "=0.0.7", default-features = fa
 bytes = { version = "1", default-features = false }
 async-trait = { version = "0.1", default-features = false }
 
-fbthrift-transport-response-handler = { version = "0.6" }
+fbthrift-transport-response-handler = { version = "0.7" }
 
 nebula-fbthrift-graph-v1 = { version = "=0.2.0", default-features = false, optional = true, path = "../nebula-fbthrift/nebula-fbthrift-graph-v1" }
 nebula-fbthrift-graph-v2 = { version = "=0.2.0", default-features = false, optional = true, path = "../nebula-fbthrift/nebula-fbthrift-graph-v2" }
