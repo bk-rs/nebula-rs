@@ -18,6 +18,3 @@ nebula-fbthrift-double = { version = "^0.3", default-features = false, path = ".
 fbthrift = { package = "fbthrift-git", version = "=0.0.7", default-features = false }
 
 anyhow = { version = "1", default-features = false }
-
-[dev-dependencies]
-float-cmp = { version = "0.9" }
