@@ -1,6 +1,6 @@
 [package]
 name = "nebula-fbthrift-raftex-v3"
-version = "0.0.0"
+version = "0.3.0"
 authors = ["vkill <vkill.net@gmail.com>"]
 edition = "2021"
 description = "Nebula Graph v3 raftex interface"
@@ -13,3 +13,12 @@ categories = []
 readme = "README.md"
 
 [dependencies]
+fbthrift = { package = "fbthrift-git", version = "=0.0.7", default-features = false }
+
+anyhow = { version = "1", default-features = false }
+futures = { version = "0.3", default-features = false, features = ["std"] }
+async-trait = { version = "0.1", default-features = false }
+const-cstr = { version = "0.3", default-features = false }
+tracing = { version = "0.1", default-features = false, features = ["attributes"] }
+
+common = { package = "nebula-fbthrift-common-v3", version = "=0.3.0", default-features = false, path = "../nebula-fbthrift-common-v3" }

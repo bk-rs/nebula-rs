@@ -23,6 +23,35 @@ ssh_host="$2"
 ssh_port="$3"
 
 # 
+# v3
+# 
+scp -P ${ssh_port} ${ssh_username}@${ssh_host}:/tmp/nebula-fbthrift-common-v3/src/lib.rs \
+                                ${script_path_root}nebula-fbthrift-common-v3/src/lib.rs
+scp -P ${ssh_port} ${ssh_username}@${ssh_host}:/tmp/nebula-fbthrift-common-v3/src/types.rs \
+                                ${script_path_root}nebula-fbthrift-common-v3/src/types.rs
+
+scp -P ${ssh_port} ${ssh_username}@${ssh_host}:/tmp/nebula-fbthrift-graph-v3/src/lib.rs \
+                                ${script_path_root}nebula-fbthrift-graph-v3/src/lib.rs
+scp -P ${ssh_port} ${ssh_username}@${ssh_host}:/tmp/nebula-fbthrift-graph-v3/src/types.rs \
+                                ${script_path_root}nebula-fbthrift-graph-v3/src/types.rs
+
+scp -P ${ssh_port} ${ssh_username}@${ssh_host}:/tmp/nebula-fbthrift-meta-v3/src/lib.rs \
+                                ${script_path_root}nebula-fbthrift-meta-v3/src/lib.rs
+scp -P ${ssh_port} ${ssh_username}@${ssh_host}:/tmp/nebula-fbthrift-meta-v3/src/types.rs \
+                                ${script_path_root}nebula-fbthrift-meta-v3/src/types.rs
+
+scp -P ${ssh_port} ${ssh_username}@${ssh_host}:/tmp/nebula-fbthrift-raftex-v3/src/lib.rs \
+                                ${script_path_root}nebula-fbthrift-raftex-v3/src/lib.rs
+scp -P ${ssh_port} ${ssh_username}@${ssh_host}:/tmp/nebula-fbthrift-raftex-v3/src/types.rs \
+                                ${script_path_root}nebula-fbthrift-raftex-v3/src/types.rs
+
+scp -P ${ssh_port} ${ssh_username}@${ssh_host}:/tmp/nebula-fbthrift-storage-v3/src/lib.rs \
+                                ${script_path_root}nebula-fbthrift-storage-v3/src/lib.rs
+scp -P ${ssh_port} ${ssh_username}@${ssh_host}:/tmp/nebula-fbthrift-storage-v3/src/types.rs \
+                                ${script_path_root}nebula-fbthrift-storage-v3/src/types.rs
+
+
+# 
 # v2
 # 
 scp -P ${ssh_port} ${ssh_username}@${ssh_host}:/tmp/nebula-fbthrift-common-v2/src/lib.rs \
