@@ -16,4 +16,4 @@ readme = "README.md"
 fbthrift = { package = "fbthrift-git", version = "=0.0.7", default-features = false }
 
 anyhow = { version = "1", default-features = false }
-once_cell = { version = "1", default-features = false }
+once_cell = { version = "1", default-features = false, features = ["std"] }
