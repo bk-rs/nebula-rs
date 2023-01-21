@@ -22,6 +22,7 @@ fn with_none_column_names() -> Result<(), Box<dyn std::error::Error>> {
         rows: None,
         space_name: None,
         warning_msg: None,
+        ..Default::default()
     };
 
     let foo_set = deserialize_execution_response::<Foo>(&execution_response)?;
@@ -40,6 +41,7 @@ fn with_empty_column_names() -> Result<(), Box<dyn std::error::Error>> {
         rows: None,
         space_name: None,
         warning_msg: None,
+        ..Default::default()
     };
 
     let foo_set = deserialize_execution_response::<Foo>(&execution_response)?;
@@ -58,6 +60,7 @@ fn with_none_rows() -> Result<(), Box<dyn std::error::Error>> {
         rows: None,
         space_name: None,
         warning_msg: None,
+        ..Default::default()
     };
 
     let foo_set = deserialize_execution_response::<Foo>(&execution_response)?;
@@ -76,13 +79,16 @@ fn simple() -> Result<(), Box<dyn std::error::Error>> {
         rows: Some(vec![
             RowValue {
                 columns: vec![ColumnValue::integer(1), ColumnValue::str(b"1".to_vec())],
+                ..Default::default()
             },
             RowValue {
                 columns: vec![ColumnValue::integer(2), ColumnValue::str(b"2".to_vec())],
+                ..Default::default()
             },
         ]),
         space_name: None,
         warning_msg: None,
+        ..Default::default()
     };
 
     let foo_set = deserialize_execution_response::<Foo>(&execution_response)?;
@@ -107,13 +113,16 @@ fn with_unit() -> Result<(), Box<dyn std::error::Error>> {
         rows: Some(vec![
             RowValue {
                 columns: vec![ColumnValue::integer(1), ColumnValue::str(b"1".to_vec())],
+                ..Default::default()
             },
             RowValue {
                 columns: vec![ColumnValue::integer(2), ColumnValue::str(b"2".to_vec())],
+                ..Default::default()
             },
         ]),
         space_name: None,
         warning_msg: None,
+        ..Default::default()
     };
 
     let foo_set = deserialize_execution_response::<()>(&execution_response)?;

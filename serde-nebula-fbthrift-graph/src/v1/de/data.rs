@@ -737,10 +737,12 @@ mod tests {
                 ColumnValue::month(types::YearMonth {
                     year: 2020,
                     month: 1,
+                    ..Default::default()
                 }),
                 ColumnValue::month(types::YearMonth {
                     year: 2020,
                     month: 2,
+                    ..Default::default()
                 }),
             ],
         )?;
@@ -766,11 +768,13 @@ mod tests {
                     year: 2020,
                     month: 1,
                     day: 2,
+                    ..Default::default()
                 }),
                 ColumnValue::date(types::Date {
                     year: 2020,
                     month: 1,
                     day: 3,
+                    ..Default::default()
                 }),
             ],
         )?;
@@ -799,6 +803,7 @@ mod tests {
                 second: 5,
                 millisec: 6,
                 microsec: 7,
+                ..Default::default()
             })],
         )?;
 

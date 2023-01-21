@@ -63,7 +63,12 @@ where
     }
 
     pub async fn list_spaces(&self) -> Result<ListSpacesResp, ListSpacesError> {
-        self.connection.service.listSpaces(&ListSpacesReq {}).await
+        self.connection
+            .service
+            .listSpaces(&ListSpacesReq {
+                ..Default::default()
+            })
+            .await
     }
 
     pub async fn get_space(&self, space_name: &str) -> Result<GetSpaceResp, GetSpaceError> {
@@ -71,6 +76,7 @@ where
             .service
             .getSpace(&GetSpaceReq {
                 space_name: space_name.to_owned(),
+                ..Default::default()
             })
             .await
     }
@@ -83,21 +89,31 @@ where
     ) -> Result<ListPartsResp, ListPartsError> {
         self.connection
             .service
-            .listParts(&ListPartsReq { space_id, part_ids })
+            .listParts(&ListPartsReq {
+                space_id,
+                part_ids,
+                ..Default::default()
+            })
             .await
     }
 
     pub async fn list_tags(&self, space_id: i32) -> Result<ListTagsResp, ListTagsError> {
         self.connection
             .service
-            .listTags(&ListTagsReq { space_id })
+            .listTags(&ListTagsReq {
+                space_id,
+                ..Default::default()
+            })
             .await
     }
 
     pub async fn list_edges(&self, space_id: i32) -> Result<ListEdgesResp, ListTagsError> {
         self.connection
             .service
-            .listEdges(&ListEdgesReq { space_id })
+            .listEdges(&ListEdgesReq {
+                space_id,
+                ..Default::default()
+            })
             .await
     }
 }
