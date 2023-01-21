@@ -1,6 +1,6 @@
 [package]
 name = "serde-nebula-fbthrift-graph"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["vkill <vkill.net@gmail.com>"]
 edition = "2021"
 description = "nebula-fbthrift-graph serde deserializer"
