@@ -14,13 +14,13 @@ pub struct GraphTransportResponseHandler;
 impl ResponseHandler for GraphTransportResponseHandler {
     fn try_make_static_response_bytes(
         &mut self,
-        _service_name: &'static str,
-        fn_name: &'static str,
+        _service_name: &'static [u8],
+        fn_name: &'static [u8],
         request_bytes: &[u8],
     ) -> Result<Option<Vec<u8>>, IoError> {
         match fn_name {
-            "GraphService.authenticate" => Ok(None),
-            "GraphService.signout" => {
+            b"GraphService.authenticate" => Ok(None),
+            b"GraphService.signout" => {
                 let mut des = BinaryProtocolDeserializer::new(Cursor::new(request_bytes));
                 let (name, message_type, seqid) = des
                     .read_message_begin(|v| v.to_vec())
@@ -52,10 +52,10 @@ impl ResponseHandler for GraphTransportResponseHandler {
 
                 Ok(Some(res_buf))
             }
-            "GraphService.execute" => Ok(None),
+            b"GraphService.execute" => Ok(None),
             _ => Err(IoError::new(
                 IoErrorKind::Other,
-                format!("Unknown method {fn_name}"),
+                format!("Unknown method {}", String::from_utf8_lossy(fn_name)),
             )),
         }
     }
@@ -119,21 +119,21 @@ mod tests {
 
         assert_eq!(
             handler.try_make_static_response_bytes(
-                "GraphService",
-                "GraphService.authenticate",
+                b"GraphService",
+                b"GraphService.authenticate",
                 b"FOO"
             )?,
             None
         );
         assert_eq!(
             handler.try_make_static_response_bytes(
-                "GraphService",
-                "GraphService.execute",
+                b"GraphService",
+                b"GraphService.execute",
                 b"FOO"
             )?,
             None
         );
-        match handler.try_make_static_response_bytes("GraphService", "GraphService.foo", b"FOO") {
+        match handler.try_make_static_response_bytes(b"GraphService", b"GraphService.foo", b"FOO") {
             Ok(_) => panic!(),
             Err(err) => {
                 assert_eq!(err.kind(), IoErrorKind::Other);
@@ -167,8 +167,8 @@ mod tests {
         });
 
         match handler.try_make_static_response_bytes(
-            "GraphService",
-            "GraphService.signout",
+            b"GraphService",
+            b"GraphService.signout",
             &request[..],
         ) {
             Ok(Some(_)) => {}

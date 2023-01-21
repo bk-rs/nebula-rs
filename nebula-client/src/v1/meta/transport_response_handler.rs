@@ -15,19 +15,19 @@ pub struct MetaTransportResponseHandler;
 impl ResponseHandler for MetaTransportResponseHandler {
     fn try_make_static_response_bytes(
         &mut self,
-        _service_name: &'static str,
-        fn_name: &'static str,
+        _service_name: &'static [u8],
+        fn_name: &'static [u8],
         _request_bytes: &[u8],
     ) -> Result<Option<Vec<u8>>, IoError> {
         match fn_name {
-            "MetaService.listSpaces"
-            | "MetaService.getSpace"
-            | "MetaService.listParts"
-            | "MetaService.listTags"
-            | "MetaService.listEdges" => Ok(None),
+            b"MetaService.listSpaces"
+            | b"MetaService.getSpace"
+            | b"MetaService.listParts"
+            | b"MetaService.listTags"
+            | b"MetaService.listEdges" => Ok(None),
             _ => Err(IoError::new(
                 IoErrorKind::Other,
-                format!("Unknown method {fn_name}"),
+                format!("Unknown method {}", String::from_utf8_lossy(fn_name)),
             )),
         }
     }
@@ -108,45 +108,45 @@ mod tests {
 
         assert_eq!(
             handler.try_make_static_response_bytes(
-                "MetaService",
-                "MetaService.listSpaces",
+                b"MetaService",
+                b"MetaService.listSpaces",
                 b"FOO"
             )?,
             None
         );
         assert_eq!(
             handler.try_make_static_response_bytes(
-                "MetaService",
-                "MetaService.getSpace",
+                b"MetaService",
+                b"MetaService.getSpace",
                 b"FOO"
             )?,
             None
         );
         assert_eq!(
             handler.try_make_static_response_bytes(
-                "MetaService",
-                "MetaService.listParts",
+                b"MetaService",
+                b"MetaService.listParts",
                 b"FOO"
             )?,
             None
         );
         assert_eq!(
             handler.try_make_static_response_bytes(
-                "MetaService",
-                "MetaService.listTags",
+                b"MetaService",
+                b"MetaService.listTags",
                 b"FOO"
             )?,
             None
         );
         assert_eq!(
             handler.try_make_static_response_bytes(
-                "MetaService",
-                "MetaService.listEdges",
+                b"MetaService",
+                b"MetaService.listEdges",
                 b"FOO"
             )?,
             None
         );
-        match handler.try_make_static_response_bytes("MetaService", "MetaService.foo", b"FOO") {
+        match handler.try_make_static_response_bytes(b"MetaService", b"MetaService.foo", b"FOO") {
             Ok(_) => panic!(),
             Err(err) => {
                 assert_eq!(err.kind(), IoErrorKind::Other);

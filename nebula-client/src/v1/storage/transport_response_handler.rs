@@ -13,15 +13,15 @@ pub struct StorageTransportResponseHandler;
 impl ResponseHandler for StorageTransportResponseHandler {
     fn try_make_static_response_bytes(
         &mut self,
-        _service_name: &'static str,
-        fn_name: &'static str,
+        _service_name: &'static [u8],
+        fn_name: &'static [u8],
         _request_bytes: &[u8],
     ) -> Result<Option<Vec<u8>>, IoError> {
         match fn_name {
-            "StorageService.scanVertex" | "StorageService.scanEdge" => Ok(None),
+            b"StorageService.scanVertex" | b"StorageService.scanEdge" => Ok(None),
             _ => Err(IoError::new(
                 IoErrorKind::Other,
-                format!("Unknown method {fn_name}"),
+                format!("Unknown method {}", String::from_utf8_lossy(fn_name)),
             )),
         }
     }
@@ -84,22 +84,25 @@ mod tests {
 
         assert_eq!(
             handler.try_make_static_response_bytes(
-                "StorageService",
-                "StorageService.scanVertex",
+                b"StorageService",
+                b"StorageService.scanVertex",
                 b"FOO"
             )?,
             None
         );
         assert_eq!(
             handler.try_make_static_response_bytes(
-                "StorageService",
-                "StorageService.scanEdge",
+                b"StorageService",
+                b"StorageService.scanEdge",
                 b"FOO"
             )?,
             None
         );
-        match handler.try_make_static_response_bytes("StorageService", "StorageService.foo", b"FOO")
-        {
+        match handler.try_make_static_response_bytes(
+            b"StorageService",
+            b"StorageService.foo",
+            b"FOO",
+        ) {
             Ok(_) => panic!(),
             Err(err) => {
                 assert_eq!(err.kind(), IoErrorKind::Other);
