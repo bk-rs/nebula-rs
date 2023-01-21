@@ -1,6 +1,6 @@
 use std::io::{Cursor, Error as IoError, ErrorKind as IoErrorKind};
 
-use bytes::{Buf, BytesMut};
+use bytes::BytesMut;
 use fbthrift::{
     binary_protocol::{BinaryProtocolDeserializer, BinaryProtocolSerializer},
     ApplicationException, Deserialize, MessageType, ProtocolReader, ProtocolWriter, Serialize,
@@ -50,7 +50,7 @@ impl ResponseHandler for GraphTransportResponseHandler {
 
                 SignoutExn::Success(()).write(&mut ser);
 
-                let res_buf = ser.finish().bytes().to_vec();
+                let res_buf = ser.finish().to_vec();
 
                 Ok(Some(res_buf))
             }
@@ -173,29 +173,22 @@ mod tests {
         // Ref https://github.com/bk-rs/nebula-rs/blob/e500e6f93b0ffcd009038c2a51b41a6aa3488b18/nebula-fbthrift/nebula-fbthrift-graph-v2/src/lib.rs#L1346
         //
         let request = ::fbthrift::serialize!(::fbthrift::BinaryProtocol, |p| {
-            ::fbthrift::protocol::write_message(
-                p,
-                "signout",
-                ::fbthrift::MessageType::Call,
-                // Note: we send a 0 message sequence ID from clients because
-                // this field should not be used by the server (except for some
-                // language implementations).
-                0,
-                |p| {
-                    p.write_struct_begin("args");
-                    p.write_field_begin("arg_sessionId", ::fbthrift::TType::I64, 1i16);
-                    ::fbthrift::Serialize::write(&1, p);
-                    p.write_field_end();
-                    p.write_field_stop();
-                    p.write_struct_end();
-                },
-            )
+            p.write_message_begin("signout", ::fbthrift::MessageType::Call, 0);
+
+            p.write_struct_begin("args");
+            p.write_field_begin("arg_sessionId", ::fbthrift::TType::I64, 1i16);
+            ::fbthrift::Serialize::write(&1, p);
+            p.write_field_end();
+            p.write_field_stop();
+            p.write_struct_end();
+
+            p.write_message_end();
         });
 
         match handler.try_make_static_response_bytes(
             "GraphService",
             "GraphService.signout",
-            request.bytes(),
+            &request[..],
         ) {
             Ok(Some(_)) => {}
             _ => panic!(),
