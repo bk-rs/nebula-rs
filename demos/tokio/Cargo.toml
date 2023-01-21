@@ -35,7 +35,7 @@ nebula-client = { version = "0.7", features = ["graph"], path = "../../nebula-cl
 
 # bb8
 bb8 = { version = "0.8" }
-bb8-nebula = { version = "0.8", features = ["graph"], path = "../../bb8-nebula" }
+bb8-nebula = { version = "0.9", features = ["graph"], path = "../../bb8-nebula" }
 
 # common
 tokio = { version = "1", features = ["macros", "rt-multi-thread" ] }

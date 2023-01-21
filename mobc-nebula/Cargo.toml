@@ -1,6 +1,6 @@
 [package]
 name = "mobc-nebula"
-version = "0.8.0"
+version = "0.9.0"
 authors = ["vkill <vkill.net@gmail.com>"]
 edition = "2021"
 description = "mobc Nebula Graph/Meta/Storage pool"
