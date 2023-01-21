@@ -1,6 +1,6 @@
 [package]
 name = "nebula-fbthrift-raftex"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["vkill <vkill.net@gmail.com>"]
 edition = "2021"
 description = "Nebula Graph raftex interface"
@@ -13,5 +13,5 @@ categories = []
 readme = "README.md"
 
 [dependencies]
-nebula-fbthrift-raftex-v2 = { version = "=0.2.0", default-features = false, path = "../nebula-fbthrift-raftex-v2" }
-nebula-fbthrift-raftex-v1 = { version = "=0.2.0", default-features = false, path = "../nebula-fbthrift-raftex-v1" }
+nebula-fbthrift-raftex-v2 = { version = "^0.3", default-features = false, path = "../nebula-fbthrift-raftex-v2" }
+nebula-fbthrift-raftex-v1 = { version = "^0.3", default-features = false, path = "../nebula-fbthrift-raftex-v1" }
