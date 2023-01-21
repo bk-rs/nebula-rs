@@ -3,7 +3,7 @@
 //
 use core::cmp::Ordering;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug, Default)]
 pub struct Double(pub f64);
 
 impl Double {

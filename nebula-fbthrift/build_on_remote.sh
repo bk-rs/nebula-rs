@@ -50,10 +50,15 @@ thrift1 --out /tmp --gen mstch_rust src/interface/common.thrift
 mv /tmp/lib.rs /tmp/nebula-fbthrift-common-v2/src/lib.rs
 mv /tmp/types.rs /tmp/nebula-fbthrift-common-v2/src/types.rs
 
-sed -i 's/^    #\[derive(Clone, Debug, PartialEq)\]$/    #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]/' /tmp/nebula-fbthrift-common-v2/src/lib.rs
+sed -i 's/^    pub const version/    \/\/ pub const version/' /tmp/nebula-fbthrift-common-v2/src/lib.rs
 echo 'pub mod double;' >> /tmp/nebula-fbthrift-common-v2/src/lib.rs
-sed -i 's/^        fVal(::std::primitive::f64),$/        fVal(crate::double::Double),/' /tmp/nebula-fbthrift-common-v2/src/lib.rs
-sed -i 's/: crate::types::Value,$/: Box<crate::types::Value>,/' /tmp/nebula-fbthrift-common-v2/src/lib.rs
+
+sed -i 's/^#\[derive(Clone, PartialEq, Debug)\]$/#[derive(Clone, PartialEq, Debug, Eq, PartialOrd, Ord)]/' /tmp/nebula-fbthrift-common-v2/src/types.rs
+sed -i 's/^#\[derive(Clone, PartialEq)\]$/#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]/' /tmp/nebula-fbthrift-common-v2/src/types.rs
+sed -i 's/^    fVal(::std::primitive::f64),$/    fVal(crate::double::Double),/' /tmp/nebula-fbthrift-common-v2/src/types.rs
+sed -i 's/^    vVal(crate::types::Vertex),$/    vVal(Box<crate::types::Vertex>),/' /tmp/nebula-fbthrift-common-v2/src/types.rs
+sed -i 's/: crate::types::Value,$/: Box<crate::types::Value>,/' /tmp/nebula-fbthrift-common-v2/src/types.rs
+sed -i 's/: ::std::primitive::f64,$/: crate::double::Double,/' /tmp/nebula-fbthrift-common-v2/src/types.rs
 
 
 rm -rf /tmp/{lib, types}.rs
@@ -99,7 +104,7 @@ thrift1 --out /tmp --gen mstch_rust src/interface/common.thrift
 mv /tmp/lib.rs /tmp/nebula-fbthrift-common-v1/src/lib.rs
 mv /tmp/types.rs /tmp/nebula-fbthrift-common-v1/src/types.rs
 
-sed -i 's/pub value_type: ::std::option::Option<crate::types::ValueType>,$/pub value_type: ::std::option::Option<Box<crate::types::ValueType>>,/' /tmp/nebula-fbthrift-common-v1/src/lib.rs
+sed -i 's/pub value_type: ::std::option::Option<crate::types::ValueType>,$/pub value_type: ::std::option::Option<Box<crate::types::ValueType>>,/' /tmp/nebula-fbthrift-common-v1/src/types.rs
 
 
 rm -rf /tmp/{lib, types}.rs
