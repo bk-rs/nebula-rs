@@ -31,7 +31,7 @@ path = "src/v3_graph_client.rs"
 [dependencies]
 # non-pool
 fbthrift-transport = { version = "0.9", features = ["impl_tokio"] }
-nebula-client = { version = "0.6", features = ["graph"], path = "../../nebula-client" }
+nebula-client = { version = "0.7", features = ["graph"], path = "../../nebula-client" }
 
 # bb8
 bb8 = { version = "0.8" }

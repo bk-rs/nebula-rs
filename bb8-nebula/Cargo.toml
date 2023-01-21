@@ -25,7 +25,7 @@ graph = ["nebula-client/graph"]
 [dependencies]
 fbthrift-transport = { version = "^0.9", default-features = false }
 
-nebula-client = { version = "^0.6", default-features = false, path = "../nebula-client" }
+nebula-client = { version = "^0.7", default-features = false, path = "../nebula-client" }
 
 bb8 = { version = "0.8", default-features = false }
 async-trait = { version = "0.1", default-features = false }

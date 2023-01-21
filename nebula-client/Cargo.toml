@@ -1,6 +1,6 @@
 [package]
 name = "nebula-client"
-version = "0.6.0"
+version = "0.7.0"
 authors = ["vkill <vkill.net@gmail.com>"]
 edition = "2021"
 description = "Nebula Graph/Meta/Storage client"

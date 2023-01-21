@@ -25,6 +25,6 @@ graph = ["nebula-client/graph"]
 [dependencies]
 fbthrift-transport = { version = "^0.9", default-features = false }
 
-nebula-client = { version = "^0.6", default-features = false, path = "../nebula-client" }
+nebula-client = { version = "^0.7", default-features = false, path = "../nebula-client" }
 
 mobc = { version = "0.7", default-features = false, features = ["tokio"] }
