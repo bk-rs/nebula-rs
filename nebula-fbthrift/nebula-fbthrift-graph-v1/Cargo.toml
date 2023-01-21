@@ -2,7 +2,7 @@
 name = "nebula-fbthrift-graph-v1"
 version = "0.2.0"
 authors = ["vkill <vkill.net@gmail.com>"]
-edition = "2018"
+edition = "2021"
 description = "Nebula Graph v1 graph interface"
 license = "Apache-2.0 OR MIT"
 repository = "https://github.com/bk-rs/nebula-rs"
