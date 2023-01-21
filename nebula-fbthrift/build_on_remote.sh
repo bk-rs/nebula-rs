@@ -45,9 +45,10 @@ cd ~/nebula_v2
 sed -i 's/^} (cpp.enum_strict cpp.type = "nebula::NullType")$/} (cpp.type = "nebula::NullType")/' src/interface/common.thrift
 
 
-rm -rf /tmp/lib.rs
+rm -rf /tmp/{lib, types}.rs
 thrift1 --out /tmp --gen mstch_rust src/interface/common.thrift
 mv /tmp/lib.rs /tmp/nebula-fbthrift-common-v2/src/lib.rs
+mv /tmp/types.rs /tmp/nebula-fbthrift-common-v2/src/types.rs
 
 sed -i 's/^    #\[derive(Clone, Debug, PartialEq)\]$/    #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]/' /tmp/nebula-fbthrift-common-v2/src/lib.rs
 echo 'pub mod double;' >> /tmp/nebula-fbthrift-common-v2/src/lib.rs
@@ -55,24 +56,28 @@ sed -i 's/^        fVal(::std::primitive::f64),$/        fVal(crate::double::Dou
 sed -i 's/: crate::types::Value,$/: Box<crate::types::Value>,/' /tmp/nebula-fbthrift-common-v2/src/lib.rs
 
 
-rm -rf /tmp/lib.rs
+rm -rf /tmp/{lib, types}.rs
 thrift1 --out /tmp --gen mstch_rust src/interface/graph.thrift
 mv /tmp/lib.rs /tmp/nebula-fbthrift-graph-v2/src/lib.rs
+mv /tmp/types.rs /tmp/nebula-fbthrift-graph-v2/src/types.rs
 
 
-rm -rf /tmp/lib.rs
+rm -rf /tmp/{lib, types}.rs
 thrift1 --out /tmp --gen mstch_rust src/interface/meta.thrift
 mv /tmp/lib.rs /tmp/nebula-fbthrift-meta-v2/src/lib.rs
+mv /tmp/types.rs /tmp/nebula-fbthrift-meta-v2/src/types.rs
 
 
-rm -rf /tmp/lib.rs
+rm -rf /tmp/{lib, types}.rs
 thrift1 --out /tmp --gen mstch_rust src/interface/raftex.thrift
 mv /tmp/lib.rs /tmp/nebula-fbthrift-raftex-v2/src/lib.rs
+mv /tmp/types.rs /tmp/nebula-fbthrift-raftex-v2/src/types.rs
 
 
-rm -rf /tmp/lib.rs
+rm -rf /tmp/{lib, types}.rs
 thrift1 --out /tmp --gen mstch_rust src/interface/storage.thrift
 mv /tmp/lib.rs /tmp/nebula-fbthrift-storage-v2/src/lib.rs
+mv /tmp/types.rs /tmp/nebula-fbthrift-storage-v2/src/types.rs
 
 
 sed -i '5i\#![allow(bare_trait_objects)]' /tmp/nebula-fbthrift-common-v2/src/lib.rs
@@ -89,31 +94,36 @@ cd
 cd ~/nebula_v1
 
 
-rm -rf /tmp/lib.rs
+rm -rf /tmp/{lib, types}.rs
 thrift1 --out /tmp --gen mstch_rust src/interface/common.thrift
 mv /tmp/lib.rs /tmp/nebula-fbthrift-common-v1/src/lib.rs
+mv /tmp/types.rs /tmp/nebula-fbthrift-common-v1/src/types.rs
 
 sed -i 's/pub value_type: ::std::option::Option<crate::types::ValueType>,$/pub value_type: ::std::option::Option<Box<crate::types::ValueType>>,/' /tmp/nebula-fbthrift-common-v1/src/lib.rs
 
 
-rm -rf /tmp/lib.rs
+rm -rf /tmp/{lib, types}.rs
 thrift1 --out /tmp --gen mstch_rust src/interface/graph.thrift
 mv /tmp/lib.rs /tmp/nebula-fbthrift-graph-v1/src/lib.rs
+mv /tmp/types.rs /tmp/nebula-fbthrift-graph-v1/src/types.rs
 
 
-rm -rf /tmp/lib.rs
+rm -rf /tmp/{lib, types}.rs
 thrift1 --out /tmp --gen mstch_rust src/interface/meta.thrift
 mv /tmp/lib.rs /tmp/nebula-fbthrift-meta-v1/src/lib.rs
+mv /tmp/types.rs /tmp/nebula-fbthrift-meta-v1/src/types.rs
 
 
-rm -rf /tmp/lib.rs
+rm -rf /tmp/{lib, types}.rs
 thrift1 --out /tmp --gen mstch_rust src/interface/raftex.thrift
 mv /tmp/lib.rs /tmp/nebula-fbthrift-raftex-v1/src/lib.rs
+mv /tmp/types.rs /tmp/nebula-fbthrift-raftex-v1/src/types.rs
 
 
-rm -rf /tmp/lib.rs
+rm -rf /tmp/{lib, types}.rs
 thrift1 --out /tmp --gen mstch_rust src/interface/storage.thrift
 mv /tmp/lib.rs /tmp/nebula-fbthrift-storage-v1/src/lib.rs
+mv /tmp/types.rs /tmp/nebula-fbthrift-storage-v1/src/types.rs
 
 
 sed -i '5i\#![allow(bare_trait_objects)]' /tmp/nebula-fbthrift-common-v1/src/lib.rs
