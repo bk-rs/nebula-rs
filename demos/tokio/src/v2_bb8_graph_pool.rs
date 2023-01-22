@@ -8,7 +8,7 @@ use bb8_nebula::{
     graph::GraphClientConfiguration, impl_tokio::v2::graph::new_graph_connection_manager,
 };
 use fbthrift_transport::AsyncTransportConfiguration;
-use nebula_client::v2::GraphTransportResponseHandler;
+use nebula_client::v2::{GraphQuery as _, GraphTransportResponseHandler};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -44,14 +44,14 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
     //
     {
         let mut session = pool.get().await?;
-        let res = session.execute(&"SHOW HOSTS;".as_bytes().to_vec()).await?;
+        let res = session.show_hosts().await?;
         println!("{res:?}");
     }
 
     //
     {
         let mut session = pool.get().await?;
-        let res = session.execute(&"SHOW HOSTS;".as_bytes().to_vec()).await?;
+        let res = session.show_hosts().await?;
         println!("{res:?}");
     }
 

@@ -8,6 +8,7 @@ use nebula_fbthrift_graph_v1::{
     errors::graph_service::{AuthenticateError, ExecuteError, SignoutError},
     types::{ErrorCode, ExecutionResponse},
 };
+use serde::de::DeserializeOwned;
 
 use super::query::{GraphQuery, GraphQueryError, GraphQueryOutput};
 
@@ -166,8 +167,6 @@ where
 //
 //
 //
-use serde::de::DeserializeOwned;
-
 #[async_trait]
 impl<T> GraphQuery for GraphSession<T>
 where

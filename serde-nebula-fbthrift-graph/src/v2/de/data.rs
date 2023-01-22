@@ -1,7 +1,7 @@
-use core::{iter::Peekable, slice::Iter};
+use core::{iter::Peekable, ops::Div as _, slice::Iter};
 use std::io::{Error as IoError, ErrorKind as IoErrorKind};
 
-use nebula_fbthrift_graph_v1::types::ColumnValue;
+use nebula_fbthrift_graph_v2::dependencies::common::types::Value;
 use serde::de::{
     self,
     value::{BorrowedBytesDeserializer, SeqDeserializer},
@@ -10,12 +10,12 @@ use serde::de::{
 
 pub struct DataDeserializer<'a> {
     names_iter: Iter<'a, Vec<u8>>,
-    values_iter: Peekable<Iter<'a, ColumnValue>>,
+    values_iter: Peekable<Iter<'a, Value>>,
     field: usize,
 }
 
 impl<'a> DataDeserializer<'a> {
-    pub fn new(names: &'a [Vec<u8>], values: &'a [ColumnValue]) -> Self {
+    pub fn new(names: &'a [Vec<u8>], values: &'a [Value]) -> Self {
         let names_iter = names.iter();
         let values_iter = values.iter().peekable();
 
@@ -30,7 +30,7 @@ impl<'a> DataDeserializer<'a> {
         self.names_iter.next()
     }
 
-    fn next_value(&mut self) -> Result<&'a ColumnValue, DataDeserializeError> {
+    fn next_value(&mut self) -> Result<&'a Value, DataDeserializeError> {
         match self.values_iter.next() {
             Some(row) => {
                 self.field += 1;
@@ -43,7 +43,7 @@ impl<'a> DataDeserializer<'a> {
         }
     }
 
-    fn peek_value(&mut self) -> Option<&&'a ColumnValue> {
+    fn peek_value(&mut self) -> Option<&&'a Value> {
         self.values_iter.peek()
     }
 
@@ -67,7 +67,11 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
         V: Visitor<'de>,
     {
         match self.next_value()? {
-            ColumnValue::bool_val(v) => visitor.visit_bool(*v),
+            Value::bVal(v) => visitor.visit_bool(*v),
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_bool(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -77,10 +81,14 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
         V: Visitor<'de>,
     {
         match self.next_value()? {
-            ColumnValue::integer(v) => match i8::try_from(*v) {
+            Value::iVal(v) => match i8::try_from(*v) {
                 Ok(v) => visitor.visit_i8(v),
                 Err(_) => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
             },
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_i8(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -90,11 +98,14 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
         V: Visitor<'de>,
     {
         match self.next_value()? {
-            ColumnValue::integer(v) => match i16::try_from(*v) {
+            Value::iVal(v) => match i16::try_from(*v) {
                 Ok(v) => visitor.visit_i16(v),
                 Err(_) => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
             },
-            ColumnValue::year(v) => visitor.visit_i16(*v),
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_i16(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -104,12 +115,14 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
         V: Visitor<'de>,
     {
         match self.next_value()? {
-            ColumnValue::integer(v) => match i32::try_from(*v) {
+            Value::iVal(v) => match i32::try_from(*v) {
                 Ok(v) => visitor.visit_i32(v),
                 Err(_) => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
             },
-            // TODO, rm ColumnValue::UnknownField
-            ColumnValue::UnknownField(v) => visitor.visit_i32(*v),
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_i32(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -119,8 +132,10 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
         V: Visitor<'de>,
     {
         match self.next_value()? {
-            ColumnValue::integer(v) | ColumnValue::id(v) | ColumnValue::timestamp(v) => {
-                visitor.visit_i64(*v)
+            Value::iVal(v) => visitor.visit_i64(*v),
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_i64(Default::default())
             }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
@@ -131,11 +146,15 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
         V: Visitor<'de>,
     {
         match self.next_value()? {
-            ColumnValue::integer(v) => match u8::try_from(*v) {
+            Value::iVal(v) => match u8::try_from(*v) {
                 Ok(v) => visitor.visit_u8(v),
                 Err(_) => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
             },
-            ColumnValue::str(v) => visitor.visit_u8(v[0]),
+            Value::sVal(v) => visitor.visit_u8(v[0]),
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_u8(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -145,10 +164,14 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
         V: Visitor<'de>,
     {
         match self.next_value()? {
-            ColumnValue::integer(v) => match u16::try_from(*v) {
+            Value::iVal(v) => match u16::try_from(*v) {
                 Ok(v) => visitor.visit_u16(v),
                 Err(_) => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
             },
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_u16(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -158,10 +181,14 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
         V: Visitor<'de>,
     {
         match self.next_value()? {
-            ColumnValue::integer(v) => match u32::try_from(*v) {
+            Value::iVal(v) => match u32::try_from(*v) {
                 Ok(v) => visitor.visit_u32(v),
                 Err(_) => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
             },
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_u32(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -171,13 +198,14 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
         V: Visitor<'de>,
     {
         match self.next_value()? {
-            ColumnValue::integer(v) | ColumnValue::id(v) | ColumnValue::timestamp(v) => {
-                match u64::try_from(*v) {
-                    Ok(v) => visitor.visit_u64(v),
-                    Err(_) => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
-                }
+            Value::iVal(v) => match u64::try_from(*v) {
+                Ok(v) => visitor.visit_u64(v),
+                Err(_) => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
+            },
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_u64(Default::default())
             }
-
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -187,7 +215,11 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
         V: Visitor<'de>,
     {
         match self.next_value()? {
-            ColumnValue::single_precision(v) => visitor.visit_f32(*v),
+            Value::fVal(v) => visitor.visit_f32(v.0 as f32),
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_f32(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -197,7 +229,11 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
         V: Visitor<'de>,
     {
         match self.next_value()? {
-            ColumnValue::double_precision(v) => visitor.visit_f64(*v),
+            Value::fVal(v) => visitor.visit_f64(v.0),
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_f64(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -221,7 +257,11 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
         V: Visitor<'de>,
     {
         match self.next_value()? {
-            ColumnValue::str(v) => visitor.visit_string(String::from_utf8_lossy(v).to_string()),
+            Value::sVal(v) => visitor.visit_string(String::from_utf8_lossy(v).to_string()),
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_string(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -284,7 +324,15 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
         V: Visitor<'de>,
     {
         match self.next_value()? {
-            ColumnValue::str(v) => {
+            Value::sVal(v) => {
+                let mut seq_deserializer = SeqDeserializer::new(v.iter().copied());
+                let value = visitor.visit_seq(&mut seq_deserializer)?;
+                seq_deserializer.end()?;
+                Ok(value)
+            }
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                let v: Vec<u8> = Default::default();
                 let mut seq_deserializer = SeqDeserializer::new(v.iter().copied());
                 let value = visitor.visit_seq(&mut seq_deserializer)?;
                 seq_deserializer.end()?;
@@ -299,16 +347,50 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
         V: Visitor<'de>,
     {
         match self.next_value()? {
-            ColumnValue::month(v) => {
+            Value::dVal(v) => {
                 let mut seq_deserializer =
-                    SeqDeserializer::new(vec![v.year, v.month as i16].into_iter());
+                    SeqDeserializer::new(vec![v.year, v.month as i16, v.day as i16].into_iter());
                 let value = visitor.visit_seq(&mut seq_deserializer)?;
                 seq_deserializer.end()?;
                 Ok(value)
             }
-            ColumnValue::date(v) => {
-                let mut seq_deserializer =
-                    SeqDeserializer::new(vec![v.year, v.month as i16, v.day as i16].into_iter());
+            Value::tVal(v) => {
+                let mut seq_deserializer = SeqDeserializer::new(
+                    vec![
+                        v.hour as i16,
+                        v.minute as i16,
+                        v.sec as i16,
+                        v.microsec.div(1000) as i16,
+                    ]
+                    .into_iter(),
+                );
+                let value = visitor.visit_seq(&mut seq_deserializer)?;
+                seq_deserializer.end()?;
+                Ok(value)
+            }
+            Value::dtVal(v) => {
+                let mut seq_deserializer = SeqDeserializer::new(
+                    vec![
+                        v.year,
+                        v.month as i16,
+                        v.day as i16,
+                        v.hour as i16,
+                        v.minute as i16,
+                        v.sec as i16,
+                        v.microsec.div(1000) as i16,
+                        0i16,
+                    ]
+                    .into_iter(),
+                );
+                let value = visitor.visit_seq(&mut seq_deserializer)?;
+                seq_deserializer.end()?;
+                Ok(value)
+            }
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                // TODO,
+                let v: Vec<u8> = Default::default();
+                let mut seq_deserializer = SeqDeserializer::new(v.iter().copied());
                 let value = visitor.visit_seq(&mut seq_deserializer)?;
                 seq_deserializer.end()?;
                 Ok(value)
@@ -327,21 +409,28 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
         V: Visitor<'de>,
     {
         match self.next_value()? {
-            ColumnValue::month(v) => {
-                let mut seq_deserializer =
-                    SeqDeserializer::new(vec![v.year, v.month as i16].into_iter());
-                let value = visitor.visit_seq(&mut seq_deserializer)?;
-                seq_deserializer.end()?;
-                Ok(value)
-            }
-            ColumnValue::date(v) => {
+            Value::dVal(v) => {
                 let mut seq_deserializer =
                     SeqDeserializer::new(vec![v.year, v.month as i16, v.day as i16].into_iter());
                 let value = visitor.visit_seq(&mut seq_deserializer)?;
                 seq_deserializer.end()?;
                 Ok(value)
             }
-            ColumnValue::datetime(v) => {
+            Value::tVal(v) => {
+                let mut seq_deserializer = SeqDeserializer::new(
+                    vec![
+                        v.hour as i16,
+                        v.minute as i16,
+                        v.sec as i16,
+                        v.microsec.div(1000) as i16,
+                    ]
+                    .into_iter(),
+                );
+                let value = visitor.visit_seq(&mut seq_deserializer)?;
+                seq_deserializer.end()?;
+                Ok(value)
+            }
+            Value::dtVal(v) => {
                 let mut seq_deserializer = SeqDeserializer::new(
                     vec![
                         v.year,
@@ -349,12 +438,21 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
                         v.day as i16,
                         v.hour as i16,
                         v.minute as i16,
-                        v.second as i16,
-                        v.millisec,
-                        v.microsec,
+                        v.sec as i16,
+                        v.microsec.div(1000) as i16,
+                        0i16,
                     ]
                     .into_iter(),
                 );
+                let value = visitor.visit_seq(&mut seq_deserializer)?;
+                seq_deserializer.end()?;
+                Ok(value)
+            }
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                // TODO,
+                let v: Vec<u8> = Default::default();
+                let mut seq_deserializer = SeqDeserializer::new(v.iter().copied());
                 let value = visitor.visit_seq(&mut seq_deserializer)?;
                 seq_deserializer.end()?;
                 Ok(value)
@@ -522,17 +620,16 @@ impl From<DataDeserializeError> for IoError {
 mod tests {
     use super::*;
 
-    use chrono::{serde::ts_seconds, DateTime, TimeZone, Utc};
     use float_cmp::approx_eq;
-    use nebula_fbthrift_graph_v1::types;
+    use nebula_fbthrift_graph_v2::dependencies::common::{double::Double, types};
     use serde::{de::DeserializeOwned, Deserialize};
     use serde_repr::Deserialize_repr;
 
-    use crate::datetime::{self, Date, Day, Month, Timestamp, Year, YearMonth};
+    use crate::datetime::{self, Date, Day, Hour, Millisec, Minute, Month, Second, Time, Year};
 
     fn de<D: DeserializeOwned>(
         names: Vec<&str>,
-        values: Vec<ColumnValue>,
+        values: Vec<Value>,
     ) -> Result<D, Box<dyn std::error::Error>> {
         let names: Vec<_> = names.into_iter().map(|x| x.as_bytes().to_vec()).collect();
 
@@ -542,17 +639,14 @@ mod tests {
     }
 
     #[test]
-    fn with_bool() -> Result<(), Box<dyn std::error::Error>> {
+    fn with_b_val() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Deserialize)]
         struct Foo {
             a: bool,
             b: bool,
         }
 
-        let v: Foo = de(
-            vec!["a", "b"],
-            vec![ColumnValue::bool_val(true), ColumnValue::bool_val(false)],
-        )?;
+        let v: Foo = de(vec!["a", "b"], vec![Value::bVal(true), Value::bVal(false)])?;
 
         assert!(v.a);
         assert!(!v.b);
@@ -561,7 +655,7 @@ mod tests {
     }
 
     #[test]
-    fn with_integer() -> Result<(), Box<dyn std::error::Error>> {
+    fn with_i_val() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Deserialize_repr, PartialEq, Debug)]
         #[repr(u8)]
         enum State {
@@ -585,15 +679,15 @@ mod tests {
         let v: Foo = de(
             vec!["a", "b", "c", "d", "e", "f", "g", "h", "state"],
             vec![
-                ColumnValue::integer(1),
-                ColumnValue::integer(2),
-                ColumnValue::integer(3),
-                ColumnValue::integer(4),
-                ColumnValue::integer(5),
-                ColumnValue::integer(6),
-                ColumnValue::integer(7),
-                ColumnValue::integer(8),
-                ColumnValue::integer(2),
+                Value::iVal(1),
+                Value::iVal(2),
+                Value::iVal(3),
+                Value::iVal(4),
+                Value::iVal(5),
+                Value::iVal(6),
+                Value::iVal(7),
+                Value::iVal(8),
+                Value::iVal(2),
             ],
         )?;
 
@@ -611,43 +705,13 @@ mod tests {
     }
 
     #[test]
-    fn with_id() -> Result<(), Box<dyn std::error::Error>> {
-        #[derive(Deserialize)]
-        struct Foo {
-            a: i64,
-            b: u64,
-        }
-
-        let v: Foo = de(vec!["a", "b"], vec![ColumnValue::id(1), ColumnValue::id(2)])?;
-
-        assert_eq!(v.a, 1);
-        assert_eq!(v.b, 2);
-
-        Ok(())
-    }
-
-    #[test]
-    fn with_single_precision() -> Result<(), Box<dyn std::error::Error>> {
-        #[derive(Deserialize)]
-        struct Foo {
-            a: f32,
-        }
-
-        let v: Foo = de(vec!["a"], vec![ColumnValue::single_precision(1_f32)])?;
-
-        assert!(approx_eq!(f32, v.a, 1_f32));
-
-        Ok(())
-    }
-
-    #[test]
-    fn with_double_precision() -> Result<(), Box<dyn std::error::Error>> {
+    fn with_f_val() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Deserialize)]
         struct Foo {
             a: f64,
         }
 
-        let v: Foo = de(vec!["a"], vec![ColumnValue::double_precision(1_f64)])?;
+        let v: Foo = de(vec!["a"], vec![Value::fVal(Double(1_f64))])?;
 
         assert!(approx_eq!(f64, v.a, 1_f64));
 
@@ -655,7 +719,7 @@ mod tests {
     }
 
     #[test]
-    fn with_str() -> Result<(), Box<dyn std::error::Error>> {
+    fn with_s_val() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Deserialize)]
         struct Foo {
             a: String,
@@ -665,8 +729,8 @@ mod tests {
         let v: Foo = de(
             vec!["a", "b"],
             vec![
-                ColumnValue::str(b"String".to_vec()),
-                ColumnValue::str(b"Vec<u8>".to_vec()),
+                Value::sVal(b"String".to_vec()),
+                Value::sVal(b"Vec<u8>".to_vec()),
             ],
         )?;
 
@@ -677,85 +741,7 @@ mod tests {
     }
 
     #[test]
-    fn with_timestamp() -> Result<(), Box<dyn std::error::Error>> {
-        #[derive(Deserialize)]
-        struct Foo {
-            #[serde(with = "ts_seconds")]
-            a: DateTime<Utc>,
-            b: Timestamp,
-            c: i64,
-            d: u64,
-        }
-
-        let v: Foo = de(
-            vec!["a", "b", "c", "d"],
-            vec![
-                ColumnValue::timestamp(1577836800),
-                ColumnValue::timestamp(1577836801),
-                ColumnValue::timestamp(1577836802),
-                ColumnValue::timestamp(1577836803),
-            ],
-        )?;
-
-        assert_eq!(v.a, Utc.with_ymd_and_hms(2020, 1, 1, 0, 0, 0).unwrap());
-        assert_eq!(v.b, Timestamp(1577836801));
-        assert_eq!(v.c, 1577836802);
-        assert_eq!(v.d, 1577836803);
-
-        Ok(())
-    }
-
-    #[test]
-    fn with_year() -> Result<(), Box<dyn std::error::Error>> {
-        #[derive(Deserialize)]
-        struct Foo {
-            b: i16,
-            a: Year,
-        }
-
-        let v: Foo = de(
-            vec!["a", "b"],
-            vec![ColumnValue::year(2020), ColumnValue::year(2021)],
-        )?;
-
-        assert_eq!(v.a, 2020);
-        assert_eq!(v.b, 2021);
-
-        Ok(())
-    }
-
-    #[test]
-    fn with_month() -> Result<(), Box<dyn std::error::Error>> {
-        #[derive(Deserialize)]
-        struct Foo {
-            a: (Year, Month),
-            b: YearMonth,
-        }
-
-        let v: Foo = de(
-            vec!["a", "b"],
-            vec![
-                ColumnValue::month(types::YearMonth {
-                    year: 2020,
-                    month: 1,
-                    ..Default::default()
-                }),
-                ColumnValue::month(types::YearMonth {
-                    year: 2020,
-                    month: 2,
-                    ..Default::default()
-                }),
-            ],
-        )?;
-
-        assert_eq!(v.a, (2020, 1));
-        assert_eq!(v.b, YearMonth(2020, 2));
-
-        Ok(())
-    }
-
-    #[test]
-    fn with_date() -> Result<(), Box<dyn std::error::Error>> {
+    fn with_d_val() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Deserialize)]
         struct Foo {
             a: (Year, Month, Day),
@@ -765,13 +751,13 @@ mod tests {
         let v: Foo = de(
             vec!["a", "b"],
             vec![
-                ColumnValue::date(types::Date {
+                Value::dVal(types::Date {
                     year: 2020,
                     month: 1,
                     day: 2,
                     ..Default::default()
                 }),
-                ColumnValue::date(types::Date {
+                Value::dVal(types::Date {
                     year: 2020,
                     month: 1,
                     day: 3,
@@ -787,7 +773,41 @@ mod tests {
     }
 
     #[test]
-    fn with_datetime() -> Result<(), Box<dyn std::error::Error>> {
+    fn with_t_val() -> Result<(), Box<dyn std::error::Error>> {
+        #[derive(Deserialize)]
+        struct Foo {
+            a: (Hour, Minute, Second, Millisec),
+            b: Time,
+        }
+
+        let v: Foo = de(
+            vec!["a", "b"],
+            vec![
+                Value::tVal(types::Time {
+                    hour: 1,
+                    minute: 2,
+                    sec: 3,
+                    microsec: 8001,
+                    ..Default::default()
+                }),
+                Value::tVal(types::Time {
+                    hour: 4,
+                    minute: 5,
+                    sec: 6,
+                    microsec: 9001,
+                    ..Default::default()
+                }),
+            ],
+        )?;
+
+        assert_eq!(v.a, (1, 2, 3, 8));
+        assert_eq!(v.b, Time(4, 5, 6, 9));
+
+        Ok(())
+    }
+
+    #[test]
+    fn with_dt_val() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Deserialize)]
         struct Foo {
             a: datetime::DateTime,
@@ -795,20 +815,19 @@ mod tests {
 
         let v: Foo = de(
             vec!["a"],
-            vec![ColumnValue::datetime(types::DateTime {
+            vec![Value::dtVal(types::DateTime {
                 year: 2020,
                 month: 1,
                 day: 2,
                 hour: 3,
                 minute: 4,
-                second: 5,
-                millisec: 6,
-                microsec: 7,
+                sec: 5,
+                microsec: 9001,
                 ..Default::default()
             })],
         )?;
 
-        assert_eq!(v.a, datetime::DateTime(2020, 1, 2, 3, 4, 5, 6, 7));
+        assert_eq!(v.a, datetime::DateTime(2020, 1, 2, 3, 4, 5, 9, 0));
 
         Ok(())
     }
@@ -820,9 +839,9 @@ mod tests {
             a: i32,
         }
 
-        let v: Foo = de(vec!["a"], vec![ColumnValue::UnknownField(1)])?;
+        let v: Foo = de(vec!["a"], vec![Value::UnknownField(-1)])?;
 
-        assert_eq!(v.a, 1);
+        assert_eq!(v.a, 0);
 
         Ok(())
     }
@@ -833,31 +852,28 @@ mod tests {
         struct Foo {
             a: bool,
             b: i64,
-            c: i64,
-            d: String,
+            c: String,
         }
 
         let v: Foo = de(
-            vec!["a", "b", "c", "d"],
+            vec!["a", "b", "c"],
             vec![
-                ColumnValue::bool_val(true),
-                ColumnValue::integer(1),
-                ColumnValue::id(2),
-                ColumnValue::str(b"3".to_vec()),
+                Value::bVal(true),
+                Value::iVal(1),
+                Value::sVal(b"3".to_vec()),
             ],
         )?;
 
         assert!(v.a);
         assert_eq!(v.b, 1);
-        assert_eq!(v.c, 2);
-        assert_eq!(v.d, "3");
+        assert_eq!(v.c, "3");
 
         Ok(())
     }
 
     #[test]
     fn with_unit() -> Result<(), Box<dyn std::error::Error>> {
-        de::<()>(vec!["a"], vec![ColumnValue::bool_val(true)])?;
+        de::<()>(vec!["a"], vec![Value::bVal(true)])?;
 
         Ok(())
     }
@@ -869,7 +885,7 @@ mod tests {
             a: Option<bool>,
         }
 
-        let v: Foo = de(vec!["a"], vec![ColumnValue::bool_val(true)])?;
+        let v: Foo = de(vec!["a"], vec![Value::bVal(true)])?;
 
         assert_eq!(v.a, Some(true));
 
