@@ -98,8 +98,8 @@ use serde::Deserialize;
 const STMT_SHOW_HOSTS: &[u8] = b"SHOW HOSTS;";
 #[derive(Deserialize, Debug)]
 pub struct Host {
-    #[serde(rename(deserialize = "Ip"))]
-    pub ip: String,
+    #[serde(rename(deserialize = "Host"))]
+    pub host: String,
     #[serde(rename(deserialize = "Port"))]
     pub port: String,
     #[serde(rename(deserialize = "Status"))]
