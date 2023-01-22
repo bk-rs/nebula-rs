@@ -205,7 +205,7 @@ where
         stmt: &Vec<u8>,
     ) -> Result<GraphQueryOutput<D>, GraphQueryError> {
         let res = self
-            .execute(&stmt)
+            .execute(stmt)
             .await
             .map_err(GraphQueryError::ExecuteError)?;
 

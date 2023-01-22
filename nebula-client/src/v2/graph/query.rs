@@ -13,6 +13,7 @@ use serde_nebula_fbthrift_graph::v2::de::{
 
 #[async_trait]
 pub trait GraphQuery {
+    #[allow(clippy::ptr_arg)]
     async fn query_as<D: DeserializeOwned>(
         &mut self,
         stmt: &Vec<u8>,
@@ -101,7 +102,7 @@ pub struct Host {
     #[serde(rename(deserialize = "Host"))]
     pub host: String,
     #[serde(rename(deserialize = "Port"))]
-    pub port: String,
+    pub port: u16,
     #[serde(rename(deserialize = "Status"))]
     pub status: String,
     #[serde(rename(deserialize = "Leader count"))]

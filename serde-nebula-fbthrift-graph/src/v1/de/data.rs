@@ -108,6 +108,7 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
                 Ok(v) => visitor.visit_i32(v),
                 Err(_) => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
             },
+            // TODO, rm ColumnValue::UnknownField
             ColumnValue::UnknownField(v) => visitor.visit_i32(*v),
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }

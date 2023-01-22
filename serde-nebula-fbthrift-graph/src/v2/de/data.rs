@@ -68,6 +68,10 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
     {
         match self.next_value()? {
             Value::bVal(v) => visitor.visit_bool(*v),
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_bool(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -81,6 +85,10 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
                 Ok(v) => visitor.visit_i8(v),
                 Err(_) => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
             },
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_i8(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -94,6 +102,10 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
                 Ok(v) => visitor.visit_i16(v),
                 Err(_) => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
             },
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_i16(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -107,7 +119,10 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
                 Ok(v) => visitor.visit_i32(v),
                 Err(_) => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
             },
-            Value::UnknownField(v) => visitor.visit_i32(*v),
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_i32(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -118,6 +133,10 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
     {
         match self.next_value()? {
             Value::iVal(v) => visitor.visit_i64(*v),
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_i64(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -132,6 +151,10 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
                 Err(_) => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
             },
             Value::sVal(v) => visitor.visit_u8(v[0]),
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_u8(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -145,6 +168,10 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
                 Ok(v) => visitor.visit_u16(v),
                 Err(_) => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
             },
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_u16(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -158,6 +185,10 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
                 Ok(v) => visitor.visit_u32(v),
                 Err(_) => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
             },
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_u32(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -171,7 +202,10 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
                 Ok(v) => visitor.visit_u64(v),
                 Err(_) => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
             },
-
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_u64(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -182,6 +216,10 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
     {
         match self.next_value()? {
             Value::fVal(v) => visitor.visit_f32(v.0 as f32),
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_f32(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -192,6 +230,10 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
     {
         match self.next_value()? {
             Value::fVal(v) => visitor.visit_f64(v.0),
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_f64(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -216,6 +258,10 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
     {
         match self.next_value()? {
             Value::sVal(v) => visitor.visit_string(String::from_utf8_lossy(v).to_string()),
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                visitor.visit_string(Default::default())
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -284,6 +330,14 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
                 seq_deserializer.end()?;
                 Ok(value)
             }
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                let v: Vec<u8> = Default::default();
+                let mut seq_deserializer = SeqDeserializer::new(v.iter().copied());
+                let value = visitor.visit_seq(&mut seq_deserializer)?;
+                seq_deserializer.end()?;
+                Ok(value)
+            }
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -328,6 +382,15 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
                     ]
                     .into_iter(),
                 );
+                let value = visitor.visit_seq(&mut seq_deserializer)?;
+                seq_deserializer.end()?;
+                Ok(value)
+            }
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                // TODO,
+                let v: Vec<u8> = Default::default();
+                let mut seq_deserializer = SeqDeserializer::new(v.iter().copied());
                 let value = visitor.visit_seq(&mut seq_deserializer)?;
                 seq_deserializer.end()?;
                 Ok(value)
@@ -381,6 +444,15 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
                     ]
                     .into_iter(),
                 );
+                let value = visitor.visit_seq(&mut seq_deserializer)?;
+                seq_deserializer.end()?;
+                Ok(value)
+            }
+            Value::UnknownField(v) => {
+                assert_eq!(v, &-1);
+                // TODO,
+                let v: Vec<u8> = Default::default();
+                let mut seq_deserializer = SeqDeserializer::new(v.iter().copied());
                 let value = visitor.visit_seq(&mut seq_deserializer)?;
                 seq_deserializer.end()?;
                 Ok(value)
@@ -767,9 +839,9 @@ mod tests {
             a: i32,
         }
 
-        let v: Foo = de(vec!["a"], vec![Value::UnknownField(1)])?;
+        let v: Foo = de(vec!["a"], vec![Value::UnknownField(-1)])?;
 
-        assert_eq!(v.a, 1);
+        assert_eq!(v.a, 0);
 
         Ok(())
     }
