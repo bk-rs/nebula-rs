@@ -5,7 +5,7 @@ cargo run -p nebula-demo-tokio --bin nebula_demo_tokio_v2_graph_client 127.0.0.1
 use std::env;
 
 use fbthrift_transport::{AsyncTransport, AsyncTransportConfiguration};
-use nebula_client::v2::{GraphClient, GraphTransportResponseHandler};
+use nebula_client::v2::{GraphClient, GraphQuery as _, GraphTransportResponseHandler};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -45,7 +45,7 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
         .authenticate(&username.as_bytes().to_vec(), &password.as_bytes().to_vec())
         .await?;
 
-    let res = session.execute(&b"SHOW HOSTS;".to_vec()).await?;
+    let res = session.show_hosts().await?;
     println!("{res:?}");
 
     println!("done");

@@ -1,5 +1,6 @@
 use std::io::{Error as IoError, ErrorKind as IoErrorKind};
 
+use async_trait::async_trait;
 use bytes::Bytes;
 use fbthrift::{ApplicationException, ApplicationExceptionErrorCode, BinaryProtocol, Transport};
 use nebula_fbthrift_graph_v2::{
@@ -8,6 +9,9 @@ use nebula_fbthrift_graph_v2::{
     errors::graph_service::{AuthenticateError, ExecuteError, ExecuteJsonError, SignoutError},
     types::ExecutionResponse,
 };
+use serde::de::DeserializeOwned;
+
+use super::query::{GraphQuery, GraphQueryError, GraphQueryOutput};
 
 //
 //
@@ -182,5 +186,36 @@ where
 
     pub fn is_close_required(&self) -> bool {
         self.close_required
+    }
+}
+
+//
+//
+//
+#[async_trait]
+impl<T> GraphQuery for GraphSession<T>
+where
+    T: Transport + Send + Sync,
+    Bytes: ::fbthrift::Framing<DecBuf = ::fbthrift::FramingDecoded<T>>,
+    ::fbthrift::ProtocolEncoded<BinaryProtocol>:
+        ::fbthrift::BufMutExt<Final = ::fbthrift::FramingEncodedFinal<T>>,
+{
+    async fn query_as<D: DeserializeOwned>(
+        &mut self,
+        stmt: &Vec<u8>,
+    ) -> Result<GraphQueryOutput<D>, GraphQueryError> {
+        let res = self
+            .execute(&stmt)
+            .await
+            .map_err(GraphQueryError::ExecuteError)?;
+
+        if res.error_code != ErrorCode::SUCCEEDED {
+            return Err(GraphQueryError::ResponseError(
+                res.error_code,
+                res.error_msg,
+            ));
+        }
+
+        GraphQueryOutput::new(res)
     }
 }
