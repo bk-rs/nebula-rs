@@ -302,7 +302,13 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
             }
             Value::tVal(v) => {
                 let mut seq_deserializer = SeqDeserializer::new(
-                    vec![v.hour as i8, v.minute as i8, v.sec as i8].into_iter(),
+                    vec![
+                        v.hour as i16,
+                        v.minute as i16,
+                        v.sec as i16,
+                        v.microsec.div(1000) as i16,
+                    ]
+                    .into_iter(),
                 );
                 let value = visitor.visit_seq(&mut seq_deserializer)?;
                 seq_deserializer.end()?;
@@ -349,7 +355,13 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
             }
             Value::tVal(v) => {
                 let mut seq_deserializer = SeqDeserializer::new(
-                    vec![v.hour as i8, v.minute as i8, v.sec as i8].into_iter(),
+                    vec![
+                        v.hour as i16,
+                        v.minute as i16,
+                        v.sec as i16,
+                        v.microsec.div(1000) as i16,
+                    ]
+                    .into_iter(),
                 );
                 let value = visitor.visit_seq(&mut seq_deserializer)?;
                 seq_deserializer.end()?;
@@ -529,5 +541,282 @@ impl core::fmt::Display for DataDeserializeErrorKind {
 impl From<DataDeserializeError> for IoError {
     fn from(err: DataDeserializeError) -> IoError {
         IoError::new(IoErrorKind::InvalidInput, err)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use float_cmp::approx_eq;
+    use nebula_fbthrift_graph_v2::dependencies::common::{double::Double, types};
+    use serde::{de::DeserializeOwned, Deserialize};
+    use serde_repr::Deserialize_repr;
+
+    use crate::datetime::{self, Date, Day, Hour, Millisec, Minute, Month, Second, Time, Year};
+
+    fn de<D: DeserializeOwned>(
+        names: Vec<&str>,
+        values: Vec<Value>,
+    ) -> Result<D, Box<dyn std::error::Error>> {
+        let names: Vec<_> = names.into_iter().map(|x| x.as_bytes().to_vec()).collect();
+
+        let mut data_deserializer = DataDeserializer::new(&names, &values);
+
+        D::deserialize(&mut data_deserializer).map_err(Into::into)
+    }
+
+    #[test]
+    fn with_b_val() -> Result<(), Box<dyn std::error::Error>> {
+        #[derive(Deserialize)]
+        struct Foo {
+            a: bool,
+            b: bool,
+        }
+
+        let v: Foo = de(vec!["a", "b"], vec![Value::bVal(true), Value::bVal(false)])?;
+
+        assert!(v.a);
+        assert!(!v.b);
+
+        Ok(())
+    }
+
+    #[test]
+    fn with_i_val() -> Result<(), Box<dyn std::error::Error>> {
+        #[derive(Deserialize_repr, PartialEq, Debug)]
+        #[repr(u8)]
+        enum State {
+            Pending = 1,
+            Done = 2,
+        }
+
+        #[derive(Deserialize)]
+        struct Foo {
+            a: i64,
+            b: i32,
+            c: i16,
+            d: i8,
+            e: u64,
+            f: u32,
+            g: u16,
+            h: u8,
+            state: State,
+        }
+
+        let v: Foo = de(
+            vec!["a", "b", "c", "d", "e", "f", "g", "h", "state"],
+            vec![
+                Value::iVal(1),
+                Value::iVal(2),
+                Value::iVal(3),
+                Value::iVal(4),
+                Value::iVal(5),
+                Value::iVal(6),
+                Value::iVal(7),
+                Value::iVal(8),
+                Value::iVal(2),
+            ],
+        )?;
+
+        assert_eq!(v.a, 1);
+        assert_eq!(v.b, 2);
+        assert_eq!(v.c, 3);
+        assert_eq!(v.d, 4);
+        assert_eq!(v.e, 5);
+        assert_eq!(v.f, 6);
+        assert_eq!(v.g, 7);
+        assert_eq!(v.h, 8);
+        assert_eq!(v.state, State::Done);
+
+        Ok(())
+    }
+
+    #[test]
+    fn with_f_val() -> Result<(), Box<dyn std::error::Error>> {
+        #[derive(Deserialize)]
+        struct Foo {
+            a: f64,
+        }
+
+        let v: Foo = de(vec!["a"], vec![Value::fVal(Double(1_f64))])?;
+
+        assert!(approx_eq!(f64, v.a, 1_f64));
+
+        Ok(())
+    }
+
+    #[test]
+    fn with_s_val() -> Result<(), Box<dyn std::error::Error>> {
+        #[derive(Deserialize)]
+        struct Foo {
+            a: String,
+            b: Vec<u8>,
+        }
+
+        let v: Foo = de(
+            vec!["a", "b"],
+            vec![
+                Value::sVal(b"String".to_vec()),
+                Value::sVal(b"Vec<u8>".to_vec()),
+            ],
+        )?;
+
+        assert_eq!(v.a, "String");
+        assert_eq!(v.b, b"Vec<u8>");
+
+        Ok(())
+    }
+
+    #[test]
+    fn with_d_val() -> Result<(), Box<dyn std::error::Error>> {
+        #[derive(Deserialize)]
+        struct Foo {
+            a: (Year, Month, Day),
+            b: Date,
+        }
+
+        let v: Foo = de(
+            vec!["a", "b"],
+            vec![
+                Value::dVal(types::Date {
+                    year: 2020,
+                    month: 1,
+                    day: 2,
+                    ..Default::default()
+                }),
+                Value::dVal(types::Date {
+                    year: 2020,
+                    month: 1,
+                    day: 3,
+                    ..Default::default()
+                }),
+            ],
+        )?;
+
+        assert_eq!(v.a, (2020, 1, 2));
+        assert_eq!(v.b, Date(2020, 1, 3));
+
+        Ok(())
+    }
+
+    #[test]
+    fn with_t_val() -> Result<(), Box<dyn std::error::Error>> {
+        #[derive(Deserialize)]
+        struct Foo {
+            a: (Hour, Minute, Second, Millisec),
+            b: Time,
+        }
+
+        let v: Foo = de(
+            vec!["a", "b"],
+            vec![
+                Value::tVal(types::Time {
+                    hour: 1,
+                    minute: 2,
+                    sec: 3,
+                    microsec: 8001,
+                    ..Default::default()
+                }),
+                Value::tVal(types::Time {
+                    hour: 4,
+                    minute: 5,
+                    sec: 6,
+                    microsec: 9001,
+                    ..Default::default()
+                }),
+            ],
+        )?;
+
+        assert_eq!(v.a, (1, 2, 3, 8));
+        assert_eq!(v.b, Time(4, 5, 6, 9));
+
+        Ok(())
+    }
+
+    #[test]
+    fn with_dt_val() -> Result<(), Box<dyn std::error::Error>> {
+        #[derive(Deserialize)]
+        struct Foo {
+            a: datetime::DateTime,
+        }
+
+        let v: Foo = de(
+            vec!["a"],
+            vec![Value::dtVal(types::DateTime {
+                year: 2020,
+                month: 1,
+                day: 2,
+                hour: 3,
+                minute: 4,
+                sec: 5,
+                microsec: 9001,
+                ..Default::default()
+            })],
+        )?;
+
+        assert_eq!(v.a, datetime::DateTime(2020, 1, 2, 3, 4, 5, 9, 0));
+
+        Ok(())
+    }
+
+    #[test]
+    fn with_unknown_field() -> Result<(), Box<dyn std::error::Error>> {
+        #[derive(Deserialize)]
+        struct Foo {
+            a: i32,
+        }
+
+        let v: Foo = de(vec!["a"], vec![Value::UnknownField(1)])?;
+
+        assert_eq!(v.a, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn with_multiple() -> Result<(), Box<dyn std::error::Error>> {
+        #[derive(Deserialize)]
+        struct Foo {
+            a: bool,
+            b: i64,
+            c: String,
+        }
+
+        let v: Foo = de(
+            vec!["a", "b", "c"],
+            vec![
+                Value::bVal(true),
+                Value::iVal(1),
+                Value::sVal(b"3".to_vec()),
+            ],
+        )?;
+
+        assert!(v.a);
+        assert_eq!(v.b, 1);
+        assert_eq!(v.c, "3");
+
+        Ok(())
+    }
+
+    #[test]
+    fn with_unit() -> Result<(), Box<dyn std::error::Error>> {
+        de::<()>(vec!["a"], vec![Value::bVal(true)])?;
+
+        Ok(())
+    }
+
+    #[test]
+    fn with_option() -> Result<(), Box<dyn std::error::Error>> {
+        #[derive(Deserialize)]
+        struct Foo {
+            a: Option<bool>,
+        }
+
+        let v: Foo = de(vec!["a"], vec![Value::bVal(true)])?;
+
+        assert_eq!(v.a, Some(true));
+
+        Ok(())
     }
 }

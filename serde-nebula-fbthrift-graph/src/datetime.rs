@@ -47,16 +47,20 @@ impl Date {
 
 // v3 v2 v1
 #[derive(Deserialize, PartialEq, Debug)]
-pub struct Time(pub Hour, pub Minute, pub Second);
+pub struct Time(pub Hour, pub Minute, pub Second, pub Millisec);
 
 impl Time {
     #[cfg(feature = "chrono")]
     pub fn to_naive_date_time(&self) -> chrono::NaiveDateTime {
         let d =
             chrono::NaiveDate::from_ymd_opt(1970, 1, 1).expect("chrono::NaiveDate::from_ymd_opt");
-        let t =
-            chrono::NaiveTime::from_hms_milli_opt(self.0 as u32, self.1 as u32, self.2 as u32, 0)
-                .expect("chrono::NaiveTime::from_hms_milli_opt");
+        let t = chrono::NaiveTime::from_hms_milli_opt(
+            self.0 as u32,
+            self.1 as u32,
+            self.2 as u32,
+            self.3 as u32,
+        )
+        .expect("chrono::NaiveTime::from_hms_milli_opt");
         chrono::NaiveDateTime::new(d, t)
     }
 }
@@ -132,10 +136,10 @@ mod tests {
     fn chrono_for_time() {
         #[cfg(feature = "chrono")]
         assert_eq!(
-            Time(1, 2, 3).to_naive_date_time(),
+            Time(1, 2, 3, 4).to_naive_date_time(),
             NaiveDateTime::new(
                 NaiveDate::default(),
-                NaiveTime::from_hms_milli_opt(1, 2, 3, 0).unwrap(),
+                NaiveTime::from_hms_milli_opt(1, 2, 3, 4).unwrap(),
             )
         );
     }

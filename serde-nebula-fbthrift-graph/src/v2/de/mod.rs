@@ -11,7 +11,12 @@ pub fn deserialize_execution_response<'de, D: Deserialize<'de>>(
     let mut data_set: Vec<D> = vec![];
 
     let (names, rows) = match &execution_response.data {
-        Some(data_set) => (&data_set.column_names, &data_set.rows),
+        Some(set) => {
+            if set.column_names.is_empty() {
+                return Ok(data_set);
+            }
+            (&set.column_names, &set.rows)
+        }
         _ => return Ok(data_set),
     };
 
