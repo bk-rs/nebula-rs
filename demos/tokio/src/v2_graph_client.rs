@@ -45,10 +45,8 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
         .authenticate(&username.as_bytes().to_vec(), &password.as_bytes().to_vec())
         .await?;
 
-    let res = session.show_hosts().await?;
-    println!("{res:?}");
-
-    println!("done");
+    let out = session.show_hosts().await?;
+    println!("{out:?}");
 
     Ok(())
 }

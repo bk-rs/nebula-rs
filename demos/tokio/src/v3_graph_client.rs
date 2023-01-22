@@ -48,7 +48,5 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
     let res = session.execute(&b"SHOW HOSTS;".to_vec()).await?;
     println!("{res:?}");
 
-    println!("done");
-
     Ok(())
 }

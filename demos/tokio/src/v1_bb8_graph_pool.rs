@@ -55,7 +55,5 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
         println!("{out:?}");
     }
 
-    println!("done");
-
     Ok(())
 }

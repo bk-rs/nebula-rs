@@ -49,7 +49,5 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
     let out = session.show_hosts().await?;
     println!("{out:?}");
 
-    println!("done");
-
     Ok(())
 }

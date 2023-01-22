@@ -44,18 +44,16 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
     //
     {
         let mut session = pool.get().await?;
-        let res = session.show_hosts().await?;
-        println!("{res:?}");
+        let out = session.show_hosts().await?;
+        println!("{out:?}");
     }
 
     //
     {
         let mut session = pool.get().await?;
-        let res = session.show_spaces().await?;
-        println!("{res:?}");
+        let out = session.show_spaces().await?;
+        println!("{out:?}");
     }
-
-    println!("done");
 
     Ok(())
 }
