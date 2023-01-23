@@ -108,8 +108,6 @@ impl<'a, 'de> Deserializer<'de> for &'a mut DataDeserializer<'de> {
                 Ok(v) => visitor.visit_i32(v),
                 Err(_) => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
             },
-            // TODO, rm ColumnValue::UnknownField
-            ColumnValue::UnknownField(v) => visitor.visit_i32(*v),
             _ => Err(self.error(DataDeserializeErrorKind::TypeMismatch)),
         }
     }
@@ -820,9 +818,10 @@ mod tests {
             a: i32,
         }
 
-        let v: Foo = de(vec!["a"], vec![ColumnValue::UnknownField(1)])?;
+        // TODO,
+        // let v: Foo = de(vec!["a"], vec![ColumnValue::UnknownField(1)])?;
 
-        assert_eq!(v.a, 1);
+        // assert_eq!(v.a, 1);
 
         Ok(())
     }
