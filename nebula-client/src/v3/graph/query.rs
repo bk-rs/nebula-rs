@@ -103,8 +103,6 @@ pub struct Host {
     pub host: String,
     #[serde(rename(deserialize = "Port"))]
     pub port: u16,
-    #[serde(rename(deserialize = "HTTP port"))]
-    pub http_port: u16,
     #[serde(rename(deserialize = "Status"))]
     pub status: String,
     #[serde(rename(deserialize = "Leader count"))]
