@@ -12,7 +12,7 @@ script_path_root="${script_path}/"
 <<'PREPARE'
 cd ~
 git clone https://github.com/vesoft-inc/nebula.git nebula_v3 && cd nebula_v3
-git checkout v3.3.0
+git checkout v3.6.0
 cd
 
 PREPARE
@@ -27,7 +27,6 @@ mkdir -p /tmp/nebula-fbthrift-{common,graph,meta,raftex,storage}-v3/src
 # 
 cd ~/nebula_v3
 
-sed -i 's/^} (cpp.enum_strict cpp.type = "nebula::NullType")$/} (cpp.type = "nebula::NullType")/' src/interface/common.thrift
 
 
 rm -rf /tmp/{lib, types}.rs

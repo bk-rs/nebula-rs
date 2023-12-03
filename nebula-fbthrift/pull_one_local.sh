@@ -2,14 +2,17 @@
 
 <<'STEPS'
 # on local
-scp -P 22 build_on_remote.sh root@1.1.1.1:~/build_on_remote.sh
+fbthrift_ssh_host="1.1.1.1"
+fbthrift_ssh_port=22
+fbthrift_ssh_user="root"
+scp -P $fbthrift_ssh_port build_on_remote.sh $fbthrift_ssh_user@$fbthrift_ssh_host:~/build_on_remote.sh
 
 # on remote
 cd ~
 ./build_on_remote.sh
 
 # on local
-./pull_one_local.sh root 1.1.1.1 22
+./pull_one_local.sh $fbthrift_ssh_user $fbthrift_ssh_host $fbthrift_ssh_port
 STEPS
 
 set -ex
