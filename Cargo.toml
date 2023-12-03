@@ -14,4 +14,3 @@ members = [
     "serde-nebula-fbthrift-graph",
 ]
 resolver = "2"
-
