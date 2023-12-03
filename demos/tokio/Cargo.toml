@@ -5,22 +5,6 @@ authors = ["vkill <vkill.net@gmail.com>"]
 edition = "2021"
 
 [[bin]]
-name = "nebula_demo_tokio_v1_bb8_graph_pool"
-path = "src/v1_bb8_graph_pool.rs"
-
-[[bin]]
-name = "nebula_demo_tokio_v1_graph_client"
-path = "src/v1_graph_client.rs"
-
-[[bin]]
-name = "nebula_demo_tokio_v2_bb8_graph_pool"
-path = "src/v2_bb8_graph_pool.rs"
-
-[[bin]]
-name = "nebula_demo_tokio_v2_graph_client"
-path = "src/v2_graph_client.rs"
-
-[[bin]]
 name = "nebula_demo_tokio_v3_bb8_graph_pool"
 path = "src/v3_bb8_graph_pool.rs"
 
