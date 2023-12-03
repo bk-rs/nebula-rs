@@ -4,10 +4,6 @@
 
 * [v3 bb8 graph pool](demos/tokio/src/v3_bb8_graph_pool.rs)
 * [v3 graph client](demos/tokio/src/v3_graph_client.rs)
-* [v2 bb8 graph pool](demos/tokio/src/v2_bb8_graph_pool.rs)
-* [v2 graph client](demos/tokio/src/v2_graph_client.rs)
-* [v1 bb8 graph pool](demos/tokio/src/v1_bb8_graph_pool.rs)
-* [v1 graph client](demos/tokio/src/v1_graph_client.rs)
 
 ## Dev
 
