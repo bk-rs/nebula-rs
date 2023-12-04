@@ -32,6 +32,10 @@ scp -P ${ssh_port} ${ssh_username}@${ssh_host}:/tmp/nebula-fbthrift-common-v3/sr
                                 ${script_path_root}nebula-fbthrift-common-v3/src/lib.rs
 scp -P ${ssh_port} ${ssh_username}@${ssh_host}:/tmp/nebula-fbthrift-common-v3/src/types.rs \
                                 ${script_path_root}nebula-fbthrift-common-v3/src/types.rs
+scp -P ${ssh_port} ${ssh_username}@${ssh_host}:/tmp/nebula-fbthrift-common-v3/src/consts.rs \
+                                ${script_path_root}nebula-fbthrift-common-v3/src/consts.rs
+scp -P ${ssh_port} ${ssh_username}@${ssh_host}:/tmp/nebula-fbthrift-common-v3/src/errors.rs \
+                                ${script_path_root}nebula-fbthrift-common-v3/src/errors.rs
 
 scp -P ${ssh_port} ${ssh_username}@${ssh_host}:/tmp/nebula-fbthrift-graph-v3/src/lib.rs \
                                 ${script_path_root}nebula-fbthrift-graph-v3/src/lib.rs

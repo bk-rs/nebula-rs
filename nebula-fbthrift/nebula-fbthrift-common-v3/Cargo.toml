@@ -15,6 +15,7 @@ readme = "README.md"
 [dependencies]
 nebula-fbthrift-double = { version = "^0.3", default-features = false, path = "../nebula-fbthrift-double" }
 
-fbthrift = { package = "fbthrift-git", version = "=0.0.7", default-features = false }
+fbthrift = { package = "fbthrift-git", version = "=0.0.8", default-features = false }
 
 anyhow = { version = "1", default-features = false }
+ref-cast = { version = "1", default-features = false }
