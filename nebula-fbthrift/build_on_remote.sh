@@ -30,7 +30,7 @@ cd ~/nebula_v3
 
 
 rm -rf /tmp/{lib, types}.rs
-thrift1 --out /tmp --gen mstch_rust src/interface/common.thrift
+thrift1 -I ~/fbthrift --out /tmp --gen mstch_rust src/interface/common.thrift
 mv /tmp/lib.rs /tmp/nebula-fbthrift-common-v3/src/lib.rs
 mv /tmp/types.rs /tmp/nebula-fbthrift-common-v3/src/types.rs
 
@@ -46,25 +46,25 @@ sed -i 's/: ::std::primitive::f64,$/: crate::double::Double,/' /tmp/nebula-fbthr
 
 
 rm -rf /tmp/{lib, types}.rs
-thrift1 --out /tmp --gen mstch_rust src/interface/graph.thrift
+thrift1 -I ~/fbthrift --out /tmp --gen mstch_rust src/interface/graph.thrift
 mv /tmp/lib.rs /tmp/nebula-fbthrift-graph-v3/src/lib.rs
 mv /tmp/types.rs /tmp/nebula-fbthrift-graph-v3/src/types.rs
 
 
 rm -rf /tmp/{lib, types}.rs
-thrift1 --out /tmp --gen mstch_rust src/interface/meta.thrift
+thrift1 -I ~/fbthrift --out /tmp --gen mstch_rust src/interface/meta.thrift
 mv /tmp/lib.rs /tmp/nebula-fbthrift-meta-v3/src/lib.rs
 mv /tmp/types.rs /tmp/nebula-fbthrift-meta-v3/src/types.rs
 
 
 rm -rf /tmp/{lib, types}.rs
-thrift1 --out /tmp --gen mstch_rust src/interface/raftex.thrift
+thrift1 -I ~/fbthrift --out /tmp --gen mstch_rust src/interface/raftex.thrift
 mv /tmp/lib.rs /tmp/nebula-fbthrift-raftex-v3/src/lib.rs
 mv /tmp/types.rs /tmp/nebula-fbthrift-raftex-v3/src/types.rs
 
 
 rm -rf /tmp/{lib, types}.rs
-thrift1 --out /tmp --gen mstch_rust src/interface/storage.thrift
+thrift1 -I ~/fbthrift --out /tmp --gen mstch_rust src/interface/storage.thrift
 mv /tmp/lib.rs /tmp/nebula-fbthrift-storage-v3/src/lib.rs
 mv /tmp/types.rs /tmp/nebula-fbthrift-storage-v3/src/types.rs
 
