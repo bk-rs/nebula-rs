@@ -29,9 +29,12 @@ cd ~/nebula_v3
 
 
 # 
-sed -i 's/ (cpp.type = "char const \*") version =/ version =/' src/interface/common.thrift
+sed -i 's/(cpp.type = "char const \*")//g' src/interface/common.thrift
+sed -i 's/(cpp.template = "std::unordered_map")//g' src/interface/graph.thrift
+sed -i 's/(cpp.template = "std::unordered_map")//g' src/interface/meta.thrift
+sed -i 's/(cpp.template = "std::unordered_set")//g' src/interface/meta.thrift
 
-
+# 
 rm -rf /tmp/{lib, types}.rs
 thrift1 -I ~/fbthrift --out /tmp --gen mstch_rust src/interface/common.thrift
 mv /tmp/lib.rs /tmp/nebula-fbthrift-common-v3/src/lib.rs
